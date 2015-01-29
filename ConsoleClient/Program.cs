@@ -6,7 +6,7 @@
 
     public static class Program
     {
-        private const string SERVER_HOST = "marry.noip.me";
+        private const string SERVER_HOST = "connect.hostname.to";
         private const int SERVER_PORT = 2345;
         private const int RECONNECT_TIMEOUT_MS = 1000;
 
