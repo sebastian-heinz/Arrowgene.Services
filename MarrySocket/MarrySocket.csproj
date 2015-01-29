@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8BE22FD5-6D33-4A1F-A308-99BE60D05FF9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MarrySocket</RootNamespace>
+    <AssemblyName>MarrySocket</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MBase\BaseSocket.cs" />
+    <Compile Include="MBase\BaseConfig.cs" />
+    <Compile Include="MBase\BaseReceiveObjectEventArgs.cs" />
+    <Compile Include="MExtra\Layout\ClientLayout.cs" />
+    <Compile Include="MExtra\Layout\ServerLayout.cs" />
+    <Compile Include="MExtra\Maid.cs" />
+    <Compile Include="MClient\ClientConfig.cs" />
+    <Compile Include="MClient\EntitiesContainer.cs" />
+    <Compile Include="MClient\MarryClient.cs" />
+    <Compile Include="MClient\PacketManager.cs" />
+    <Compile Include="MClient\ReceiveObjectEventArgs.cs" />
+    <Compile Include="MClient\ServerSocket.cs" />
+    <Compile Include="MClient\SocketManager.cs" />
+    <Compile Include="MServer\ClientList.cs" />
+    <Compile Include="MServer\ClientSocket.cs" />
+    <Compile Include="MServer\EntitiesContainer.cs" />
+    <Compile Include="MExtra\Logging\Log.cs" />
+    <Compile Include="MServer\MarryServer.cs" />
+    <Compile Include="MBase\Packet.cs" />
+    <Compile Include="MServer\PacketManager.cs" />
+    <Compile Include="MServer\ReceiveObjectEventArgs.cs" />
+    <Compile Include="MServer\ServerConfig.cs" />
+    <Compile Include="MExtra\Logging\Logger.cs" />
+    <Compile Include="MServer\SocketManager.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="MarrySocket.licenseheader" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
