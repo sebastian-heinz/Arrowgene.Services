@@ -24,7 +24,7 @@ namespace MarrySocket.MServer
         public ServerConfig()
             : base()
         {
-            base.ServerIP = IPAddress.Any;
+            base.ServerIP = IPAddress.IPv6Any;
             base.ServerPort = 2345;
 
             this.Backlog = 10;

@@ -1,12 +1,14 @@
 ﻿namespace ConsoleClient
 {
+    using MarrySocket.MExtra;
     using System;
     using System.Net;
+    using System.Net.Sockets;
     using System.Threading;
 
     public static class Program
     {
-        private const string SERVER_HOST = "connect.hostname.to";
+        private const string SERVER_HOST = "localhost";
         private const int SERVER_PORT = 2345;
         private const int RECONNECT_TIMEOUT_MS = 1000;
 
@@ -17,20 +19,7 @@
             {
                 if (!client.IsConnected)
                 {
-                    IPAddress ipAdress = null;
-
-                    try
-                    {
-                        IPAddress[] ipAddresses = Dns.GetHostAddresses(SERVER_HOST);
-                        if (ipAddresses.Length > 0)
-                        {
-                            ipAdress = ipAddresses[0];
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.ToString());
-                    }
+                    IPAddress ipAdress = Maid.IPAddressLookup(SERVER_HOST, AddressFamily.InterNetworkV6);
 
                     if (ipAdress != null)
                     {

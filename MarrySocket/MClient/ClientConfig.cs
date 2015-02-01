@@ -17,14 +17,15 @@
 namespace MarrySocket.MClient
 {
     using MarrySocket.MBase;
-    using System.Net;
+    using MarrySocket.MExtra;
+    using System.Net.Sockets;
 
     public class ClientConfig : BaseConfig
     {
         public ClientConfig()
             : base()
         {
-            base.ServerIP = IPAddress.Parse("127.0.0.1");
+            base.ServerIP = Maid.IPAddressLookup("localhost", AddressFamily.InterNetworkV6);
             base.ServerPort = 2345;
         }
 

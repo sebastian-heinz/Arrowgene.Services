@@ -18,16 +18,26 @@ namespace MarrySocket.MExtra.Logging
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
 
-    public enum LogType { NONE, ERROR, ENTRY }
 
+    public enum LogType { NONE, ERROR, INFO, CLIENT, SERVER }
+
+    /// <summary>
+    /// Logging Class</summary>
+    /// <remarks>
+    /// Logs message combined with id and type as <see cref="Log"/>
+    /// Events for log writings, will only occur if its declared as safe</remarks>
     public class Logger
     {
+        /// <summary>
+        /// Notifies when a <see cref="Log"/> write occured.
+        /// Don't block this Action by the UI thread, use Dispatcher.BeginInvoke.</summary>
         public Action<Log> OnLogWrite { private get; set; }
 
         private object myLock;
         private Dictionary<int, Log> logs;
-        private int count;
+        private volatile int count;
 
         public Logger()
         {
@@ -36,37 +46,87 @@ namespace MarrySocket.MExtra.Logging
             this.Clear();
         }
 
+        public int Count { get { return this.count; } }
+
+        /// <summary>
+        /// Clears all stored <see cref="Log"/></summary>
         public void Clear()
         {
             lock (this.myLock)
             {
                 this.logs.Clear();
                 this.count = 0;
+
             }
         }
 
+        public void Remove(int id)
+        {
+            lock (this.myLock)
+            {
+                this.logs.Remove(id);
+            }
+        }
+
+        /// <summary>
+        /// Writes a new <see cref="Log"/></summary>
+        /// <param name="log"><see cref="Log"/></param>
         public void Write(Log log)
         {
             lock (this.myLock)
             {
-                this.count++;
                 log.Id = this.count;
                 this.logs.Add(log.Id, log);
-                if (this.OnLogWrite != null)
+                this.count++;
+                if(this.OnLogWrite != null)
+                {
                     this.OnLogWrite(log);
+                }
             }
         }
 
+        /// <summary>
+        /// Writes a new <see cref="Log"/></summary>
+        /// <param name="log">Message {0}</param>
+        /// <param name="arg0">Argument</param>
+        /// <param name="logType">Log Category</param>
+        public void Write(string log, object arg0, LogType logType)
+        {
+            this.Write(new Log(String.Format(log, arg0), logType));
+        }
+
+        /// <summary>
+        /// Writes a new <see cref="Log"/></summary>
+        /// <param name="log">Message {0}</param>
+        /// <param name="arg0">Argument</param>
+        /// <param name="arg1">Argument</param>
+        /// <param name="logType">Log Category</param>
+        public void Write(string log, object arg0, object arg1, LogType logType)
+        {
+            this.Write(new Log(String.Format(log, arg0, arg1), logType));
+        }
+
+        /// <summary>
+        /// Writes a new <see cref="Log"/></summary>
+        /// <param name="log">Message</param>
+        /// <param name="logType">Log Category</param>
         public void Write(string log, LogType logType)
         {
             this.Write(new Log(log, logType));
         }
 
+        /// <summary>
+        /// Writes a new <see cref="Log"/></summary>
+        /// <param name="log">Message</param>
         public void Write(string log)
         {
             this.Write(new Log(log));
         }
 
+        /// <summary>
+        /// Receive all <see cref="Log"/></summary>
+        /// <returns>
+        /// Dictionary containing id associated by <see cref="Log"/></returns>
         public Dictionary<int, Log> GetLogs()
         {
             Dictionary<int, Log> tmp = null;
@@ -76,7 +136,6 @@ namespace MarrySocket.MExtra.Logging
             }
             return tmp;
         }
-
 
     }
 }

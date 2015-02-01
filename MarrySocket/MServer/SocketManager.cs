@@ -25,7 +25,6 @@ namespace MarrySocket.MServer
 
     public class SocketManager
     {
-
         private EntitiesContainer entitieContainer;
         private Action<ClientSocket> onClientDisconnected;
         private Action<ClientSocket> onClientConnected;
@@ -53,40 +52,51 @@ namespace MarrySocket.MServer
         public void Start()
         {
             this.clients = new List<ClientSocket>();
+            this.serverLog.Write("Starting Client Manager...", LogType.SERVER);
             this.isRunning = true;
             try
             {
                 for (int i = 0; i < this.serverConfig.ManagerCount; i++)
                 {
+                    this.serverLog.Write("Starting Manager: {0}", i, LogType.SERVER);
                     clientManager[i] = new Thread(ManagerProcess);
-                    clientManager[i].Name = "ClientManager(" + i + ")";
+                    clientManager[i].Name = "ClientManager[" + i + "]";
                     clientManager[i].Start();
                 }
             }
             catch (Exception e)
             {
-                this.serverLog.Write("Could not start one or more client managers: " + e.Message);
+                this.serverLog.Write("Could not start one or more client managers: {0}", e.Message, LogType.SERVER);
+                this.Stop();
             }
-            this.serverLog.Write(String.Format("Initialized Client Managers: {0}", this.clientManager.Length));
+
+            this.serverLog.Write("Initialized Client Managers: {0}", this.clientManager.Length, LogType.SERVER);
         }
 
         public void Stop()
         {
+
             this.isRunning = false;
+
+            this.serverLog.Write("Shutting Client Manager down...", LogType.SERVER);
 
             lock (myLock)
             {
                 for (int i = 0; i < clients.Count; i++)
                 {
+                    this.serverLog.Write(String.Format("Disconnecting Client: {0}", clients[i].Id), LogType.SERVER);
                     clients[i].Disconnect();
                 }
             }
 
-
             for (int i = 0; i < this.serverConfig.ManagerCount; i++)
             {
+                this.serverLog.Write(String.Format("Joining Thread: {0}", clientManager[i].Name), LogType.SERVER);
                 clientManager[i].Join();
             }
+
+            this.serverLog.Write("Client Manager down.", LogType.SERVER);
+
         }
 
         internal void AddClient(ClientSocket clientSocket)
@@ -96,8 +106,13 @@ namespace MarrySocket.MServer
                 this.clients.Add(clientSocket);
             }
             this.clientList.AddClient(clientSocket);
-            this.serverLog.Write("Client added" + clientSocket.Id.ToString());
-            this.onClientConnected(clientSocket);
+
+            this.serverLog.Write("Client connected: " + clientSocket.Id.ToString(), LogType.SERVER);
+
+            if (this.onClientConnected != null)
+            {
+                this.onClientConnected(clientSocket);
+            }
         }
 
         public void DisposeClient(ClientSocket clientSocket, string reason)
@@ -108,6 +123,8 @@ namespace MarrySocket.MServer
             {
                 this.clients.Remove(clientSocket);
             }
+
+            this.serverLog.Write("Client[{0}]: disconnected: {1}", clientSocket.Id.ToString(), reason, LogType.SERVER);
 
             this.onClientDisconnected(clientSocket);
         }
@@ -128,7 +145,9 @@ namespace MarrySocket.MServer
                         if (!clients[i].IsBusy)
                         {
                             clients[i].IsBusy = true;
-                            if (clients[i].Socket.Connected && clients[i].Socket.Poll(this.serverConfig.PollTimeout, SelectMode.SelectRead))
+
+                            if (clients[i].Socket.Connected && clients[i].Socket.Poll(this.serverConfig.PollTimeout, SelectMode.SelectRead) ||
+                                !clients[i].IsAlive)
                             {
                                 readyclients.Add(clients[i]);
                             }
@@ -142,6 +161,7 @@ namespace MarrySocket.MServer
 
                 while (readyclients.Count > 0)
                 {
+
                     if (!readyclients[0].IsAlive)
                     {
                         DisposeClient(readyclients[0], "Disconnected by Server");
@@ -162,7 +182,7 @@ namespace MarrySocket.MServer
                     {
                         if (!readyclients[0].Socket.Connected)
                         {
-                            DisposeClient(readyclients[0], "Client Error");
+                            DisposeClient(readyclients[0], "Client Error" + e.Message);
                         }
                         else
                         {
@@ -210,7 +230,7 @@ namespace MarrySocket.MServer
                         Packet packet = new Packet();
                         packet.PacketId = packetId;
                         packet.SetPacketData(dataBuffer);
-             
+
                         packetManager.Handle(readyclients[0], packet);
                     }
                     else

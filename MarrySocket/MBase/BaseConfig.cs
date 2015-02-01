@@ -18,9 +18,14 @@ namespace MarrySocket.MBase
 {
     using System.Collections.Generic;
     using System.Net;
+    using System.Net.Sockets;
 
     public abstract class BaseConfig
     {
+        public const SocketOptionName IPv6V6Only = (SocketOptionName)27;
+        public const int IPv6V6OnlyValue = 0;
+
+
         public IPAddress ServerIP { get; set; }
         public int ServerPort { get; set; }
 

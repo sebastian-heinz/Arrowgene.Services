@@ -85,8 +85,6 @@
             this.server.Start();
             this.btnListen.Content = "Stop Listening";
             this.isListening = true;
-            this.clientViewModelContainer.Clear();
-            this.logViewModels.Clear();
         }
 
         private void StopServer()
@@ -94,6 +92,7 @@
             this.server.Stop();
             this.btnListen.Content = "Start Listening";
             this.isListening = false;
+            this.clientViewModelContainer.Clear();
         }
 
     }

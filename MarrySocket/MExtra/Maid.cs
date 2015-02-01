@@ -17,9 +17,38 @@
 namespace MarrySocket.MExtra
 {
     using System;
+    using System.Net;
+    using System.Net.Sockets;
 
-    public abstract class Maid
+    public static class Maid
     {
         public static Random Random = new Random();
+
+        public static IPAddress IPAddressLookup(string hostname, AddressFamily addressFamily)
+        {
+            IPAddress ipAdress = null;
+
+            try
+            {
+                IPAddress[] ipAddresses = Dns.GetHostAddresses(hostname);
+
+                foreach (IPAddress ipAddr in ipAddresses)
+                {
+                    if (ipAddr.AddressFamily == addressFamily)
+                    {
+                        ipAdress = ipAddr;
+                        break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            return ipAdress;
+        }
+
+
     }
 }

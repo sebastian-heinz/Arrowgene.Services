@@ -24,11 +24,13 @@ namespace MarrySocket.MExtra.Layout
         protected EntitiesContainer entitiesContainer;
         protected ServerConfig serverConfig;
         protected MarryServer marryServer;
+        protected Logger logger;
 
-        public ServerLayout()
+        protected ServerLayout()
         {
             this.serverConfig = new ServerConfig();
             this.entitiesContainer = new EntitiesContainer(this.serverConfig);
+            this.logger = this.entitiesContainer.ServerLog;
 
             this.entitiesContainer.OnClientConnected = this.onClientConnected;
             this.entitiesContainer.OnClientDisconnected = this.onClientDisconnected;
@@ -37,7 +39,7 @@ namespace MarrySocket.MExtra.Layout
             this.marryServer = new MarryServer(this.entitiesContainer);
         }
 
-        protected internal abstract void Handle(int packetId, object receivedClass, ClientSocket clientSocket);
+        protected abstract void Handle(int packetId, object receivedClass, ClientSocket clientSocket);
 
         private void EntitiesContainer_ReceivedObjectPacket(object sender, ReceiveObjectEventArgs e)
         {

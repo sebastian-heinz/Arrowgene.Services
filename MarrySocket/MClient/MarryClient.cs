@@ -16,6 +16,7 @@
  */
 namespace MarrySocket.MClient
 {
+    using MarrySocket.MBase;
     using System;
     using System.IO;
     using System.Net;
@@ -46,8 +47,17 @@ namespace MarrySocket.MClient
         {
             if (!this.entitiesContainer.IsConnected)
             {
+                if (this.clientConfig.ServerIP.AddressFamily == AddressFamily.InterNetworkV6)
+                {
+                    this.serverSocket.Socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+                }
+                else
+                {
+                    this.serverSocket.Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                }
+
                 IPEndPoint remoteEP = new IPEndPoint(this.clientConfig.ServerIP, this.clientConfig.ServerPort);
-                this.serverSocket.Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
                 string disconnectReason = string.Empty;
                 try
                 {
@@ -67,15 +77,15 @@ namespace MarrySocket.MClient
                 }
                 finally
                 {
-                   if (this.onDisconnected != null)
-                       this.onDisconnected(disconnectReason);
+                    if (this.onDisconnected != null)
+                        this.onDisconnected(disconnectReason);
                 }
             }
         }
 
         public void Disconnect()
         {
-            
+
             this.entitiesContainer.IsConnected = false;
             this.socketManager.Stop();
             this.serverSocket.Disconnect();

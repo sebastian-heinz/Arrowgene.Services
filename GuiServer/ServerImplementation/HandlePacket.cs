@@ -19,7 +19,10 @@
             {
                 ComputerInfo computerInfo = receivedClass as ComputerInfo;
                 ClientViewModel clientViewModel = this.clientViewModelContainer.GetClientViewModel(clientSocket);
-                clientViewModel.ComputerInfo = computerInfo;
+                if (clientViewModel != null)
+                {
+                    clientViewModel.ComputerInfo = computerInfo;
+                }
             }
         }
     }

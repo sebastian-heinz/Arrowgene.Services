@@ -46,11 +46,15 @@ namespace MarrySocket.MServer
         {
             if (!this.isListening)
             {
-                this.serverLog.Clear();
-                this.isListening = true;
+                this.serverLog.Write("Starting Server...", LogType.SERVER);
                 this.serverThread = new Thread(ServerThread);
                 this.serverThread.Name = "ServerThread";
                 this.serverThread.Start();
+                this.isListening = true;
+            }
+            else
+            {
+                this.serverLog.Write("Server already Online.", LogType.SERVER);
             }
         }
 
@@ -58,36 +62,54 @@ namespace MarrySocket.MServer
         {
             if (this.isListening)
             {
+                this.serverLog.Write("Shutting Server down...", LogType.SERVER);
                 this.isListening = false;
                 this.serverThread.Join();
-                this.serverLog.Write("Server Offline!");
-                if (this.serverSocket.Connected)
-                    this.serverSocket.Shutdown(SocketShutdown.Both);
-                this.serverSocket.Close();
+                this.serverLog.Write("Server Offline.", LogType.SERVER);
             }
+            else
+            {
+                this.serverLog.Write("Server already Offline.", LogType.SERVER);
+            }
+
         }
 
         public void ServerThread()
         {
             this.socketManager.Start();
+
             try
             {
-                serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                serverSocket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+                serverSocket.SetSocketOption(SocketOptionLevel.IPv6, BaseConfig.IPv6V6Only, BaseConfig.IPv6V6OnlyValue);
                 serverSocket.Bind(new IPEndPoint(serverConfig.ServerIP, serverConfig.ServerPort));
                 serverSocket.Listen(serverConfig.Backlog);
-                this.serverLog.Write("Listening on port: " + serverConfig.ServerPort);
-                this.serverLog.Write("Server Online!");
+                this.serverLog.Write("Listening on port: {0}", serverConfig.ServerPort, LogType.SERVER);
+                this.serverLog.Write("Server Online.", LogType.SERVER);
                 while (this.isListening)
                 {
                     if (serverSocket.Poll(this.serverConfig.PollTimeout, SelectMode.SelectRead))
+                    {
                         this.socketManager.AddClient(new ClientSocket(serverSocket.Accept(), this.serverLog));
+                    }
                 }
+
             }
             catch (Exception exception)
             {
-                this.serverLog.Write(exception.Message);
+                this.serverLog.Write(exception.Message, LogType.SERVER);
             }
-            this.socketManager.Stop();
+            finally
+            {
+                if (this.serverSocket.Connected)
+                    this.serverSocket.Shutdown(SocketShutdown.Both);
+                this.serverSocket.Close();
+
+                this.socketManager.Stop();
+
+                this.isListening = false;
+            }
+
         }
     }
 }

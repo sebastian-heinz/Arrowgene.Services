@@ -1,12 +1,12 @@
 ﻿namespace GuiServer.ServerImplementation.ViewModel
 {
-    using GuiServer.ServerImplementation.ViewModel;
     using MarrySocket.MServer;
     using System.Collections.ObjectModel;
 
     public class ClientViewModelContainer
     {
         private ObservableCollection<ClientViewModel> clientViewModels;
+
 
         public ClientViewModelContainer()
         {
@@ -17,12 +17,13 @@
 
         public ClientViewModel GetClientViewModel(ClientSocket clientSocket)
         {
-            foreach (ClientViewModel clientViewModel in this.clientViewModels)
+            ClientViewModel clientViewModel = null;
+            foreach (ClientViewModel cViewModel in this.clientViewModels)
             {
-                if (clientViewModel.Id == clientSocket.Id)
-                    return clientViewModel;
+                if (cViewModel.Id == clientSocket.Id)
+                    clientViewModel = cViewModel;
             }
-            return null;
+            return clientViewModel;
         }
 
         public void Add(ClientViewModel clientViewModel)

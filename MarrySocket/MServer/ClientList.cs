@@ -46,6 +46,7 @@ namespace MarrySocket.MServer
                     this.marryClients.Add(marryClient.Id, marryClient);
             }
         }
+
         public void RemoveClient(int id)
         {
             lock (myLock)
