@@ -57,7 +57,7 @@ namespace MarrySocket.MBase
                 }
                 catch (Exception e)
                 {
-                    this.Error(e.ToString());
+                    this.Error("Failed to serialize. Reason: " + e.ToString());
                 }
                 stream.Close();
             }

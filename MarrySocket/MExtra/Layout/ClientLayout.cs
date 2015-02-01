@@ -69,7 +69,7 @@ namespace MarrySocket.MExtra.Layout
 
         public virtual void Stop()
         {
-            this.marryClient.Disconnect();
+            this.marryClient.Disconnect("Client stopped");
         }
     }
 }

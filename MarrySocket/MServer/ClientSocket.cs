@@ -61,7 +61,7 @@ namespace MarrySocket.MServer
     
         internal override void Error(string error)
         {
-            this.serverLog.Write("Failed to serialize. Reason: " + error, LogType.ERROR);
+            this.serverLog.Write(error, LogType.ERROR);
         }
     }
 }

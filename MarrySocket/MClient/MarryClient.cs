@@ -58,37 +58,32 @@ namespace MarrySocket.MClient
 
                 IPEndPoint remoteEP = new IPEndPoint(this.clientConfig.ServerIP, this.clientConfig.ServerPort);
 
-                string disconnectReason = string.Empty;
                 try
                 {
                     this.serverSocket.Socket.Connect(remoteEP);
                     this.socketManager.Start();
                     this.entitiesContainer.IsConnected = true;
                     if (this.onConnected != null)
-                        this.onConnected(string.Empty);
+                        this.onConnected("Client connected");
                 }
                 catch (SocketException socketException)
                 {
-                    disconnectReason = socketException.SocketErrorCode.ToString();
+                    this.Disconnect(socketException.SocketErrorCode.ToString());
                 }
                 catch (Exception ex)
                 {
-                    disconnectReason = ex.ToString();
-                }
-                finally
-                {
-                    if (this.onDisconnected != null)
-                        this.onDisconnected(disconnectReason);
+                    this.Disconnect(ex.ToString());
                 }
             }
         }
 
-        public void Disconnect()
+        public void Disconnect(string reason)
         {
-
             this.entitiesContainer.IsConnected = false;
             this.socketManager.Stop();
             this.serverSocket.Disconnect();
+            if (this.onDisconnected != null)
+                this.onDisconnected(reason);
         }
 
     }

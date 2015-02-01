@@ -36,7 +36,6 @@
 
         protected override void OnDisconnected(string reason)
         {
-            Console.WriteLine(reason);
             base.OnDisconnected(reason);
         }
 

@@ -21,7 +21,7 @@ namespace MarrySocket.MExtra.Logging
     using System.Threading;
 
 
-    public enum LogType { NONE, ERROR, INFO, CLIENT, SERVER }
+    public enum LogType { NONE, ERROR, INFO, CLIENT, SERVER, PACKET }
 
     /// <summary>
     /// Logging Class</summary>

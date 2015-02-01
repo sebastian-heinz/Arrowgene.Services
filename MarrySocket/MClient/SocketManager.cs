@@ -62,10 +62,18 @@ namespace MarrySocket.MClient
 
         public void DestroySocket(string reason)
         {
-            this.serverSocket.Disconnect();
-            this.onDisconnected(reason);
+            if (this.serverSocket != null)
+            {
+                this.serverSocket.Disconnect();
+            }
 
-            this.Stop();
+            if (this.onDisconnected != null)
+            {
+                this.onDisconnected(reason);
+            }
+
+            this.isRunning = false;
+            this.entitiesContainer.IsConnected = false;
         }
 
         public void ManagerProcess()
@@ -81,15 +89,13 @@ namespace MarrySocket.MClient
                     {
                         if (this.serverSocket.Socket.Receive(headerBuffer, 0, Packet.HEADER_SIZE, SocketFlags.None) < Packet.HEADER_SIZE)
                         {
-                            //Invalid Header
-                            //  DisposeClient(readyclients[0], "Disconnected");
-                            // readyclients.RemoveAt(0);
-                            this.isRunning = false;
+                            this.DestroySocket("Invalid Header");
+                            continue;
                         }
                     }
                     catch (Exception e)
                     {
-
+                        this.DestroySocket(e.ToString());
                     }
 
                     Int32 packetLength = BitConverter.ToInt32(headerBuffer, 0) - Packet.HEADER_SIZE;

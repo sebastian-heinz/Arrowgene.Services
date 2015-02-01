@@ -46,13 +46,13 @@ namespace MarrySocket.MServer
             }
             catch (SerializationException e)
             {
-                this.serverLog.Write("Failed to serialize. Reason: " + e.Message, LogType.ERROR);
+                this.serverLog.Write("Failed to serialize. Reason: {0}" , e.Message, LogType.ERROR);
             }
 
             if (myObject != null)
             {
                 this.receivedObjectPacket(this, (new ReceiveObjectEventArgs(packet.PacketId, clientSocket, myObject)));
-                this.serverLog.Write("Handled Packet");
+                this.serverLog.Write("Client[{0}]: Handled Packet: {0}", clientSocket.Id, packet.PacketId, LogType.PACKET);
             }
         }
 
