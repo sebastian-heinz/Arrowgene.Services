@@ -24,12 +24,12 @@ namespace MarrySocket.MBase
 
     public abstract class BaseSocket
     {
-        internal BaseSocket(Socket socket)
+        protected BaseSocket(Socket socket)
         {
             this.Socket = socket;
         }
 
-        internal BaseSocket()
+        protected BaseSocket()
         {
             this.Socket = null;
         }
@@ -69,7 +69,7 @@ namespace MarrySocket.MBase
             }
         }
 
-        internal virtual void Disconnect()
+        protected virtual void Disconnect()
         {
             if (this.Socket.Connected)
             {
@@ -78,6 +78,6 @@ namespace MarrySocket.MBase
             this.Socket.Close();
         }
 
-        internal abstract void Error(string error);
+        protected abstract void Error(string error);
     }
 }

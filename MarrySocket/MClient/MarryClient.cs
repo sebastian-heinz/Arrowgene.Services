@@ -16,13 +16,10 @@
  */
 namespace MarrySocket.MClient
 {
-    using MarrySocket.MBase;
+    using MarrySocket.MExtra.Logging;
     using System;
-    using System.IO;
     using System.Net;
     using System.Net.Sockets;
-    using System.Runtime.Serialization;
-    using System.Runtime.Serialization.Formatters.Binary;
 
     public class MarryClient
     {
@@ -32,12 +29,14 @@ namespace MarrySocket.MClient
         private ServerSocket serverSocket;
         private SocketManager socketManager;
         private EntitiesContainer entitiesContainer;
+        private Logger logger;
 
         public MarryClient(EntitiesContainer entitiesContainer)
         {
             this.entitiesContainer = entitiesContainer;
             this.socketManager = new SocketManager(this.entitiesContainer);
             this.clientConfig = this.entitiesContainer.ClientConfig;
+            this.logger = this.entitiesContainer.ClientLog;
             this.serverSocket = this.entitiesContainer.ServerSocket;
             this.onConnected = this.entitiesContainer.OnConnected;
             this.onDisconnected = this.entitiesContainer.OnDisconnected;
@@ -49,10 +48,12 @@ namespace MarrySocket.MClient
             {
                 if (this.clientConfig.ServerIP.AddressFamily == AddressFamily.InterNetworkV6)
                 {
+                    this.logger.Write("Creating IPv4 Socket...", LogType.CLIENT);
                     this.serverSocket.Socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
                 }
                 else
                 {
+                    this.logger.Write("Creating IPv6 Socket...", LogType.CLIENT);
                     this.serverSocket.Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 }
 
@@ -63,8 +64,15 @@ namespace MarrySocket.MClient
                     this.serverSocket.Socket.Connect(remoteEP);
                     this.socketManager.Start();
                     this.entitiesContainer.IsConnected = true;
+
                     if (this.onConnected != null)
+                    {
                         this.onConnected("Client connected");
+                    }
+                    else
+                    {
+                        this.logger.Write("Client connected", LogType.CLIENT);
+                    }
                 }
                 catch (SocketException socketException)
                 {
@@ -81,9 +89,15 @@ namespace MarrySocket.MClient
         {
             this.entitiesContainer.IsConnected = false;
             this.socketManager.Stop();
-            this.serverSocket.Disconnect();
+            this.serverSocket.Close();
             if (this.onDisconnected != null)
+            {
                 this.onDisconnected(reason);
+            }
+            else
+            {
+                this.logger.Write("Client disconnected: {0}", reason, LogType.CLIENT);
+            }
         }
 
     }

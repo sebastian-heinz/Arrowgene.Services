@@ -17,6 +17,7 @@
 namespace MarrySocket.MClient
 {
     using MarrySocket.MBase;
+    using MarrySocket.MExtra.Logging;
     using System;
     using System.Runtime.Serialization;
     using System.Runtime.Serialization.Formatters.Binary;
@@ -25,10 +26,12 @@ namespace MarrySocket.MClient
     {
         private EntitiesContainer entitiesContainer;
         private event EventHandler<ReceiveObjectEventArgs> receivedObjectPacket;
+        private Logger logger;
 
         public PacketManager(EntitiesContainer entitiesContainer)
         {
             this.entitiesContainer = entitiesContainer;
+            this.logger = this.entitiesContainer.ClientLog;
             this.receivedObjectPacket = this.entitiesContainer.ReceivedObjectPacket;
         }
 
@@ -42,7 +45,7 @@ namespace MarrySocket.MClient
             }
             catch (SerializationException e)
             {
-                throw e;
+                this.logger.Write("Failed to serialize. Reason: {0}", e.Message, LogType.ERROR);
             }
 
             this.receivedObjectPacket(this, (new ReceiveObjectEventArgs(packet.PacketId, serverSocket, myObject)));

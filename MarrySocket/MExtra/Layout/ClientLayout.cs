@@ -31,13 +31,12 @@ namespace MarrySocket.MExtra.Layout
         {
             this.clientConfig = new ClientConfig();
             this.entitiesContainer = new EntitiesContainer(this.clientConfig);
+            this.logger = this.entitiesContainer.ClientLog;
             this.entitiesContainer.OnConnected = this.OnConnected;
             this.entitiesContainer.OnDisconnected = this.OnDisconnected;
 
             this.marryClient = new MarryClient(this.entitiesContainer);
             this.entitiesContainer.ReceivedObjectPacket += EntitiesContainer_ReceivedObjectPacket;
-
-            this.logger = new Logger();
         }
 
         public bool IsConnected { get { return this.entitiesContainer.IsConnected; } }
@@ -51,19 +50,19 @@ namespace MarrySocket.MExtra.Layout
 
         protected virtual void OnDisconnected(string reason)
         {
-            logger.Write(reason);
+            logger.Write("Client disconnected: {0}", reason, LogType.CLIENT);
         }
 
         protected virtual void OnConnected(string reason)
         {
-            logger.Write(reason);
+            logger.Write(reason, LogType.CLIENT);
         }
 
         public virtual void Start(IPAddress ipAddress, int port)
         {
             this.clientConfig.ServerIP = ipAddress;
             this.clientConfig.ServerPort = port;
-            this.logger.Write("Connecting to: " + ipAddress.ToString());
+            this.logger.Write("Connecting to: {0}", ipAddress.ToString(), LogType.CLIENT);
             this.marryClient.Connect();
         }
 

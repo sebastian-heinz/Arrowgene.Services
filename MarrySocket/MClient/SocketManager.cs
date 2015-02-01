@@ -17,6 +17,7 @@
 namespace MarrySocket.MClient
 {
     using MarrySocket.MBase;
+    using MarrySocket.MExtra.Logging;
     using System;
     using System.Net.Sockets;
     using System.Threading;
@@ -27,6 +28,7 @@ namespace MarrySocket.MClient
         private Action<string> onDisconnected;
         private ClientConfig clientConfig;
         private PacketManager packetManager;
+        private Logger logger;
         private Thread serverManager;
         private object myLock = new object();
         private EntitiesContainer entitiesContainer;
@@ -39,6 +41,7 @@ namespace MarrySocket.MClient
             this.onConnected = this.entitiesContainer.OnConnected;
             this.onDisconnected = this.entitiesContainer.OnDisconnected;
             this.clientConfig = this.entitiesContainer.ClientConfig;
+            this.logger = this.entitiesContainer.ClientLog;
             this.packetManager = new PacketManager(this.entitiesContainer);
             this.serverSocket = this.entitiesContainer.ServerSocket;
             this.isRunning = false;
@@ -64,12 +67,16 @@ namespace MarrySocket.MClient
         {
             if (this.serverSocket != null)
             {
-                this.serverSocket.Disconnect();
+                this.serverSocket.Close();
             }
 
             if (this.onDisconnected != null)
             {
                 this.onDisconnected(reason);
+            }
+            else
+            {
+                this.logger.Write("Client disconnected: {0}", reason, LogType.CLIENT);
             }
 
             this.isRunning = false;

@@ -53,13 +53,13 @@ namespace MarrySocket.MServer
             this.Disconnect();
         }
 
-        internal override void Disconnect()
+        protected override void Disconnect()
         {
             base.Disconnect();
             this.IsAlive = false;
         }
     
-        internal override void Error(string error)
+        protected override void Error(string error)
         {
             this.serverLog.Write(error, LogType.ERROR);
         }

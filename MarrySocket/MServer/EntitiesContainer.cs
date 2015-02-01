@@ -24,11 +24,6 @@ namespace MarrySocket.MServer
     public class EntitiesContainer
     {
         public EventHandler<ReceiveObjectEventArgs> ReceivedObjectPacket;
-        public Action<ClientSocket> OnClientDisconnected { get; set; }
-        public Action<ClientSocket> OnClientConnected { get; set; }
-        public ServerConfig ServerConfig { get; private set; }
-        public ClientList ClientList { get; private set; }
-        public Logger ServerLog { get; private set; }
 
         public EntitiesContainer(ServerConfig serverConfig)
         {
@@ -37,6 +32,11 @@ namespace MarrySocket.MServer
             this.ServerLog = new Logger();
         }
 
+        public Action<ClientSocket> OnClientDisconnected { get; set; }
+        public Action<ClientSocket> OnClientConnected { get; set; }
+        public ServerConfig ServerConfig { get; private set; }
+        public ClientList ClientList { get; private set; }
+        public Logger ServerLog { get; private set; }
 
     }
 }

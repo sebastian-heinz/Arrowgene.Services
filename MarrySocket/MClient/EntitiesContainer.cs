@@ -16,10 +16,8 @@
  */
 namespace MarrySocket.MClient
 {
-    using MarrySocket.MBase;
+    using MarrySocket.MExtra.Logging;
     using System;
-    using System.Collections.Generic;
-
 
     public class EntitiesContainer
     {
@@ -28,14 +26,16 @@ namespace MarrySocket.MClient
         public EntitiesContainer(ClientConfig clientConfig)
         {
             this.ClientConfig = clientConfig;
-            this.ServerSocket = new ServerSocket();
+            this.ClientLog = new Logger();
+            this.ServerSocket = new ServerSocket(this.ClientLog);
             this.IsConnected = false;
         }
 
         public Action<string> OnConnected { get; set; }
         public Action<string> OnDisconnected { get; set; }
         public ClientConfig ClientConfig { get; private set; }
-        public ServerSocket ServerSocket { get; set; }
+        public ServerSocket ServerSocket { get; private set; }
         public bool IsConnected { get; internal set; }
+        public Logger ClientLog { get; private set; }
     }
 }

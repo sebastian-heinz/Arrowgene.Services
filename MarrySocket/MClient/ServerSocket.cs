@@ -17,12 +17,26 @@
 namespace MarrySocket.MClient
 {
     using MarrySocket.MBase;
+    using MarrySocket.MExtra.Logging;
 
     public class ServerSocket : BaseSocket
     {
-        internal override void Error(string error)
+        private Logger logger;
+
+        public ServerSocket(Logger logger)
+            : base()
         {
-            throw new System.NotImplementedException();
+            this.logger = logger;
+        }
+
+        public void Close()
+        {
+            base.Disconnect();
+        }
+
+        protected override void Error(string error)
+        {
+                this.logger.Write(error, LogType.ERROR);
         }
     }
 }

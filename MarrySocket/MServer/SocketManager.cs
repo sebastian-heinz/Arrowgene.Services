@@ -85,7 +85,7 @@ namespace MarrySocket.MServer
                 for (int i = 0; i < clients.Count; i++)
                 {
                     this.serverLog.Write(String.Format("Disconnecting Client: {0}", clients[i].Id), LogType.SERVER);
-                    clients[i].Disconnect();
+                    clients[i].Close();
                 }
             }
 
