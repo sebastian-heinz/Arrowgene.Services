@@ -34,10 +34,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Client.cs" />
     <Compile Include="HandlePacket.cs" />
+    <Compile Include="Packets\SendScreenshot.cs" />
     <Compile Include="Packets\SendComputerInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

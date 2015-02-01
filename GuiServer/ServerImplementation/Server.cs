@@ -21,8 +21,9 @@
 
             this.clientViewModelContainer = clientViewModelContainer;
             this.logViewModels = logViewModels;
+            this.serverConfig.BufferSize = 700000;
             this.dispatcher = dispatcher;
-            this.handlePacket = new HandlePacket(this.clientViewModelContainer);
+            this.handlePacket = new HandlePacket(this.clientViewModelContainer, this.dispatcher);
 
         }
 

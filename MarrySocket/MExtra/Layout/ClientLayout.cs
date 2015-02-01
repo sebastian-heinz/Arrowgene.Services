@@ -34,9 +34,9 @@ namespace MarrySocket.MExtra.Layout
             this.logger = this.entitiesContainer.ClientLog;
             this.entitiesContainer.OnConnected = this.OnConnected;
             this.entitiesContainer.OnDisconnected = this.OnDisconnected;
+            this.entitiesContainer.ReceivedObjectPacket += EntitiesContainer_ReceivedObjectPacket;
 
             this.marryClient = new MarryClient(this.entitiesContainer);
-            this.entitiesContainer.ReceivedObjectPacket += EntitiesContainer_ReceivedObjectPacket;
         }
 
         public bool IsConnected { get { return this.entitiesContainer.IsConnected; } }

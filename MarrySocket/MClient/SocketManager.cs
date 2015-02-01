@@ -132,6 +132,8 @@ namespace MarrySocket.MClient
                         dataBuffer = new byte[packetLength];
                         int bytesReceived = 0;
 
+
+                        //TODO TRY CATCH, Server disconnects client during read, will crash.
                         while (bytesReceived < packetLength)
                         {
                             if (this.serverSocket.Socket.Poll(this.clientConfig.PollTimeout, SelectMode.SelectRead))
