@@ -50,7 +50,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MarrySocket\MarrySocket.csproj">
+    <ProjectReference Include="..\..\MarrySocket\MarrySocket.csproj">
       <Project>{8be22fd5-6d33-4a1f-a308-99be60d05ff9}</Project>
       <Name>MarrySocket</Name>
     </ProjectReference>
