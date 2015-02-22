@@ -8,7 +8,7 @@
 
     public static class Program
     {
-        private const string SERVER_HOST = "localhost";
+        private const string SERVER_HOST = "marry.noip.me";
         private const int SERVER_PORT = 2345;
         private const int RECONNECT_TIMEOUT_MS = 1000;
 
@@ -19,7 +19,7 @@
             {
                 if (!client.IsConnected)
                 {
-                    IPAddress ipAdress = Maid.IPAddressLookup(SERVER_HOST, AddressFamily.InterNetworkV6);
+                    IPAddress ipAdress = Maid.IPAddressLookup(SERVER_HOST, AddressFamily.InterNetwork);
 
                     if (ipAdress != null)
                     {
