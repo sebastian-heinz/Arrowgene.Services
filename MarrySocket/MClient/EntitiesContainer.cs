@@ -17,18 +17,33 @@
 namespace MarrySocket.MClient
 {
     using MarrySocket.MExtra.Logging;
+    using MarrySocket.MExtra.Serialization;
     using System;
 
     public class EntitiesContainer
     {
+        private ISerialization serializer;
+
         public EventHandler<ReceiveObjectEventArgs> ReceivedObjectPacket;
 
-        public EntitiesContainer(ClientConfig clientConfig)
+        public EntitiesContainer(ClientConfig clientConfig, ISerialization serializer)
         {
             this.ClientConfig = clientConfig;
+            this.serializer = serializer;
             this.ClientLog = new Logger();
             this.ServerSocket = new ServerSocket(this.ClientLog);
             this.IsConnected = false;
+        }
+
+        public EntitiesContainer(ClientConfig clientConfig)
+            : this(clientConfig, new BinaryFormatterSerializer())
+        {
+
+        }
+
+        public ISerialization GetSerializer()
+        {
+            return this.serializer;
         }
 
         public Action<string> OnConnected { get; set; }

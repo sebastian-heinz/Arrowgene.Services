@@ -18,19 +18,33 @@ namespace MarrySocket.MServer
 {
     using MarrySocket.MBase;
     using MarrySocket.MExtra.Logging;
+    using MarrySocket.MExtra.Serialization;
     using System;
     using System.Collections.Generic;
 
     public class EntitiesContainer
     {
         public EventHandler<ReceiveObjectEventArgs> ReceivedObjectPacket;
-
-        public EntitiesContainer(ServerConfig serverConfig)
+              private ISerialization serializer;
+        public EntitiesContainer(ServerConfig serverConfig, ISerialization serializer)
         {
             this.ServerConfig = serverConfig;
             this.ClientList = new ClientList();
             this.ServerLog = new Logger();
+            this.serializer = serializer;
         }
+
+        public EntitiesContainer(ServerConfig serverConfig)
+            : this(serverConfig, new BinaryFormatterSerializer())
+        {
+
+        }
+
+        public ISerialization GetSerializer()
+        {
+            return this.serializer;
+        }
+
 
         public Action<ClientSocket> OnClientDisconnected { get; set; }
         public Action<ClientSocket> OnClientConnected { get; set; }

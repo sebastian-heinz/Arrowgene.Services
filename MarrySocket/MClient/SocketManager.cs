@@ -85,7 +85,7 @@ namespace MarrySocket.MClient
 
         public void ManagerProcess()
         {
-            byte[] headerBuffer = new byte[Packet.HEADER_SIZE];
+            byte[] headerBuffer = new byte[PacketHeader.HEADER_SIZE];
             byte[] dataBuffer;
 
             while (this.isRunning)
@@ -94,7 +94,7 @@ namespace MarrySocket.MClient
                 {
                     try
                     {
-                        if (this.serverSocket.Socket.Receive(headerBuffer, 0, Packet.HEADER_SIZE, SocketFlags.None) < Packet.HEADER_SIZE)
+                        if (this.serverSocket.Socket.Receive(headerBuffer, 0, PacketHeader.HEADER_SIZE, SocketFlags.None) < PacketHeader.HEADER_SIZE)
                         {
                             this.DestroySocket("Invalid Header");
                             continue;
@@ -105,47 +105,45 @@ namespace MarrySocket.MClient
                         this.DestroySocket(e.ToString());
                     }
 
-                    Int32 packetLength = BitConverter.ToInt32(headerBuffer, 0) - Packet.HEADER_SIZE;
-                    Int16 packetId = BitConverter.ToInt16(headerBuffer, Packet.PACKET_LENGTH_SIZE);
 
-                    if (packetId < Int16.MaxValue)
+                    PacketHeader packetHeader = PacketHeader.CreateInstance(headerBuffer);
+
+
+                    if (packetHeader != null)
                     {
 
-                        if (packetLength < 0)
+                        if (packetHeader.PacketSize < 0)
                         {
                             this.DestroySocket("Message length is less than zero");
                             continue;
                         }
 
-                        if (packetLength > 0 && packetLength > this.clientConfig.BufferSize)
+                        if (packetHeader.PacketSize > 0 && packetHeader.PacketSize > this.clientConfig.BufferSize)
                         {
-                            this.DestroySocket("Message length " + packetLength + " is larger than maximum message size " + this.clientConfig.BufferSize);
+                            this.DestroySocket("Message length " + packetHeader.PacketSize + " is larger than maximum message size " + this.clientConfig.BufferSize);
                             continue;
                         }
 
-                        if (packetLength == 0)
+                        if (packetHeader.PacketSize == 0)
                         {
                             this.DestroySocket("packet length is zero");
                             continue;
                         }
 
-                        dataBuffer = new byte[packetLength];
+                        dataBuffer = new byte[packetHeader.DataSize];
                         int bytesReceived = 0;
 
 
                         //TODO TRY CATCH, Server disconnects client during read, will crash.
-                        while (bytesReceived < packetLength)
+                        while (bytesReceived < packetHeader.DataSize)
                         {
                             if (this.serverSocket.Socket.Poll(this.clientConfig.PollTimeout, SelectMode.SelectRead))
-                                bytesReceived += this.serverSocket.Socket.Receive(dataBuffer, bytesReceived, packetLength - bytesReceived, SocketFlags.None);
+                                bytesReceived += this.serverSocket.Socket.Receive(dataBuffer, bytesReceived, packetHeader.DataSize - bytesReceived, SocketFlags.None);
                         }
 
-                        Packet packet = new Packet();
-                        packet.PacketId = packetId;
-                        packet.SetPacketData(dataBuffer);
+                        ReadPacket readPacket = new ReadPacket(packetHeader, dataBuffer);
 
-
-                        packetManager.Handle(this.serverSocket, packet);
+                        packetManager.Handle(this.serverSocket, readPacket);
                     }
                 }
             }

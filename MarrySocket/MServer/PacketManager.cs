@@ -18,41 +18,45 @@ namespace MarrySocket.MServer
 {
     using MarrySocket.MBase;
     using MarrySocket.MExtra.Logging;
+    using MarrySocket.MExtra.Serialization;
     using System;
-    using System.IO;
+    using System.Reflection;
     using System.Runtime.Serialization;
-    using System.Runtime.Serialization.Formatters.Binary;
 
     public class PacketManager
     {
         private EntitiesContainer entitiesContainer;
         private Logger serverLog;
         private event EventHandler<ReceiveObjectEventArgs> receivedObjectPacket;
+        private ISerialization serializer;
 
         public PacketManager(EntitiesContainer entitiesContainer)
         {
             this.entitiesContainer = entitiesContainer;
             this.serverLog = this.entitiesContainer.ServerLog;
             this.receivedObjectPacket = this.entitiesContainer.ReceivedObjectPacket;
+            this.serializer = this.entitiesContainer.GetSerializer();
         }
 
-        public void Handle(ClientSocket clientSocket, Packet packet)
+        public void Handle(ClientSocket clientSocket, ReadPacket packet)
         {
-            IFormatter formatter = new BinaryFormatter();
-            object myObject = null;
-            try
-            {
-                myObject = (object)formatter.Deserialize(packet.GetPacketForReading());
-            }
-            catch (SerializationException e)
-            {
-                this.serverLog.Write("Failed to serialize. Reason: {0}" , e.Message, LogType.ERROR);
-            }
+            //try
+            //{
+
+            //}
+            //catch (SerializationException e)
+            //{
+            //    // this.logger.Write("Failed to serialize. Reason: {0}", e.Message, LogType.ERROR);
+            //}
+            Type t = typeof(ISerialization);
+            MethodInfo method = t.GetMethod("Deserialize");
+            MethodInfo generic = method.MakeGenericMethod(packet.Type);
+            var myObject = generic.Invoke(this.serializer, new object[] { packet.SerializedClass });
 
             if (myObject != null)
             {
-                this.receivedObjectPacket(this, (new ReceiveObjectEventArgs(packet.PacketId, clientSocket, myObject)));
-                this.serverLog.Write("Client[{0}]: Handled Packet: {0}", clientSocket.Id, packet.PacketId, LogType.PACKET);
+                this.receivedObjectPacket(this, (new ReceiveObjectEventArgs(packet.PacketHeader.PacketId, clientSocket, myObject)));
+                this.serverLog.Write("Client[{0}]: Handled Packet: {0}", clientSocket.Id, packet.PacketHeader.PacketId, LogType.PACKET);
             }
         }
 

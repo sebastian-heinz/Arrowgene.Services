@@ -133,7 +133,7 @@ namespace MarrySocket.MServer
         {
             PacketManager packetManager = new PacketManager(this.entitieContainer);
             List<ClientSocket> readyclients = new List<ClientSocket>();
-            byte[] headerBuffer = new byte[Packet.HEADER_SIZE];
+            byte[] headerBuffer = new byte[PacketHeader.HEADER_SIZE];
 
             while (this.isRunning)
             {
@@ -171,7 +171,7 @@ namespace MarrySocket.MServer
 
                     try
                     {
-                        if (readyclients[0].Socket.Receive(headerBuffer, 0, Packet.HEADER_SIZE, SocketFlags.None) < 1)
+                        if (readyclients[0].Socket.Receive(headerBuffer, 0, PacketHeader.HEADER_SIZE, SocketFlags.None) < 1)
                         {
                             DisposeClient(readyclients[0], "Disconnected");
                             readyclients.RemoveAt(0);
@@ -192,51 +192,49 @@ namespace MarrySocket.MServer
                         continue;
                     }
 
-                    Int32 packetLength = BitConverter.ToInt32(headerBuffer, 0) - Packet.HEADER_SIZE;
-                    Int16 packetId = BitConverter.ToInt16(headerBuffer, Packet.PACKET_LENGTH_SIZE);
+                    PacketHeader packetHeader = PacketHeader.CreateInstance(headerBuffer);
 
-                    if (packetId < Int16.MaxValue)
+                    if (packetHeader != null)
                     {
-                        if (packetLength < 0)
+                        if (packetHeader.PacketSize < 0)
                         {
                             DisposeClient(readyclients[0], "Message length is less than zero");
                             readyclients.RemoveAt(0);
                             continue;
                         }
 
-                        if (this.serverConfig.BufferSize > 0 && packetLength > this.serverConfig.BufferSize)
+                        if (this.serverConfig.BufferSize > 0 && packetHeader.PacketSize > this.serverConfig.BufferSize)
                         {
-                            DisposeClient(readyclients[0], " Message length " + packetLength + " is larger than maximum message size " + this.serverConfig.BufferSize);
+                            DisposeClient(readyclients[0], " Message length " + packetHeader.PacketSize + " is larger than maximum message size " + this.serverConfig.BufferSize);
                             readyclients.RemoveAt(0);
                             continue;
                         }
 
-                        if (packetLength == 0)
+                        if (packetHeader.PacketSize == 0)
                         {
                             readyclients[0].IsBusy = false;
                             readyclients.RemoveAt(0);
                             continue;
                         }
 
-                        byte[] dataBuffer = new byte[packetLength];
+                        byte[] dataBuffer = new byte[packetHeader.DataSize];
                         int bytesReceived = 0;
 
-                        while (bytesReceived < packetLength)
+                        while (bytesReceived < packetHeader.DataSize)
                         {
                             if (readyclients[0].Socket.Poll(this.serverConfig.PollTimeout, SelectMode.SelectRead))
-                                bytesReceived += readyclients[0].Socket.Receive(dataBuffer, bytesReceived, packetLength - bytesReceived, SocketFlags.None);
+                                bytesReceived += readyclients[0].Socket.Receive(dataBuffer, bytesReceived, packetHeader.DataSize - bytesReceived, SocketFlags.None);
                         }
 
-                        Packet packet = new Packet();
-                        packet.PacketId = packetId;
-                        packet.SetPacketData(dataBuffer);
 
-                        packetManager.Handle(readyclients[0], packet);
+                        ReadPacket readPacket = new ReadPacket(packetHeader, dataBuffer);
+
+                        packetManager.Handle(readyclients[0], readPacket);
                     }
                     else
                     {
                         if (serverConfig.LogUnknownPacket == true)
-                            this.serverLog.Write("Packet ID: " + packetId + " Length:" + packetLength);
+                            this.serverLog.Write("Packet ID: " + packetHeader.PacketId + " Length:" + packetHeader.PacketSize);
                     }
 
                     readyclients[0].IsBusy = false;

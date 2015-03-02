@@ -16,14 +16,18 @@
  */
 namespace MarrySocket.MBase
 {
-    using System;
-    using System.IO;
-    using System.Net.Sockets;
-    using System.Runtime.Serialization;
-    using System.Runtime.Serialization.Formatters.Binary;
+    using MarrySocket.MExtra.Serialization;
+using ProtoBuf;
+using System;
+using System.IO;
+using System.Net.Sockets;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
     public abstract class BaseSocket
     {
+        private ISerialization serializer;
+
         protected BaseSocket(Socket socket)
         {
             this.Socket = socket;
@@ -32,40 +36,26 @@ namespace MarrySocket.MBase
         protected BaseSocket()
         {
             this.Socket = null;
+            this.serializer = new BinaryFormatterSerializer();
         }
 
         internal Socket Socket { get; set; }
 
-        public virtual void SendObject(Int16 id, object myClass)
+        public void SetSerializer(ISerialization serializer)
         {
-            Packet packet = new Packet();
-            packet.PacketId = id;
-            byte[] serialized = null;
+            this.serializer = serializer;
+        }
 
-            using (MemoryStream stream = new MemoryStream())
-            {
-                IFormatter formatter = new BinaryFormatter();
+        public virtual void SendObject<T>(Int32 packetId, T myClass)
+        {
+          
 
-                try
-                {
-                    formatter.Serialize(stream, myClass);
-                    if (stream.Length < Int32.MaxValue)
-                    {
-                        serialized = new byte[stream.Length];
-                        Buffer.BlockCopy(stream.GetBuffer(), 0, serialized, 0, (int)stream.Length);
-                    }
-                }
-                catch (Exception e)
-                {
-                    this.Error("Failed to serialize. Reason: " + e.ToString());
-                }
-                stream.Close();
-            }
+            byte[] serialized = this.serializer.Serialize<T>(myClass);
 
             if (serialized != null)
             {
-                packet.SetPacketData(serialized);
-                this.Socket.Send(packet.GetPacketForSending());
+                CraftPacket craftPacket = new CraftPacket(packetId, typeof(T), serialized);
+                this.Socket.Send(craftPacket.Buffer);
             }
         }
 

@@ -17,6 +17,7 @@
 namespace MarrySocket.MClient
 {
     using MarrySocket.MExtra.Logging;
+    using MarrySocket.MExtra.Serialization;
     using System;
     using System.Net;
     using System.Net.Sockets;
@@ -30,6 +31,7 @@ namespace MarrySocket.MClient
         private SocketManager socketManager;
         private EntitiesContainer entitiesContainer;
         private Logger logger;
+
 
         public MarryClient(EntitiesContainer entitiesContainer)
         {

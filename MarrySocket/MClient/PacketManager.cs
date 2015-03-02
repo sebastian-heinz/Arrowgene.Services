@@ -18,37 +18,41 @@ namespace MarrySocket.MClient
 {
     using MarrySocket.MBase;
     using MarrySocket.MExtra.Logging;
+    using MarrySocket.MExtra.Serialization;
     using System;
-    using System.Runtime.Serialization;
-    using System.Runtime.Serialization.Formatters.Binary;
+    using System.Reflection;
 
     public class PacketManager
     {
         private EntitiesContainer entitiesContainer;
         private event EventHandler<ReceiveObjectEventArgs> receivedObjectPacket;
         private Logger logger;
+        private ISerialization serializer;
 
         public PacketManager(EntitiesContainer entitiesContainer)
         {
             this.entitiesContainer = entitiesContainer;
+            this.serializer = this.entitiesContainer.GetSerializer();
             this.logger = this.entitiesContainer.ClientLog;
             this.receivedObjectPacket = this.entitiesContainer.ReceivedObjectPacket;
         }
 
-        public void Handle(ServerSocket serverSocket, Packet packet)
+        public void Handle(ServerSocket serverSocket, ReadPacket packet)
         {
-            IFormatter formatter = new BinaryFormatter();
             object myObject = null;
+
             try
             {
-                myObject = (object)formatter.Deserialize(packet.GetPacketForReading());
+                MethodInfo method = typeof(ISerialization).GetMethod("Deserialize");
+                MethodInfo generic = method.MakeGenericMethod(packet.Type);
+                myObject = generic.Invoke(this.serializer, new object[] { packet.SerializedClass });
             }
-            catch (SerializationException e)
+            catch (Exception e)
             {
                 this.logger.Write("Failed to serialize. Reason: {0}", e.Message, LogType.ERROR);
             }
 
-            this.receivedObjectPacket(this, (new ReceiveObjectEventArgs(packet.PacketId, serverSocket, myObject)));
+            this.receivedObjectPacket(this, (new ReceiveObjectEventArgs(packet.PacketHeader.PacketId, serverSocket, myObject)));
         }
 
 
