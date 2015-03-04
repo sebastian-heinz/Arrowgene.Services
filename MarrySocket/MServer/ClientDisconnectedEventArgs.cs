@@ -16,15 +16,11 @@
  */
 namespace MarrySocket.MServer
 {
-    using MarrySocket.MBase;
     using System;
-    using System.Collections.Generic;
-    using System.Text;
 
-    public class ReceiveObjectEventArgs : BaseReceiveObjectEventArgs
+    public class ClientDisconnectedEventArgs : EventArgs
     {
-        public ReceiveObjectEventArgs(int packetId, ClientSocket clientSocket, object myObject)
-            : base(packetId, myObject)
+        public ClientDisconnectedEventArgs(ClientSocket clientSocket)
         {
             this.ClientSocket = clientSocket;
         }

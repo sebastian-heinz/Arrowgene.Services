@@ -17,26 +17,26 @@
 namespace MarrySocket.MServer
 {
     using MarrySocket.MBase;
-    using MarrySocket.MExtra;
-    using MarrySocket.MExtra.Logging;
-    using System;
-    using System.IO;
-    using System.Net;
-    using System.Net.Sockets;
-    using System.Runtime.Serialization;
-    using System.Runtime.Serialization.Formatters.Binary;
+using MarrySocket.MExtra;
+using MarrySocket.MExtra.Logging;
+using MarrySocket.MExtra.Serialization;
+using System;
+using System.IO;
+using System.Net;
+using System.Net.Sockets;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
     public class ClientSocket : BaseSocket
     {
         private IPEndPoint remoteIpEndPoint;
-        private Logger serverLog;
 
-        public ClientSocket(Socket socket, Logger serverLog)
+
+        public ClientSocket(Socket socket, Logger logger, ISerialization serializer)
+            : base(socket, logger, serializer)
         {
             this.Id = Maid.Random.Next(9999);
-            this.serverLog = serverLog;
             this.IsAlive = true;
-            this.Socket = socket;
             this.remoteIpEndPoint = socket.RemoteEndPoint as IPEndPoint;
             this.LastPing = DateTime.Now;
             this.IsBusy = false;
@@ -48,11 +48,17 @@ namespace MarrySocket.MServer
         public DateTime LastPing { get; private set; }
         public string Ip { get { return ((IPEndPoint)this.Socket.RemoteEndPoint).Address.ToString(); } }
 
+        /// <summary>
+        /// Close the socket connection.
+        /// </summary>
         public void Close()
         {
             this.Disconnect();
         }
 
+        /// <summary>
+        /// Internal socket close handeling.
+        /// </summary>
         protected override void Disconnect()
         {
             base.Disconnect();
@@ -61,7 +67,7 @@ namespace MarrySocket.MServer
     
         protected override void Error(string error)
         {
-            this.serverLog.Write(error, LogType.ERROR);
+            base.logger.Write(error, LogType.ERROR);
         }
     }
 }

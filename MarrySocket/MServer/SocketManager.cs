@@ -16,8 +16,8 @@
  */
 namespace MarrySocket.MServer
 {
-    using MarrySocket.MBase;
     using MarrySocket.MExtra.Logging;
+    using MarrySocket.MExtra.Packet;
     using System;
     using System.Collections.Generic;
     using System.Net.Sockets;
@@ -25,25 +25,17 @@ namespace MarrySocket.MServer
 
     public class SocketManager
     {
-        private EntitiesContainer entitieContainer;
-        private Action<ClientSocket> onClientDisconnected;
-        private Action<ClientSocket> onClientConnected;
         private List<ClientSocket> clients;
-        private ClientList clientList;
         private ServerConfig serverConfig;
         private Thread[] clientManager;
         private Logger serverLog;
         private object myLock = new object();
         private volatile bool isRunning;
 
-        public SocketManager(EntitiesContainer entitieContainer)
+        public SocketManager(ServerConfig serverConfig)
         {
-            this.entitieContainer = entitieContainer;
-            this.onClientDisconnected = this.entitieContainer.OnClientDisconnected;
-            this.onClientConnected = this.entitieContainer.OnClientConnected;
-            this.clientList = this.entitieContainer.ClientList;
-            this.serverConfig = this.entitieContainer.ServerConfig;
-            this.serverLog = this.entitieContainer.ServerLog;
+            this.serverConfig = serverConfig;
+            this.serverLog = this.serverConfig.Logger;
             this.clients = new List<ClientSocket>();
             this.clientManager = new Thread[this.serverConfig.ManagerCount];
             this.isRunning = false;
@@ -96,7 +88,6 @@ namespace MarrySocket.MServer
             }
 
             this.serverLog.Write("Client Manager down.", LogType.SERVER);
-
         }
 
         internal void AddClient(ClientSocket clientSocket)
@@ -105,33 +96,25 @@ namespace MarrySocket.MServer
             {
                 this.clients.Add(clientSocket);
             }
-            this.clientList.AddClient(clientSocket);
 
             this.serverLog.Write("Client connected: " + clientSocket.Id.ToString(), LogType.SERVER);
-
-            if (this.onClientConnected != null)
-            {
-                this.onClientConnected(clientSocket);
-            }
+            this.serverConfig.OnClientConnected(clientSocket);
         }
 
-        public void DisposeClient(ClientSocket clientSocket, string reason)
+        private void DisposeClient(ClientSocket clientSocket, string reason)
         {
-            this.clientList.RemoveClient(clientSocket.Id);
-
             lock (myLock)
             {
                 this.clients.Remove(clientSocket);
             }
 
             this.serverLog.Write("Client[{0}]: disconnected: {1}", clientSocket.Id.ToString(), reason, LogType.SERVER);
-
-            this.onClientDisconnected(clientSocket);
+            this.serverConfig.OnClientDisconnected(clientSocket);
         }
 
-        public void ManagerProcess()
+        private void ManagerProcess()
         {
-            PacketManager packetManager = new PacketManager(this.entitieContainer);
+            PacketManager packetManager = new PacketManager(this.serverConfig);
             List<ClientSocket> readyclients = new List<ClientSocket>();
             byte[] headerBuffer = new byte[PacketHeader.HEADER_SIZE];
 

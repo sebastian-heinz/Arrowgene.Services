@@ -14,8 +14,9 @@
  * limitations under the License.
  * 
  */
-namespace MarrySocket.MServer
+namespace MarrySocket.MExtra
 {
+    using MarrySocket.MServer;
     using System.Collections.Generic;
 
     public class ClientList

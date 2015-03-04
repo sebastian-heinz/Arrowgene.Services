@@ -18,19 +18,60 @@ namespace MarrySocket.MClient
 {
     using MarrySocket.MBase;
     using MarrySocket.MExtra;
+    using MarrySocket.MExtra.Serialization;
+    using System;
     using System.Net.Sockets;
 
     public class ClientConfig : BaseConfig
     {
-        public ClientConfig()
-            : base()
+        public ClientConfig(ISerialization serializer)
+            : base(serializer)
         {
             base.ServerIP = Maid.IPAddressLookup("localhost", AddressFamily.InterNetworkV6);
             base.ServerPort = 2345;
         }
 
+        public ClientConfig()
+            : this(new BinaryFormatterSerializer())
+        {
 
+        }
 
+        public event EventHandler<DisconnectedEventArgs> Disconnected;
+        public event EventHandler<ConnectedEventArgs> Connected;
+        public event EventHandler<ReceivedPacketEventArgs> ReceivedPacket;
+
+        public bool IsConnected { get; internal set; }
+
+        internal void OnReceivedPacket(int packetId, ServerSocket serverSocket, object myObject)
+        {
+            EventHandler<ReceivedPacketEventArgs> receivedPacket = this.ReceivedPacket;
+            if (receivedPacket != null)
+            {
+                ReceivedPacketEventArgs receivedPacketEventArgs = new ReceivedPacketEventArgs(packetId, serverSocket, myObject);
+                receivedPacket(this, receivedPacketEventArgs);
+            }
+        }
+
+        internal void OnDisconnected(ServerSocket serverSocket)
+        {
+            EventHandler<DisconnectedEventArgs> disconnected = this.Disconnected;
+            if (disconnected != null)
+            {
+                DisconnectedEventArgs clientDisconnectedEventArgs = new DisconnectedEventArgs(serverSocket);
+                disconnected(this, clientDisconnectedEventArgs);
+            }
+        }
+
+        internal void OnConnected(ServerSocket serverSocket)
+        {
+            EventHandler<ConnectedEventArgs> connected = this.Connected;
+            if (connected != null)
+            {
+                ConnectedEventArgs connectedEventArgs = new ConnectedEventArgs(serverSocket);
+                connected(this, connectedEventArgs);
+            }
+        }
 
     }
 }

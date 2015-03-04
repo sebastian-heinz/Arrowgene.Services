@@ -14,19 +14,25 @@
  * limitations under the License.
  * 
  */
-namespace MarrySocket.MClient
+using System;
+
+namespace MarrySocket.MExtra.Packet
 {
-    using MarrySocket.MBase;
-    using System;
-    public class ReceiveObjectEventArgs : BaseReceiveObjectEventArgs
+    public class CraftPacket : PacketCrafter
     {
-        public ReceiveObjectEventArgs(int packetId, ServerSocket serverSocket, object myObject)
-            : base(packetId, myObject)
+        public CraftPacket(Int32 packetId, Type type, byte[] serializedClass)
         {
-            this.ServerSocket = serverSocket;
+            byte[] typeName = Maid.GetBytes(type.AssemblyQualifiedName);
+            Int32 packetSize = typeName.Length + serializedClass.Length + PacketHeader.HEADER_SIZE;
+
+            this.Addint32(packetSize);
+            this.Addint32(packetId);
+            this.Addint32(typeName.Length);
+            this.Addint32(serializedClass.Length);
+            this.Addbytes(typeName);
+            this.Addbytes(serializedClass);
         }
 
-        public ServerSocket ServerSocket { get; set; }
 
     }
 }

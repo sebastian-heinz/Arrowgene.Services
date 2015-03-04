@@ -15,10 +15,8 @@
  * 
  */
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace MarrySocket.MBase
+namespace MarrySocket.MExtra.Packet
 {
     public class PacketHeader
     {

@@ -17,26 +17,68 @@
 namespace MarrySocket.MServer
 {
     using MarrySocket.MBase;
+    using MarrySocket.MExtra.Serialization;
+    using System;
     using System.Net;
 
     public class ServerConfig : BaseConfig
     {
-        public ServerConfig()
-            : base()
+        public ServerConfig(ISerialization serializer)
+            : base(serializer)
         {
             base.ServerIP = IPAddress.IPv6Any;
             base.ServerPort = 2345;
-
             this.Backlog = 10;
             this.ReadTimeout = 20;
             this.ManagerCount = 5;
             this.LogUnknownPacket = true;
         }
 
+        public ServerConfig()
+            : this(new BinaryFormatterSerializer())
+        {
+
+        }
+
+        public event EventHandler<ClientDisconnectedEventArgs> ClientDisconnected;
+        public event EventHandler<ClientConnectedEventArgs> ClientConnected;
+        public event EventHandler<ReceivedPacketEventArgs> ReceivedPacket;
+
         public bool LogUnknownPacket { get; set; }
         public int ManagerCount { get; set; }
         public int Backlog { get; set; }
         public int ReadTimeout { get; set; }
+
+        internal void OnReceivedPacket(int packetId, ClientSocket clientSocket, object myObject)
+        {
+            EventHandler<ReceivedPacketEventArgs> receivedPacket = this.ReceivedPacket;
+            if (receivedPacket != null)
+            {
+                ReceivedPacketEventArgs receivedPacketEventArgs = new ReceivedPacketEventArgs(packetId, clientSocket, myObject);
+                receivedPacket(this, receivedPacketEventArgs);
+            }
+        }
+
+        internal void OnClientDisconnected(ClientSocket clientSocket)
+        {
+            EventHandler<ClientDisconnectedEventArgs> clientDisconnected = this.ClientDisconnected;
+            if (ClientDisconnected != null)
+            {
+                ClientDisconnectedEventArgs clientDisconnectedEventArgs = new ClientDisconnectedEventArgs(clientSocket);
+                clientDisconnected(this, clientDisconnectedEventArgs);
+            }
+        }
+
+        internal void OnClientConnected(ClientSocket clientSocket)
+        {
+            EventHandler<ClientConnectedEventArgs> clientConnected = this.ClientConnected;
+            if (clientConnected != null)
+            {
+                ClientConnectedEventArgs clientConnectedEventArgs = new ClientConnectedEventArgs(clientSocket);
+                clientConnected(this, clientConnectedEventArgs);
+            }
+        }
+
     }
 }
 

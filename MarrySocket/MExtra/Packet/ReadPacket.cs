@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-namespace MarrySocket.MBase
+namespace MarrySocket.MExtra.Packet
 {
     using MarrySocket.MExtra;
     using System;

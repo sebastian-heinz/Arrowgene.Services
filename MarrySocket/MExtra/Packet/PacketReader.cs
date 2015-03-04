@@ -64,7 +64,7 @@ namespace MarrySocket.MExtra.Packet
             string str = "";
             for (int i = 0; i < dwLength; i++)
             {
-                str = str + ((char) buffer[i]);
+                str = str + ((char)buffer[i]);
             }
             return str;
         }
@@ -75,7 +75,7 @@ namespace MarrySocket.MExtra.Packet
             while (this.memoryReader.ReadByte() > 0)
             {
                 this.memoryReader.BaseStream.Position -= 1;
-                str = str + ((char) this.memoryReader.ReadByte());
+                str = str + ((char)this.memoryReader.ReadByte());
             }
             return str;
         }

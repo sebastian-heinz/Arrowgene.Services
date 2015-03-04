@@ -35,17 +35,17 @@ namespace MarrySocket.MExtra.Packet
 
         public void Addbyte(short s)
         {
-            this.Addbyte((byte) s);
+            this.Addbyte((byte)s);
         }
 
         public void Addbyte(int i)
         {
-            this.Addbyte((byte) i);
+            this.Addbyte((byte)i);
         }
 
         public void Addbyte(uint i)
         {
-            this.Addbyte((byte) i);
+            this.Addbyte((byte)i);
         }
 
         public void Addbytes(params byte[] bytes)
@@ -55,7 +55,7 @@ namespace MarrySocket.MExtra.Packet
 
         public void Addfloat(double d)
         {
-            this.memoryWriter.Write((float) d);
+            this.memoryWriter.Write((float)d);
         }
 
         public void Addfloat(float f)
@@ -70,17 +70,17 @@ namespace MarrySocket.MExtra.Packet
 
         public void Addint16(int i)
         {
-            this.Addint16((short) i);
+            this.Addint16((short)i);
         }
 
         public void Addint16(long l)
         {
-            this.Addint16((short) l);
+            this.Addint16((short)l);
         }
 
         public void Addint16(uint i)
         {
-            this.Addint16((short) i);
+            this.Addint16((short)i);
         }
 
         public void Addint32(int i)
@@ -90,12 +90,12 @@ namespace MarrySocket.MExtra.Packet
 
         public void Addint32(long l)
         {
-            this.Addint32((int) l);
+            this.Addint32((int)l);
         }
 
         public void Addint32(uint i)
         {
-            this.Addint32((int) i);
+            this.Addint32((int)i);
         }
 
         public void Addint64(long l)

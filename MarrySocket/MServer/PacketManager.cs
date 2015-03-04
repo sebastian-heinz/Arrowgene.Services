@@ -16,26 +16,23 @@
  */
 namespace MarrySocket.MServer
 {
-    using MarrySocket.MBase;
     using MarrySocket.MExtra.Logging;
+    using MarrySocket.MExtra.Packet;
     using MarrySocket.MExtra.Serialization;
     using System;
     using System.Reflection;
-    using System.Runtime.Serialization;
 
     public class PacketManager
     {
-        private EntitiesContainer entitiesContainer;
         private Logger serverLog;
-        private event EventHandler<ReceiveObjectEventArgs> receivedObjectPacket;
+        private ServerConfig serverConfig;
         private ISerialization serializer;
 
-        public PacketManager(EntitiesContainer entitiesContainer)
+        public PacketManager(ServerConfig serverConfig)
         {
-            this.entitiesContainer = entitiesContainer;
-            this.serverLog = this.entitiesContainer.ServerLog;
-            this.receivedObjectPacket = this.entitiesContainer.ReceivedObjectPacket;
-            this.serializer = this.entitiesContainer.GetSerializer();
+            this.serverConfig = serverConfig;
+            this.serverLog = this.serverConfig.Logger;
+            this.serializer = this.serverConfig.Serializer;
         }
 
         public void Handle(ClientSocket clientSocket, ReadPacket packet)
@@ -55,7 +52,7 @@ namespace MarrySocket.MServer
 
             if (myObject != null)
             {
-                this.receivedObjectPacket(this, (new ReceiveObjectEventArgs(packet.PacketHeader.PacketId, clientSocket, myObject)));
+                this.serverConfig.OnReceivedPacket(packet.PacketHeader.PacketId, clientSocket, myObject);
                 this.serverLog.Write("Client[{0}]: Handled Packet: {0}", clientSocket.Id, packet.PacketHeader.PacketId, LogType.PACKET);
             }
         }

@@ -14,29 +14,20 @@
  * limitations under the License.
  * 
  */
-namespace MarrySocket.MClient
+namespace MarrySocket.MServer
 {
     using MarrySocket.MBase;
-    using MarrySocket.MExtra.Logging;
-    using MarrySocket.MExtra.Serialization;
-    using System.Net.Sockets;
+    using System;
+    using System.Collections.Generic;
+    using System.Text;
 
-    public class ServerSocket : BaseSocket
+    public class ReceivedPacketEventArgs : EventArgs
     {
-        public ServerSocket(Socket socket, Logger logger, ISerialization serializer)
-            : base(socket, logger, serializer)
+        public ReceivedPacketEventArgs(int packetId, ClientSocket clientSocket, object myObject)
         {
-
+            this.ClientSocket = clientSocket;
         }
 
-        public void Close()
-        {
-            base.Disconnect();
-        }
-
-        protected override void Error(string error)
-        {
-            this.logger.Write(error, LogType.ERROR);
-        }
+        public ClientSocket ClientSocket { get; set; }
     }
 }

@@ -17,64 +17,69 @@
 namespace MarrySocket.MClient
 {
     using MarrySocket.MExtra.Logging;
-    using MarrySocket.MExtra.Serialization;
     using System;
     using System.Net;
     using System.Net.Sockets;
 
     public class MarryClient
     {
-        private Action<string> onConnected;
-        private Action<string> onDisconnected;
         private ClientConfig clientConfig;
-        private ServerSocket serverSocket;
         private SocketManager socketManager;
-        private EntitiesContainer entitiesContainer;
         private Logger logger;
+        private bool isValidConfiguration;
 
-
-        public MarryClient(EntitiesContainer entitiesContainer)
+        public MarryClient(ClientConfig clientConfig)
         {
-            this.entitiesContainer = entitiesContainer;
-            this.socketManager = new SocketManager(this.entitiesContainer);
-            this.clientConfig = this.entitiesContainer.ClientConfig;
-            this.logger = this.entitiesContainer.ClientLog;
-            this.serverSocket = this.entitiesContainer.ServerSocket;
-            this.onConnected = this.entitiesContainer.OnConnected;
-            this.onDisconnected = this.entitiesContainer.OnDisconnected;
+            this.clientConfig = clientConfig;
+            this.isValidConfiguration = SanityCheck();
+            if (this.isValidConfiguration)
+            {
+                this.logger = this.clientConfig.Logger;
+                this.socketManager = new SocketManager(this.clientConfig);
+                this.ServerSocket = new ServerSocket(this.CreateSocket(), this.logger, this.clientConfig.Serializer);
+            }
+            else
+            {
+                this.logger.Write("Bad Configuration", LogType.ERROR);
+            }
+        }
+
+        public ServerSocket ServerSocket { get; private set; }
+
+        private bool SanityCheck()
+        {
+            //TODO check clientConfig
+            return true;
+        }
+
+        private Socket CreateSocket()
+        {
+            Socket socket;
+            if (this.clientConfig.ServerIP.AddressFamily == AddressFamily.InterNetworkV6)
+            {
+                this.logger.Write("Creating IPv4 Socket...", LogType.CLIENT);
+                socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+            }
+            else
+            {
+                this.logger.Write("Creating IPv6 Socket...", LogType.CLIENT);
+                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            }
+            return socket;
         }
 
         public void Connect()
         {
-            if (!this.entitiesContainer.IsConnected)
+            if (!this.clientConfig.IsConnected && this.isValidConfiguration)
             {
-                if (this.clientConfig.ServerIP.AddressFamily == AddressFamily.InterNetworkV6)
-                {
-                    this.logger.Write("Creating IPv4 Socket...", LogType.CLIENT);
-                    this.serverSocket.Socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
-                }
-                else
-                {
-                    this.logger.Write("Creating IPv6 Socket...", LogType.CLIENT);
-                    this.serverSocket.Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                }
-
-                IPEndPoint remoteEP = new IPEndPoint(this.clientConfig.ServerIP, this.clientConfig.ServerPort);
-
                 try
                 {
-                    this.serverSocket.Socket.Connect(remoteEP);
+                    IPEndPoint remoteEP = new IPEndPoint(this.clientConfig.ServerIP, this.clientConfig.ServerPort);
+                    this.ServerSocket.Socket.Connect(remoteEP);
                     this.socketManager.Start();
-                    this.entitiesContainer.IsConnected = true;
-
-                    if (this.onConnected != null)
-                    {
-                        this.onConnected("Client connected");
-                    }
-                    else
-                    {
-                        this.logger.Write("Client connected", LogType.CLIENT);
-                    }
+                    this.clientConfig.IsConnected = true;
+                    this.clientConfig.OnConnected(this.ServerSocket);
+                    this.logger.Write("Client connected", LogType.CLIENT);
                 }
                 catch (SocketException socketException)
                 {
@@ -89,17 +94,11 @@ namespace MarrySocket.MClient
 
         public void Disconnect(string reason)
         {
-            this.entitiesContainer.IsConnected = false;
             this.socketManager.Stop();
-            this.serverSocket.Close();
-            if (this.onDisconnected != null)
-            {
-                this.onDisconnected(reason);
-            }
-            else
-            {
-                this.logger.Write("Client disconnected: {0}", reason, LogType.CLIENT);
-            }
+            this.ServerSocket.Close();
+            this.clientConfig.OnDisconnected(this.ServerSocket);
+            this.logger.Write("Client disconnected: {0}", reason, LogType.CLIENT);
+            this.clientConfig.IsConnected = false;
         }
 
     }

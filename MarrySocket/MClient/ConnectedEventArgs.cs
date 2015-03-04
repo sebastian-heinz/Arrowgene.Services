@@ -16,27 +16,15 @@
  */
 namespace MarrySocket.MClient
 {
-    using MarrySocket.MBase;
-    using MarrySocket.MExtra.Logging;
-    using MarrySocket.MExtra.Serialization;
-    using System.Net.Sockets;
+    using System;
 
-    public class ServerSocket : BaseSocket
+    public class ConnectedEventArgs : EventArgs
     {
-        public ServerSocket(Socket socket, Logger logger, ISerialization serializer)
-            : base(socket, logger, serializer)
+        public ConnectedEventArgs(ServerSocket serverSocket)
         {
-
+            this.ServerSocket = serverSocket;
         }
 
-        public void Close()
-        {
-            base.Disconnect();
-        }
-
-        protected override void Error(string error)
-        {
-            this.logger.Write(error, LogType.ERROR);
-        }
+        public ServerSocket ServerSocket { get; set; }
     }
 }

@@ -14,18 +14,17 @@
  * limitations under the License.
  * 
  */
-namespace MarrySocket.MBase
+namespace MarrySocket.MClient
 {
     using System;
-    public abstract class BaseReceiveObjectEventArgs : EventArgs
+
+    public class ReceivedPacketEventArgs : EventArgs
     {
-        public BaseReceiveObjectEventArgs(int packetId, object myObject)
+        public ReceivedPacketEventArgs(int packetId, ServerSocket serverSocket, object myObject)
         {
-            this.PacketId = packetId;
-            this.MyObject = myObject;
+            this.ServerSocket = serverSocket;
         }
 
-        public object MyObject { get; set; }
-        public int PacketId { get; set; }
+        public ServerSocket ServerSocket { get; set; }
     }
 }

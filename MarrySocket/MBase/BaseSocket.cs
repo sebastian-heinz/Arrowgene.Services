@@ -16,40 +16,29 @@
  */
 namespace MarrySocket.MBase
 {
+    using MarrySocket.MExtra.Logging;
+    using MarrySocket.MExtra.Packet;
     using MarrySocket.MExtra.Serialization;
-using ProtoBuf;
-using System;
-using System.IO;
-using System.Net.Sockets;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
+    using System;
+    using System.Net.Sockets;
 
     public abstract class BaseSocket
     {
-        private ISerialization serializer;
+        protected Logger logger;
+        protected ISerialization serializer;
 
-        protected BaseSocket(Socket socket)
+        protected BaseSocket(Socket socket, Logger logger, ISerialization serializer)
         {
             this.Socket = socket;
-        }
-
-        protected BaseSocket()
-        {
-            this.Socket = null;
-            this.serializer = new BinaryFormatterSerializer();
-        }
-
-        internal Socket Socket { get; set; }
-
-        public void SetSerializer(ISerialization serializer)
-        {
+            this.logger = logger;
             this.serializer = serializer;
         }
 
+        internal Socket Socket { get; private set; }
+
+
         public virtual void SendObject<T>(Int32 packetId, T myClass)
         {
-          
-
             byte[] serialized = this.serializer.Serialize<T>(myClass);
 
             if (serialized != null)

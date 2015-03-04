@@ -24,23 +24,17 @@ namespace MarrySocket.MClient
 
     public class SocketManager
     {
-        private Action<string> onConnected;
-        private Action<string> onDisconnected;
         private ClientConfig clientConfig;
         private PacketManager packetManager;
         private Logger logger;
         private Thread serverManager;
         private object myLock = new object();
-        private EntitiesContainer entitiesContainer;
         private ServerSocket serverSocket;
         private volatile bool isRunning;
 
-        public SocketManager(EntitiesContainer entitiesContainer)
+        public SocketManager(ClientConfig clientConfig)
         {
-            this.entitiesContainer = entitiesContainer;
-            this.onConnected = this.entitiesContainer.OnConnected;
-            this.onDisconnected = this.entitiesContainer.OnDisconnected;
-            this.clientConfig = this.entitiesContainer.ClientConfig;
+            this.clientConfig = clientConfig;
             this.logger = this.entitiesContainer.ClientLog;
             this.packetManager = new PacketManager(this.entitiesContainer);
             this.serverSocket = this.entitiesContainer.ServerSocket;
