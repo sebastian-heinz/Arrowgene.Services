@@ -29,7 +29,7 @@ namespace MarrySocket.MClient
 
         }
 
-        public void Close()
+        internal void Close()
         {
             base.Disconnect();
         }

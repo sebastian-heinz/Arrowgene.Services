@@ -59,7 +59,7 @@ namespace MarrySocket.MBase
         public int ServerPort { get; set; }
         public int PollTimeout { get; set; }
         public int BufferSize { get; set; }
-        public Logger Logger { get; private set; }
+        internal Logger Logger { get; private set; }
 
     }
 }

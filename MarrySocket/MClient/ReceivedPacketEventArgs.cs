@@ -23,8 +23,12 @@ namespace MarrySocket.MClient
         public ReceivedPacketEventArgs(int packetId, ServerSocket serverSocket, object myObject)
         {
             this.ServerSocket = serverSocket;
+            this.PacketId = packetId;
+            this.MyObject = myObject;
         }
 
-        public ServerSocket ServerSocket { get; set; }
+        public int PacketId { get; private set; }
+        public ServerSocket ServerSocket { get; private set; }
+        public object MyObject { get; private set; }
     }
 }

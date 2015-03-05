@@ -16,8 +16,8 @@
  */
 namespace MarrySocket.MClient
 {
-    using MarrySocket.MBase;
     using MarrySocket.MExtra.Logging;
+    using MarrySocket.MExtra.Packet;
     using System;
     using System.Net.Sockets;
     using System.Threading;
@@ -32,12 +32,12 @@ namespace MarrySocket.MClient
         private ServerSocket serverSocket;
         private volatile bool isRunning;
 
-        public SocketManager(ClientConfig clientConfig)
+        public SocketManager(ClientConfig clientConfig, ServerSocket serverSocket)
         {
             this.clientConfig = clientConfig;
-            this.logger = this.entitiesContainer.ClientLog;
-            this.packetManager = new PacketManager(this.entitiesContainer);
-            this.serverSocket = this.entitiesContainer.ServerSocket;
+            this.logger = this.clientConfig.Logger;
+            this.packetManager = new PacketManager(this.clientConfig);
+            this.serverSocket = serverSocket;
             this.isRunning = false;
         }
 
@@ -52,7 +52,6 @@ namespace MarrySocket.MClient
         public void Stop()
         {
             this.isRunning = false;
-            this.entitiesContainer.IsConnected = false;
             if (serverManager != null && serverManager.IsAlive)
                 this.serverManager.Join();
         }
@@ -64,17 +63,10 @@ namespace MarrySocket.MClient
                 this.serverSocket.Close();
             }
 
-            if (this.onDisconnected != null)
-            {
-                this.onDisconnected(reason);
-            }
-            else
-            {
-                this.logger.Write("Client disconnected: {0}", reason, LogType.CLIENT);
-            }
-
+            this.clientConfig.IsConnected = false;
+            this.logger.Write("Client disconnected: {0}", reason, LogType.CLIENT);
             this.isRunning = false;
-            this.entitiesContainer.IsConnected = false;
+            this.clientConfig.OnDisconnected(this.serverSocket);
         }
 
         public void ManagerProcess()

@@ -42,6 +42,7 @@
     <Compile Include="MClient\ConnectedEventArgs.cs" />
     <Compile Include="MClient\DisconnectedEventArgs.cs" />
     <Compile Include="MClient\ReceivedPacketEventArgs.cs" />
+    <Compile Include="MExtra\Logging\LogWriteEventArgs.cs" />
     <Compile Include="MExtra\Packet\CraftPacket.cs" />
     <Compile Include="MExtra\Packet\PacketHeader.cs" />
     <Compile Include="MExtra\Packet\PacketBase.cs" />

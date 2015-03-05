@@ -18,7 +18,6 @@ namespace MarrySocket.MExtra.Logging
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading;
 
 
     public enum LogType { NONE, ERROR, INFO, CLIENT, SERVER, PACKET }
@@ -33,8 +32,8 @@ namespace MarrySocket.MExtra.Logging
         /// <summary>
         /// Notifies when a <see cref="Log"/> write occured.
         /// Don't block this Action by the UI thread, use Dispatcher.BeginInvoke.</summary>
-        public Action<Log> OnLogWrite { private get; set; }
 
+        public event EventHandler<LogWriteEventArgs> LogWrite;
         private object myLock;
         private Dictionary<int, Log> logs;
         private volatile int count;
@@ -47,6 +46,16 @@ namespace MarrySocket.MExtra.Logging
         }
 
         public int Count { get { return this.count; } }
+
+        internal void OnLogWrite(Log log)
+        {
+            EventHandler<LogWriteEventArgs> logWrite = this.LogWrite;
+            if (logWrite != null)
+            {
+                LogWriteEventArgs logWriteEventArgs = new LogWriteEventArgs(log);
+                logWrite(this, logWriteEventArgs);
+            }
+        }
 
         /// <summary>
         /// Clears all stored <see cref="Log"/></summary>
@@ -78,10 +87,7 @@ namespace MarrySocket.MExtra.Logging
                 log.Id = this.count;
                 this.logs.Add(log.Id, log);
                 this.count++;
-                if(this.OnLogWrite != null)
-                {
-                    this.OnLogWrite(log);
-                }
+                this.OnLogWrite(log);
             }
         }
 

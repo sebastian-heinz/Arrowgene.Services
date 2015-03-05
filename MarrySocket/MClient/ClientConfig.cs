@@ -37,11 +37,11 @@ namespace MarrySocket.MClient
 
         }
 
-        public event EventHandler<DisconnectedEventArgs> Disconnected;
-        public event EventHandler<ConnectedEventArgs> Connected;
-        public event EventHandler<ReceivedPacketEventArgs> ReceivedPacket;
+        internal event EventHandler<DisconnectedEventArgs> Disconnected;
+        internal event EventHandler<ConnectedEventArgs> Connected;
+        internal event EventHandler<ReceivedPacketEventArgs> ReceivedPacket;
 
-        public bool IsConnected { get; internal set; }
+        internal bool IsConnected { get; set; }
 
         internal void OnReceivedPacket(int packetId, ServerSocket serverSocket, object myObject)
         {

@@ -28,23 +28,45 @@ namespace MarrySocket.MServer
         private Socket serverSocket;
         private SocketManager socketManager;
         private Thread serverThread;
-        private Logger serverLog;
-        private ServerConfig serverConfig;
         private volatile bool isListening;
 
         public MarryServer(ServerConfig serverConfig)
         {
-            this.serverConfig = serverConfig;
-            this.serverLog = this.serverConfig.Logger;
-            this.socketManager = new SocketManager(this.serverConfig);
+            this.ServerConfig = serverConfig;
+            this.Logger = this.ServerConfig.Logger;
+            this.socketManager = new SocketManager(this.ServerConfig);
             this.isListening = false;
         }
+
+
+        public ServerConfig ServerConfig { get; private set; }
+        public Logger Logger { get; private set; }
+        public bool IsListening { get { return this.ServerConfig.IsListening; } }
+
+        public event EventHandler<ClientConnectedEventArgs> ClientConnected
+        {
+            add { this.ServerConfig.ClientConnected += value; }
+            remove { this.ServerConfig.ClientConnected -= value; }
+        }
+
+        public event EventHandler<ReceivedPacketEventArgs> ReceivedPacket
+        {
+            add { this.ServerConfig.ReceivedPacket += value; }
+            remove { this.ServerConfig.ReceivedPacket -= value; }
+        }
+
+        public event EventHandler<ClientDisconnectedEventArgs> ClientDisconnected
+        {
+            add { this.ServerConfig.ClientDisconnected += value; }
+            remove { this.ServerConfig.ClientDisconnected -= value; }
+        }
+
 
         public void Start()
         {
             if (!this.isListening)
             {
-                this.serverLog.Write("Starting Server...", LogType.SERVER);
+                this.Logger.Write("Starting Server...", LogType.SERVER);
                 this.serverThread = new Thread(ServerThread);
                 this.serverThread.Name = "ServerThread";
                 this.serverThread.Start();
@@ -52,7 +74,7 @@ namespace MarrySocket.MServer
             }
             else
             {
-                this.serverLog.Write("Server already Online.", LogType.SERVER);
+                this.Logger.Write("Server already Online.", LogType.SERVER);
             }
         }
 
@@ -60,14 +82,14 @@ namespace MarrySocket.MServer
         {
             if (this.isListening)
             {
-                this.serverLog.Write("Shutting Server down...", LogType.SERVER);
+                this.Logger.Write("Shutting Server down...", LogType.SERVER);
                 this.isListening = false;
                 this.serverThread.Join();
-                this.serverLog.Write("Server Offline.", LogType.SERVER);
+                this.Logger.Write("Server Offline.", LogType.SERVER);
             }
             else
             {
-                this.serverLog.Write("Server already Offline.", LogType.SERVER);
+                this.Logger.Write("Server already Offline.", LogType.SERVER);
             }
 
         }
@@ -80,22 +102,22 @@ namespace MarrySocket.MServer
             {
                 serverSocket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
                 serverSocket.SetSocketOption(SocketOptionLevel.IPv6, BaseConfig.IPV6_V6ONLY, BaseConfig.IPV6_V6ONLY_VALUE);
-                serverSocket.Bind(new IPEndPoint(serverConfig.ServerIP, serverConfig.ServerPort));
-                serverSocket.Listen(serverConfig.Backlog);
-                this.serverLog.Write("Listening on port: {0}", serverConfig.ServerPort, LogType.SERVER);
-                this.serverLog.Write("Server Online.", LogType.SERVER);
+                serverSocket.Bind(new IPEndPoint(ServerConfig.ServerIP, ServerConfig.ServerPort));
+                serverSocket.Listen(ServerConfig.Backlog);
+                this.Logger.Write("Listening on port: {0}", ServerConfig.ServerPort, LogType.SERVER);
+                this.Logger.Write("Server Online.", LogType.SERVER);
                 while (this.isListening)
                 {
-                    if (serverSocket.Poll(this.serverConfig.PollTimeout, SelectMode.SelectRead))
+                    if (serverSocket.Poll(this.ServerConfig.PollTimeout, SelectMode.SelectRead))
                     {
-                        this.socketManager.AddClient(new ClientSocket(serverSocket.Accept(), this.serverLog, this.serverConfig.Serializer));
+                        this.socketManager.AddClient(new ClientSocket(serverSocket.Accept(), this.Logger, this.ServerConfig.Serializer));
                     }
                 }
 
             }
             catch (Exception exception)
             {
-                this.serverLog.Write(exception.Message, LogType.SERVER);
+                this.Logger.Write(exception.Message, LogType.SERVER);
             }
             finally
             {

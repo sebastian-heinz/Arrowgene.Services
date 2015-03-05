@@ -40,14 +40,15 @@ namespace MarrySocket.MServer
 
         }
 
-        public event EventHandler<ClientDisconnectedEventArgs> ClientDisconnected;
-        public event EventHandler<ClientConnectedEventArgs> ClientConnected;
-        public event EventHandler<ReceivedPacketEventArgs> ReceivedPacket;
+        internal event EventHandler<ClientDisconnectedEventArgs> ClientDisconnected;
+        internal event EventHandler<ClientConnectedEventArgs> ClientConnected;
+        internal event EventHandler<ReceivedPacketEventArgs> ReceivedPacket;
 
         public bool LogUnknownPacket { get; set; }
         public int ManagerCount { get; set; }
         public int Backlog { get; set; }
         public int ReadTimeout { get; set; }
+        internal bool IsListening { get; set; }
 
         internal void OnReceivedPacket(int packetId, ClientSocket clientSocket, object myObject)
         {

@@ -16,31 +16,28 @@
  */
 namespace MarrySocket.MClient
 {
-    using MarrySocket.MBase;
     using MarrySocket.MExtra.Logging;
+    using MarrySocket.MExtra.Packet;
     using MarrySocket.MExtra.Serialization;
     using System;
     using System.Reflection;
 
     public class PacketManager
     {
-        private EntitiesContainer entitiesContainer;
-        private event EventHandler<ReceiveObjectEventArgs> receivedObjectPacket;
+        private ClientConfig clientConfig;
         private Logger logger;
         private ISerialization serializer;
 
-        public PacketManager(EntitiesContainer entitiesContainer)
+        public PacketManager(ClientConfig clientConfig)
         {
-            this.entitiesContainer = entitiesContainer;
-            this.serializer = this.entitiesContainer.GetSerializer();
-            this.logger = this.entitiesContainer.ClientLog;
-            this.receivedObjectPacket = this.entitiesContainer.ReceivedObjectPacket;
+            this.clientConfig = clientConfig;
+            this.serializer = this.clientConfig.Serializer;
+            this.logger = this.clientConfig.Logger;
         }
 
         public void Handle(ServerSocket serverSocket, ReadPacket packet)
         {
             object myObject = null;
-
             try
             {
                 MethodInfo method = typeof(ISerialization).GetMethod("Deserialize");
@@ -51,10 +48,7 @@ namespace MarrySocket.MClient
             {
                 this.logger.Write("Failed to serialize. Reason: {0}", e.Message, LogType.ERROR);
             }
-
-            this.receivedObjectPacket(this, (new ReceiveObjectEventArgs(packet.PacketHeader.PacketId, serverSocket, myObject)));
+            this.clientConfig.OnReceivedPacket(packet.PacketHeader.PacketId, serverSocket, myObject);
         }
-
-
     }
 }

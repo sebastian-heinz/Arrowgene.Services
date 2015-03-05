@@ -14,24 +14,17 @@
  * limitations under the License.
  * 
  */
-namespace MarrySocket.MServer
+namespace MarrySocket.MExtra.Logging
 {
-    using MarrySocket.MBase;
     using System;
-    using System.Collections.Generic;
-    using System.Text;
 
-    public class ReceivedPacketEventArgs : EventArgs
+    public class LogWriteEventArgs : EventArgs
     {
-        public ReceivedPacketEventArgs(int packetId, ClientSocket clientSocket, object myObject)
+        public LogWriteEventArgs(Log log)
         {
-            this.ServerSocket = clientSocket;
-            this.PacketId = packetId;
-            this.MyObject = myObject;
+            this.Log = log;
         }
 
-        public int PacketId { get; private set; }
-        public ClientSocket ServerSocket { get; private set; }
-        public object MyObject { get; private set; }
+        public Log Log { get; set; }
     }
 }
