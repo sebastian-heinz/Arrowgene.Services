@@ -14,14 +14,13 @@
  * limitations under the License.
  * 
  */
-
-
 namespace MarrySocket.MExtra.Serialization
 {
-using System.IO;
+    using MarrySocket.MExtra.Logging;
+
     public interface ISerialization
     {
-         byte[] Serialize<T>(T myClass);
-         T Deserialize<T>(byte[] data);
+        byte[] Serialize(object myClass, Logger logger);
+        object Deserialize(byte[] data, Logger logger);
     }
 }

@@ -37,18 +37,8 @@ namespace MarrySocket.MClient
 
         public void Handle(ServerSocket serverSocket, ReadPacket packet)
         {
-            object myObject = null;
-            try
-            {
-                MethodInfo method = typeof(ISerialization).GetMethod("Deserialize");
-                MethodInfo generic = method.MakeGenericMethod(packet.Type);
-                myObject = generic.Invoke(this.serializer, new object[] { packet.SerializedClass });
-            }
-            catch (Exception e)
-            {
-                this.logger.Write("Failed to serialize. Reason: {0}", e.Message, LogType.ERROR);
-            }
-            this.clientConfig.OnReceivedPacket(packet.PacketHeader.PacketId, serverSocket, myObject);
+            object myClass = this.serializer.Deserialize(packet.SerializedClass, this.logger);
+            this.clientConfig.OnReceivedPacket(packet.PacketHeader.PacketId, serverSocket, myClass);
         }
     }
 }

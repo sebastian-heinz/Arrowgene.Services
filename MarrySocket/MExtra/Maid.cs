@@ -114,6 +114,22 @@ namespace MarrySocket.MExtra
          * The documentation notes that if the prescribed order isn't suitable --- say, multiple interfaces are being implemented, and the interface methods and properties should be grouped together --- then use a partial class to group the related methods and properties together.
          * 
          *
+         * 
+         * 
+         *             try
+            {
+                Type t = typeof(string);
+                this.serializer.Deserialize<
+
+                MethodInfo method = typeof(ISerialization).GetMethod("Deserialize");
+                MethodInfo generic = method.MakeGenericMethod(packet.Type);
+                myObject = generic.Invoke(this.serializer, new object[] { packet.SerializedClass });
+            }
+            catch (Exception e)
+            {
+                this.logger.Write("Failed to serialize. Reason: {0}", e.Message, LogType.ERROR);
+            }
+         * 
          */
 
         //public event EventHandler MyEvent

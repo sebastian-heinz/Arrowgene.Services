@@ -14,57 +14,57 @@
  * limitations under the License.
  * 
  */
-using System;
-using System.IO;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-
 namespace MarrySocket.MExtra.Serialization
 {
+    using MarrySocket.MExtra.Logging;
+    using System;
+    using System.IO;
+    using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Formatters.Binary;
+
     public class BinaryFormatterSerializer : ISerialization
     {
-        public byte[] Serialize<T>(T myClass)
+        public byte[] Serialize(object myClass, Logger logger)
         {
             byte[] serialized = null;
-
-            using (MemoryStream stream = new MemoryStream())
+            try
             {
-                IFormatter formatter = new BinaryFormatter();
-                try
+                using (MemoryStream stream = new MemoryStream())
                 {
+                    IFormatter formatter = new BinaryFormatter();
                     formatter.Serialize(stream, myClass);
                     if (stream.Length < Int32.MaxValue)
                     {
                         serialized = new byte[stream.Length];
                         Buffer.BlockCopy(stream.GetBuffer(), 0, serialized, 0, (int)stream.Length);
                     }
+                    stream.Close();
                 }
-                catch (Exception e)
-                {
-
-                }
-                stream.Close();
+            }
+            catch (Exception ex)
+            {
+                logger.Write("Failed to serialize. Reason: {0}", ex.Message, LogType.ERROR);
             }
             return serialized;
         }
 
-        public T Deserialize<T>(byte[] data)
+        public object Deserialize(byte[] data, Logger logger)
         {
-            T myObject = default(T);
-            using (MemoryStream stream = new MemoryStream(data))
+            object myClass = null;
+            try
             {
-                IFormatter formatter = new BinaryFormatter();
-                try
+                using (MemoryStream stream = new MemoryStream(data))
                 {
-                    myObject = (T)formatter.Deserialize(stream);
+                    IFormatter formatter = new BinaryFormatter();
+                    myClass = formatter.Deserialize(stream);
+                    stream.Close();
                 }
-                catch (Exception e)
-                {
-
-                }
-                stream.Close();
             }
-            return myObject;
+            catch (Exception ex)
+            {
+                logger.Write("Failed to deserialize. Reason: {0}", ex.Message, LogType.ERROR);
+            }
+            return myClass;
         }
 
     }
