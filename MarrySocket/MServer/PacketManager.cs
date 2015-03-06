@@ -19,41 +19,31 @@ namespace MarrySocket.MServer
     using MarrySocket.MExtra.Logging;
     using MarrySocket.MExtra.Packet;
     using MarrySocket.MExtra.Serialization;
-    using System;
-    using System.Reflection;
 
     public class PacketManager
     {
-        private Logger serverLog;
+        private Logger logger;
         private ServerConfig serverConfig;
         private ISerialization serializer;
 
         public PacketManager(ServerConfig serverConfig)
         {
             this.serverConfig = serverConfig;
-            this.serverLog = this.serverConfig.Logger;
+            this.logger = this.serverConfig.Logger;
             this.serializer = this.serverConfig.Serializer;
         }
 
         public void Handle(ClientSocket clientSocket, ReadPacket packet)
         {
-            //try
-            //{
-
-            //}
-            //catch (SerializationException e)
-            //{
-            //    // this.logger.Write("Failed to serialize. Reason: {0}", e.Message, LogType.ERROR);
-            //}
-            Type t = typeof(ISerialization);
-            MethodInfo method = t.GetMethod("Deserialize");
-            MethodInfo generic = method.MakeGenericMethod(packet.Type);
-            var myObject = generic.Invoke(this.serializer, new object[] { packet.SerializedClass });
-
-            if (myObject != null)
+            object myClass = this.serializer.Deserialize(packet.SerializedClass, this.logger);
+            if (myClass != null)
             {
-                this.serverConfig.OnReceivedPacket(packet.PacketHeader.PacketId, clientSocket, myObject);
-                this.serverLog.Write("Client[{0}]: Handled Packet: {0}", clientSocket.Id, packet.PacketHeader.PacketId, LogType.PACKET);
+                this.serverConfig.OnReceivedPacket(packet.PacketHeader.PacketId, clientSocket, myClass);
+                this.logger.Write("Client[{0}]: Handled Packet: {0}", clientSocket.Id, packet.PacketHeader.PacketId, LogType.PACKET);
+            }
+            else
+            {
+                this.logger.Write("Client[{0}]: Could not handled packet: {0}", clientSocket.Id, packet.PacketHeader.PacketId, LogType.PACKET);
             }
         }
 

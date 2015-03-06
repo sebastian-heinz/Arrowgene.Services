@@ -19,8 +19,6 @@ namespace MarrySocket.MClient
     using MarrySocket.MExtra.Logging;
     using MarrySocket.MExtra.Packet;
     using MarrySocket.MExtra.Serialization;
-    using System;
-    using System.Reflection;
 
     public class PacketManager
     {
@@ -38,7 +36,15 @@ namespace MarrySocket.MClient
         public void Handle(ServerSocket serverSocket, ReadPacket packet)
         {
             object myClass = this.serializer.Deserialize(packet.SerializedClass, this.logger);
-            this.clientConfig.OnReceivedPacket(packet.PacketHeader.PacketId, serverSocket, myClass);
+            if (myClass != null)
+            {
+                this.clientConfig.OnReceivedPacket(packet.PacketHeader.PacketId, serverSocket, myClass);
+                this.logger.Write("Handled Packet: {0}", packet.PacketHeader.PacketId, LogType.PACKET);
+            }
+            else
+            {
+                this.logger.Write("Could not handled packet: {0}", packet.PacketHeader.PacketId, LogType.PACKET);
+            }
         }
     }
 }

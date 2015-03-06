@@ -14,10 +14,10 @@
  * limitations under the License.
  * 
  */
-using System;
-
 namespace MarrySocket.MExtra.Packet
 {
+    using System;
+
     public class CraftPacket : PacketCrafter
     {
         public CraftPacket(Int32 packetId, Type type, byte[] serializedClass)

@@ -14,10 +14,10 @@
  * limitations under the License.
  * 
  */
-using System;
-
 namespace MarrySocket.MExtra.Packet
 {
+    using System;
+
     public class PacketHeader
     {
         public const Int32 HEADER_SIZE = 16;

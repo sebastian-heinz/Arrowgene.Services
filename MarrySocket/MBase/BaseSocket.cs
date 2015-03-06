@@ -36,12 +36,12 @@ namespace MarrySocket.MBase
 
         internal Socket Socket { get; private set; }
 
-        public virtual void SendObject<T>(Int32 packetId, object myClass)
+        public virtual void SendObject(Int32 packetId, object myClass)
         {
             byte[] serialized = this.serializer.Serialize(myClass, this.logger);
             if (serialized != null)
             {
-                CraftPacket craftPacket = new CraftPacket(packetId, typeof(T), serialized);
+                CraftPacket craftPacket = new CraftPacket(packetId, myClass.GetType(), serialized);
                 this.Socket.Send(craftPacket.Buffer);
             }
         }

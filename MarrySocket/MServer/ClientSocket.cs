@@ -17,20 +17,16 @@
 namespace MarrySocket.MServer
 {
     using MarrySocket.MBase;
-using MarrySocket.MExtra;
-using MarrySocket.MExtra.Logging;
-using MarrySocket.MExtra.Serialization;
-using System;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
+    using MarrySocket.MExtra;
+    using MarrySocket.MExtra.Logging;
+    using MarrySocket.MExtra.Serialization;
+    using System;
+    using System.Net;
+    using System.Net.Sockets;
 
     public class ClientSocket : BaseSocket
     {
         private IPEndPoint remoteIpEndPoint;
-
 
         public ClientSocket(Socket socket, Logger logger, ISerialization serializer)
             : base(socket, logger, serializer)
@@ -64,7 +60,7 @@ using System.Runtime.Serialization.Formatters.Binary;
             base.Disconnect();
             this.IsAlive = false;
         }
-    
+
         protected override void Error(string error)
         {
             base.logger.Write(error, LogType.ERROR);
