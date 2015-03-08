@@ -38,6 +38,7 @@ namespace MarrySocket.MServer
             object myClass = this.serializer.Deserialize(packet.SerializedClass, this.logger);
             if (myClass != null)
             {
+                clientSocket.InTraffic += packet.PacketHeader.PacketSize;
                 this.serverConfig.OnReceivedPacket(packet.PacketHeader.PacketId, clientSocket, myClass);
                 this.logger.Write("Client[{0}]: Handled Packet: {0}", clientSocket.Id, packet.PacketHeader.PacketId, LogType.PACKET);
             }

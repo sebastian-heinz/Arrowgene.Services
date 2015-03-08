@@ -32,8 +32,12 @@ namespace MarrySocket.MBase
             this.Socket = socket;
             this.logger = logger;
             this.serializer = serializer;
+            this.OutTraffic = 0;
+            this.InTraffic = 0;
         }
 
+        public Int64 InTraffic { get; internal set; }
+        public Int64 OutTraffic { get; private set; }
         internal Socket Socket { get; private set; }
 
         public virtual void SendObject(Int32 packetId, object myClass)
@@ -43,6 +47,7 @@ namespace MarrySocket.MBase
             {
                 CraftPacket craftPacket = new CraftPacket(packetId, myClass.GetType(), serialized);
                 this.Socket.Send(craftPacket.Buffer);
+                this.OutTraffic += craftPacket.BufferSize;
             }
         }
 
