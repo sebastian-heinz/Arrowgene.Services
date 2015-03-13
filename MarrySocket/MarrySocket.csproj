@@ -34,6 +34,11 @@
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <DocumentationFile>..\Output\Release\MarrySocket.XML</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup />
   <ItemGroup>
     <Reference Include="System" />
   </ItemGroup>

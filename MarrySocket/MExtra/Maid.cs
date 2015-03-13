@@ -160,6 +160,12 @@ namespace MarrySocket.MExtra
         /// <returns>
         /// Returns <see cref="OsVersion"/>.
         /// </returns>
+        /// <remarks>
+        /// In order to detect cetain windows versions,
+        /// it is necessary to add a custom .manifest file to the project.
+        /// https://msdn.microsoft.com/en-us/library/windows/desktop/dn481241%28v=vs.85%29.aspx
+        /// Otherwise win 8.1 will be reconized as win 8.0 for example.
+        /// </remarks>
         public static OsVersion GetOperatingSystemVersion()
         {
             int major = Environment.OSVersion.Version.Major;
