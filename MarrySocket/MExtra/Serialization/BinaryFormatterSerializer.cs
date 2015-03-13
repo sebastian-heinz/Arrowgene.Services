@@ -22,8 +22,15 @@ namespace MarrySocket.MExtra.Serialization
     using System.Runtime.Serialization;
     using System.Runtime.Serialization.Formatters.Binary;
 
+    /// <summary>
+    /// TODO SUMMARY
+    /// </summary>
     public class BinaryFormatterSerializer : ISerialization
     {
+
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public byte[] Serialize(object myClass, Logger logger)
         {
             byte[] serialized = null;
@@ -48,6 +55,9 @@ namespace MarrySocket.MExtra.Serialization
             return serialized;
         }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public object Deserialize(byte[] data, Logger logger)
         {
             object myClass = null;

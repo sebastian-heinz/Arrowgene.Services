@@ -18,8 +18,14 @@ namespace MarrySocket.MExtra.Packet
 {
     using System;
 
+    /// <summary>
+    /// TODO SUMMARY
+    /// </summary>
     public class CraftPacket : PacketCrafter
     {
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public CraftPacket(Int32 packetId, Type type, byte[] serializedClass)
         {
             byte[] typeName = Maid.GetBytes(type.AssemblyQualifiedName);

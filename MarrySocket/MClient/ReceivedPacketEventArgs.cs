@@ -18,8 +18,14 @@ namespace MarrySocket.MClient
 {
     using System;
 
+    /// <summary>
+    /// TODO SUMMARY
+    /// </summary>
     public class ReceivedPacketEventArgs : EventArgs
     {
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public ReceivedPacketEventArgs(int packetId, ServerSocket serverSocket, object myObject)
         {
             this.ServerSocket = serverSocket;
@@ -27,8 +33,19 @@ namespace MarrySocket.MClient
             this.MyObject = myObject;
         }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public int PacketId { get; private set; }
+
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public ServerSocket ServerSocket { get; private set; }
+
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public object MyObject { get; private set; }
     }
 }

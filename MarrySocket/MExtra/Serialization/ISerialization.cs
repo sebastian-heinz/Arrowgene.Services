@@ -18,9 +18,19 @@ namespace MarrySocket.MExtra.Serialization
 {
     using MarrySocket.MExtra.Logging;
 
+    /// <summary>
+    /// TODO SUMMARY
+    /// </summary>
     public interface ISerialization
     {
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         byte[] Serialize(object myClass, Logger logger);
+
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         object Deserialize(byte[] data, Logger logger);
     }
 }

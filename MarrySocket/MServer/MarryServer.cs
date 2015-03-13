@@ -17,12 +17,16 @@
 namespace MarrySocket.MServer
 {
     using MarrySocket.MBase;
+    using MarrySocket.MExtra;
     using MarrySocket.MExtra.Logging;
     using System;
     using System.Net;
     using System.Net.Sockets;
     using System.Threading;
 
+    /// <summary>
+    /// Managed server for handling multiple connection.
+    /// </summary>
     public class MarryServer
     {
         private Socket serverSocket;
@@ -30,6 +34,10 @@ namespace MarrySocket.MServer
         private Thread serverThread;
         private volatile bool isListening;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MarryServer"/> class.
+        /// </summary>
+        /// <param name="serverConfig">Configuration for the server.</param>
         public MarryServer(ServerConfig serverConfig)
         {
             this.ServerConfig = serverConfig;
@@ -38,30 +46,51 @@ namespace MarrySocket.MServer
             this.isListening = false;
         }
 
-
+        /// <summary>
+        /// Configuration of the server.
+        /// </summary>
         public ServerConfig ServerConfig { get; private set; }
+
+        /// <summary>
+        /// Logging of server events.
+        /// </summary>
         public Logger Logger { get; private set; }
+
+        /// <summary>
+        /// Server status.
+        /// </summary>
         public bool IsListening { get { return this.ServerConfig.IsListening; } }
 
+        /// <summary>
+        /// Occurs when a new client connected.
+        /// </summary>
         public event EventHandler<ClientConnectedEventArgs> ClientConnected
         {
             add { this.ServerConfig.ClientConnected += value; }
             remove { this.ServerConfig.ClientConnected -= value; }
         }
 
+        /// <summary>
+        /// Occurs when a new packet arrived.
+        /// </summary>
         public event EventHandler<ReceivedPacketEventArgs> ReceivedPacket
         {
             add { this.ServerConfig.ReceivedPacket += value; }
             remove { this.ServerConfig.ReceivedPacket -= value; }
         }
 
+        /// <summary>
+        /// Occurs when a client disconnected.
+        /// </summary>
         public event EventHandler<ClientDisconnectedEventArgs> ClientDisconnected
         {
             add { this.ServerConfig.ClientDisconnected += value; }
             remove { this.ServerConfig.ClientDisconnected -= value; }
         }
 
-
+        /// <summary>
+        /// Starts the server.
+        /// </summary>
         public void Start()
         {
             if (!this.isListening)
@@ -78,6 +107,9 @@ namespace MarrySocket.MServer
             }
         }
 
+        /// <summary>
+        /// Stops the server.
+        /// </summary>
         public void Stop()
         {
             if (this.isListening)
@@ -97,27 +129,52 @@ namespace MarrySocket.MServer
         private void ServerThread()
         {
             this.socketManager.Start();
+            this.serverSocket = null;
 
             try
             {
-                serverSocket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
-                serverSocket.SetSocketOption(SocketOptionLevel.IPv6, BaseConfig.IPV6_V6ONLY, BaseConfig.IPV6_V6ONLY_VALUE);
-                serverSocket.Bind(new IPEndPoint(ServerConfig.ServerIP, ServerConfig.ServerPort));
-                serverSocket.Listen(ServerConfig.Backlog);
-                this.Logger.Write("Listening on port: {0}", ServerConfig.ServerPort, LogType.SERVER);
-                this.Logger.Write("Server Online.", LogType.SERVER);
-                while (this.isListening)
+                if (Maid.IPv6Support())
                 {
-                    if (serverSocket.Poll(this.ServerConfig.PollTimeout, SelectMode.SelectRead))
+                    this.serverSocket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+                    this.serverSocket.SetSocketOption(SocketOptionLevel.IPv6, BaseConfig.USE_IPV6_ONLY, false);
+                    this.Logger.Write("Created IPv4 and IPv6 Socket...", LogType.SERVER);
+                }
+                else
+                {
+                    if (this.ServerConfig.ServerIP.AddressFamily != AddressFamily.InterNetworkV6)
                     {
-                        this.socketManager.AddClient(new ClientSocket(serverSocket.Accept(), this.Logger, this.ServerConfig.Serializer));
+                        this.serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                        this.Logger.Write("Created IPv4 only Socket...", LogType.SERVER);
                     }
+                    else
+                    {
+                        this.Logger.Write("Can not Bind IPv6 IP [{0}] at IPv4 Socket", this.ServerConfig.ServerIP.ToString(), LogType.SERVER);
+                    }
+                }
+                if (this.serverSocket != null)
+                {
+
+                    this.serverSocket.Bind(new IPEndPoint(this.ServerConfig.ServerIP, this.ServerConfig.ServerPort));
+                    this.serverSocket.Listen(this.ServerConfig.Backlog);
+                    this.Logger.Write("Listening on port: {0}", this.ServerConfig.ServerPort, LogType.SERVER);
+                    this.Logger.Write("Server Online.", LogType.SERVER);
+                    while (this.isListening)
+                    {
+                        if (this.serverSocket.Poll(this.ServerConfig.PollTimeout, SelectMode.SelectRead))
+                        {
+                            this.socketManager.AddClient(new ClientSocket(this.serverSocket.Accept(), this.Logger, this.ServerConfig.Serializer));
+                        }
+                    }
+                }
+                else
+                {
+                    this.Logger.Write("Server could not be started.", LogType.SERVER);
                 }
 
             }
             catch (Exception exception)
             {
-                this.Logger.Write(exception.Message, LogType.SERVER);
+                this.Logger.Write(exception.Message, LogType.ERROR);
             }
             finally
             {
@@ -129,6 +186,7 @@ namespace MarrySocket.MServer
                 this.serverSocket.Close();
                 this.socketManager.Stop();
                 this.isListening = false;
+                this.Logger.Write("Server stopped.", LogType.SERVER);
             }
 
         }

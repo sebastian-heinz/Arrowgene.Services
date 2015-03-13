@@ -23,7 +23,7 @@ namespace MarrySocket.MServer
     using System.Net.Sockets;
     using System.Threading;
 
-    public class SocketManager
+    internal class SocketManager
     {
         private List<ClientSocket> clients;
         private ServerConfig serverConfig;
@@ -32,7 +32,7 @@ namespace MarrySocket.MServer
         private object myLock = new object();
         private volatile bool isRunning;
 
-        public SocketManager(ServerConfig serverConfig)
+        internal SocketManager(ServerConfig serverConfig)
         {
             this.serverConfig = serverConfig;
             this.serverLog = this.serverConfig.Logger;
@@ -41,7 +41,7 @@ namespace MarrySocket.MServer
             this.isRunning = false;
         }
 
-        public void Start()
+        internal void Start()
         {
             this.clients = new List<ClientSocket>();
             this.serverLog.Write("Starting Client Manager...", LogType.SERVER);
@@ -65,7 +65,7 @@ namespace MarrySocket.MServer
             this.serverLog.Write("Initialized Client Managers: {0}", this.clientManager.Length, LogType.SERVER);
         }
 
-        public void Stop()
+        internal void Stop()
         {
 
             this.isRunning = false;

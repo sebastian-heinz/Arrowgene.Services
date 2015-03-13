@@ -19,8 +19,14 @@ namespace MarrySocket.MExtra.Packet
     using MarrySocket.MExtra;
     using System;
 
+    /// <summary>
+    /// TODO SUMMARY
+    /// </summary>
     public class ReadPacket
     {
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public ReadPacket(PacketHeader packetHeader, byte[] data)
         {
             this.PacketHeader = packetHeader;
@@ -32,8 +38,19 @@ namespace MarrySocket.MExtra.Packet
             Array.Copy(data, this.PacketHeader.TypeNameSize, this.SerializedClass, 0, this.PacketHeader.SerializedClassSize);
         }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public PacketHeader PacketHeader { get; private set; }
+
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public Type Type { get; private set; }
+
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public byte[] SerializedClass { get; private set; }
     }
 }

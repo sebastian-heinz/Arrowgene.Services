@@ -17,16 +17,32 @@
 namespace MarrySocket.MServer
 {
     using MarrySocket.MBase;
+    using MarrySocket.MExtra;
     using MarrySocket.MExtra.Serialization;
     using System;
     using System.Net;
 
+    /// <summary>
+    /// TODO SUMMARY
+    /// </summary>
     public class ServerConfig : BaseConfig
     {
+
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public ServerConfig(ISerialization serializer)
             : base(serializer)
         {
-            base.ServerIP = IPAddress.IPv6Any;
+            if (Maid.IPv6Support())
+            {
+                base.ServerIP = IPAddress.IPv6Any;
+            }
+            else
+            {
+                base.ServerIP = IPAddress.Any;
+            }
+
             base.ServerPort = 2345;
             this.Backlog = 10;
             this.ReadTimeout = 20;
@@ -34,6 +50,9 @@ namespace MarrySocket.MServer
             this.LogUnknownPacket = true;
         }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public ServerConfig()
             : this(new BinaryFormatterSerializer())
         {
@@ -44,10 +63,26 @@ namespace MarrySocket.MServer
         internal event EventHandler<ClientConnectedEventArgs> ClientConnected;
         internal event EventHandler<ReceivedPacketEventArgs> ReceivedPacket;
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public bool LogUnknownPacket { get; set; }
+
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public int ManagerCount { get; set; }
+
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public int Backlog { get; set; }
+
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public int ReadTimeout { get; set; }
+
         internal bool IsListening { get; set; }
 
         internal void OnReceivedPacket(int packetId, ClientSocket clientSocket, object myObject)

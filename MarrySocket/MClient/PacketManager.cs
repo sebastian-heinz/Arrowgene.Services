@@ -20,20 +20,20 @@ namespace MarrySocket.MClient
     using MarrySocket.MExtra.Packet;
     using MarrySocket.MExtra.Serialization;
 
-    public class PacketManager
+    internal class PacketManager
     {
         private ClientConfig clientConfig;
         private Logger logger;
         private ISerialization serializer;
 
-        public PacketManager(ClientConfig clientConfig)
+        internal PacketManager(ClientConfig clientConfig)
         {
             this.clientConfig = clientConfig;
             this.serializer = this.clientConfig.Serializer;
             this.logger = this.clientConfig.Logger;
         }
 
-        public void Handle(ServerSocket serverSocket, ReadPacket packet)
+        internal void Handle(ServerSocket serverSocket, ReadPacket packet)
         {
             object myClass = this.serializer.Deserialize(packet.SerializedClass, this.logger);
             if (myClass != null)

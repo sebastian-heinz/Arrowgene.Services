@@ -22,15 +22,24 @@ namespace MarrySocket.MClient
     using System;
     using System.Net.Sockets;
 
+    /// <summary>
+    /// TODO SUMMARY
+    /// </summary>
     public class ClientConfig : BaseConfig
     {
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public ClientConfig(ISerialization serializer)
             : base(serializer)
         {
-            base.ServerIP = Maid.IPAddressLookup("localhost", AddressFamily.InterNetworkV6);
+            base.ServerIP = Maid.IPAddressLookup("localhost");
             base.ServerPort = 2345;
         }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public ClientConfig()
             : this(new BinaryFormatterSerializer())
         {

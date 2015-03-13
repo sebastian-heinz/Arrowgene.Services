@@ -21,35 +21,66 @@ namespace MarrySocket.MClient
     using System.Net;
     using System.Net.Sockets;
 
+    /// <summary>
+    /// Managed client, for making connections.
+    /// </summary>
     public class MarryClient
     {
         private SocketManager socketManager;
-
         private bool isValidConfiguration;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MarryClient"/> class.
+        /// </summary>
+        /// <param name="clientConfig">Configuration for the client.</param>
         public MarryClient(ClientConfig clientConfig)
         {
             this.ClientConfig = clientConfig;
             this.Logger = this.ClientConfig.Logger;
         }
 
+        /// <summary>
+        /// Socket to send packets.
+        /// </summary>
         public ServerSocket ServerSocket { get; private set; }
+
+        /// <summary>
+        /// Configuration of the client.
+        /// </summary>
         public ClientConfig ClientConfig { get; private set; }
+
+        /// <summary>
+        /// Logging of client events.
+        /// </summary>
         public Logger Logger { get; private set; }
+
+        /// <summary>
+        /// Connection status.
+        /// </summary>
         public bool IsConnected { get { return this.ClientConfig.IsConnected; } }
 
+
+        /// <summary>
+        /// Connection established.
+        /// </summary>
         public event EventHandler<ConnectedEventArgs> Connected
         {
             add { this.ClientConfig.Connected += value; }
             remove { this.ClientConfig.Connected -= value; }
         }
 
+        /// <summary>
+        /// Packet arrived.
+        /// </summary>
         public event EventHandler<ReceivedPacketEventArgs> ReceivedPacket
         {
             add { this.ClientConfig.ReceivedPacket += value; }
             remove { this.ClientConfig.ReceivedPacket -= value; }
         }
 
+        /// <summary>
+        /// Connection lost.
+        /// </summary>
         public event EventHandler<DisconnectedEventArgs> Disconnected
         {
             add { this.ClientConfig.Disconnected += value; }
@@ -57,28 +88,9 @@ namespace MarrySocket.MClient
         }
 
 
-        private bool SanityCheck()
-        {
-            //TODO check clientConfig
-            return true;
-        }
-
-        private Socket CreateSocket()
-        {
-            Socket socket;
-            if (this.ClientConfig.ServerIP.AddressFamily == AddressFamily.InterNetworkV6)
-            {
-                this.Logger.Write("Creating IPv4 Socket...", LogType.CLIENT);
-                socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
-            }
-            else
-            {
-                this.Logger.Write("Creating IPv6 Socket...", LogType.CLIENT);
-                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            }
-            return socket;
-        }
-
+        /// <summary>
+        /// Connect to server.
+        /// </summary>
         public void Connect()
         {
             if (!this.ClientConfig.IsConnected)
@@ -115,6 +127,9 @@ namespace MarrySocket.MClient
             }
         }
 
+        /// <summary>
+        /// Close connection.
+        /// </summary>
         public void Disconnect(string reason)
         {
             this.socketManager.Stop();
@@ -124,7 +139,27 @@ namespace MarrySocket.MClient
             this.Logger.Write("Client disconnected: {0}", reason, LogType.CLIENT);
         }
 
+        private bool SanityCheck()
+        {
+            //TODO check clientConfig
+            return true;
+        }
 
+        private Socket CreateSocket()
+        {
+            Socket socket;
+            if (this.ClientConfig.ServerIP.AddressFamily == AddressFamily.InterNetworkV6)
+            {
+                this.Logger.Write("Creating IPv4 Socket...", LogType.CLIENT);
+                socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+            }
+            else
+            {
+                this.Logger.Write("Creating IPv6 Socket...", LogType.CLIENT);
+                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            }
+            return socket;
+        }
 
     }
 }

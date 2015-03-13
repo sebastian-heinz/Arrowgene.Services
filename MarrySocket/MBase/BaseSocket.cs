@@ -22,11 +22,17 @@ namespace MarrySocket.MBase
     using System;
     using System.Net.Sockets;
 
+    /// <summary>
+    /// TODO SUMMARY
+    /// </summary>
     public abstract class BaseSocket
     {
-        protected Logger logger;
-        protected ISerialization serializer;
+         internal Logger logger;
+         internal ISerialization serializer;
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         protected BaseSocket(Socket socket, Logger logger, ISerialization serializer)
         {
             this.Socket = socket;
@@ -36,10 +42,21 @@ namespace MarrySocket.MBase
             this.InTraffic = 0;
         }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public Int64 InTraffic { get; internal set; }
+
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public Int64 OutTraffic { get; private set; }
+
         internal Socket Socket { get; private set; }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public virtual void SendObject(Int32 packetId, object myClass)
         {
             byte[] serialized = this.serializer.Serialize(myClass, this.logger);
@@ -51,6 +68,9 @@ namespace MarrySocket.MBase
             }
         }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         protected virtual void Disconnect()
         {
             if (this.Socket.Connected)
@@ -60,6 +80,9 @@ namespace MarrySocket.MBase
             this.Socket.Close();
         }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         protected abstract void Error(string error);
     }
 }

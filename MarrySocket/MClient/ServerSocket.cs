@@ -21,8 +21,14 @@ namespace MarrySocket.MClient
     using MarrySocket.MExtra.Serialization;
     using System.Net.Sockets;
 
+    /// <summary>
+    /// TODO SUMMARY
+    /// </summary>
     public class ServerSocket : BaseSocket
     {
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public ServerSocket(Socket socket, Logger logger, ISerialization serializer)
             : base(socket, logger, serializer)
         {
@@ -34,6 +40,9 @@ namespace MarrySocket.MClient
             base.Disconnect();
         }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         protected override void Error(string error)
         {
             this.logger.Write(error, LogType.ERROR);

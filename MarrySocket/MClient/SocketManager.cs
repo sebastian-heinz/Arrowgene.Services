@@ -22,7 +22,7 @@ namespace MarrySocket.MClient
     using System.Net.Sockets;
     using System.Threading;
 
-    public class SocketManager
+    internal class SocketManager
     {
         private ClientConfig clientConfig;
         private PacketManager packetManager;
@@ -32,7 +32,7 @@ namespace MarrySocket.MClient
         private ServerSocket serverSocket;
         private volatile bool isRunning;
 
-        public SocketManager(ClientConfig clientConfig, ServerSocket serverSocket)
+        internal SocketManager(ClientConfig clientConfig, ServerSocket serverSocket)
         {
             this.clientConfig = clientConfig;
             this.logger = this.clientConfig.Logger;
@@ -41,7 +41,7 @@ namespace MarrySocket.MClient
             this.isRunning = false;
         }
 
-        public void Start()
+        internal void Start()
         {
             this.isRunning = true;
             this.serverManager = new Thread(ManagerProcess);
@@ -49,14 +49,14 @@ namespace MarrySocket.MClient
             this.serverManager.Start();
         }
 
-        public void Stop()
+        internal void Stop()
         {
             this.isRunning = false;
             if (serverManager != null && serverManager.IsAlive)
                 this.serverManager.Join();
         }
 
-        public void DestroySocket(string reason)
+        internal void DestroySocket(string reason)
         {
             if (this.serverSocket != null)
             {
@@ -69,7 +69,7 @@ namespace MarrySocket.MClient
             this.clientConfig.OnDisconnected(this.serverSocket);
         }
 
-        public void ManagerProcess()
+        internal void ManagerProcess()
         {
             byte[] headerBuffer = new byte[PacketHeader.HEADER_SIZE];
             byte[] dataBuffer;

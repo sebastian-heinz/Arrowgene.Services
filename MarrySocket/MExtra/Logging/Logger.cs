@@ -19,8 +19,24 @@ namespace MarrySocket.MExtra.Logging
     using System;
     using System.Collections.Generic;
 
-
-    public enum LogType { NONE, ERROR, INFO, CLIENT, SERVER, PACKET }
+    /// <summary>
+    /// TODO SUMMARY
+    /// </summary>
+    public enum LogType
+    {
+        /// <summary>TODO SUMMARY</summary>
+        NONE,
+        /// <summary>TODO SUMMARY</summary>
+        ERROR,
+        /// <summary>TODO SUMMARY</summary>
+        INFO,
+        /// <summary>TODO SUMMARY</summary>
+        CLIENT,
+        /// <summary>TODO SUMMARY</summary>
+        SERVER,
+        /// <summary>TODO SUMMARY</summary>
+        PACKET
+    }
 
     /// <summary>
     /// Logging Class</summary>
@@ -38,6 +54,9 @@ namespace MarrySocket.MExtra.Logging
         private Dictionary<int, Log> logs;
         private volatile int count;
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public Logger()
         {
             this.myLock = new object();
@@ -45,6 +64,9 @@ namespace MarrySocket.MExtra.Logging
             this.Clear();
         }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public int Count { get { return this.count; } }
 
         internal void OnLogWrite(Log log)
@@ -69,6 +91,9 @@ namespace MarrySocket.MExtra.Logging
             }
         }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public void Remove(int id)
         {
             lock (this.myLock)

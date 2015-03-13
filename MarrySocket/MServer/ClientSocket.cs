@@ -24,10 +24,16 @@ namespace MarrySocket.MServer
     using System.Net;
     using System.Net.Sockets;
 
+    /// <summary>
+    /// TODO SUMMARY
+    /// </summary>
     public class ClientSocket : BaseSocket
     {
         private IPEndPoint remoteIpEndPoint;
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public ClientSocket(Socket socket, Logger logger, ISerialization serializer)
             : base(socket, logger, serializer)
         {
@@ -40,8 +46,20 @@ namespace MarrySocket.MServer
 
         internal bool IsBusy { get; set; }
         internal bool IsAlive { get; set; }
+
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public int Id { get; private set; }
+
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public DateTime LastPing { get; private set; }
+
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public string Ip { get { return ((IPEndPoint)this.Socket.RemoteEndPoint).Address.ToString(); } }
 
         /// <summary>
@@ -61,6 +79,9 @@ namespace MarrySocket.MServer
             this.IsAlive = false;
         }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         protected override void Error(string error)
         {
             base.logger.Write(error, LogType.ERROR);

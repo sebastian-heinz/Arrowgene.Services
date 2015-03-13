@@ -18,13 +18,22 @@ namespace MarrySocket.MClient
 {
     using System;
 
+    /// <summary>
+    /// TODO SUMMARY
+    /// </summary>
     public class DisconnectedEventArgs : EventArgs
     {
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public DisconnectedEventArgs(ServerSocket serverSocket)
         {
             this.ServerSocket = serverSocket;
         }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public ServerSocket ServerSocket { get; set; }
     }
 }

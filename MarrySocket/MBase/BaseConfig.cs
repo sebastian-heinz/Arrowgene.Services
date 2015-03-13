@@ -21,29 +21,27 @@ namespace MarrySocket.MBase
     using System.Net;
     using System.Net.Sockets;
 
+    /// <summary>
+    /// TODO SUMMARY
+    /// </summary>
     public abstract class BaseConfig
     {
-        /*
-         * https://msdn.microsoft.com/en-us/library/system.net.sockets.socketoptionname.aspx
-         * 
-         * IPv6Only	
-         * Indicates if a socket created for the AF_INET6 address family is restricted to IPv6 communications only.
-         * Sockets created for the AF_INET6 address family may be used for both IPv6 and IPv4 communications.
-         * Some applications may want to restrict their use of a socket created for the AF_INET6 address family to IPv6 communications only.
-         * When this value is non-zero (the default on Windows), a socket created for the AF_INET6 address family can be used to send and receive IPv6 packets only.
-         * When this value is zero, a socket created for the AF_INET6 address family can be used to send and receive packets to and from an IPv6 address or an IPv4 address.
-         * Note that the ability to interact with an IPv4 address requires the use of IPv4 mapped addresses.
-         * This socket option is supported on Windows Vista or later.
-         * 
-         */
+        /// <summary>
+        ///https://msdn.microsoft.com/en-us/library/system.net.sockets.socketoptionname.aspx
+        /// IPv6Only	
+        /// Indicates if a socket created for the AF_INET6 address family is restricted to IPv6 communications only.
+        /// Sockets created for the AF_INET6 address family may be used for both IPv6 and IPv4 communications.
+        /// Some applications may want to restrict their use of a socket created for the AF_INET6 address family to IPv6 communications only.
+        /// When this value is non-zero (the default on Windows), a socket created for the AF_INET6 address family can be used to send and receive IPv6 packets only.
+        /// When this value is zero, a socket created for the AF_INET6 address family can be used to send and receive packets to and from an IPv6 address or an IPv4 address.
+        /// Note that the ability to interact with an IPv4 address requires the use of IPv4 mapped addresses.
+        /// This socket option is supported on Windows Vista or later.
+        /// </summary>
+        public const SocketOptionName USE_IPV6_ONLY = (SocketOptionName)27;
 
-        //TODO MS below Vista (XP) does not support DualMode Sockets
-        //Check for Operating system
-        //Create IpV4 Socket if below Vista
-        //Notify Ipv6 Client about issue, ask to use Ipv4
-        public const SocketOptionName IPV6_V6ONLY = (SocketOptionName)27;
-        public const bool IPV6_V6ONLY_VALUE = false;
-
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public BaseConfig(ISerialization serializer)
         {
             this.PollTimeout = 100;
@@ -52,15 +50,32 @@ namespace MarrySocket.MBase
             this.Serializer = serializer;
         }
 
-
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public ISerialization Serializer { get; private set; }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public IPAddress ServerIP { get; set; }
-        public int ServerPort { get; set; }
-        public int PollTimeout { get; set; }
-        public int BufferSize { get; set; }
-        internal Logger Logger { get; private set; }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
+        public int ServerPort { get; set; }
+
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
+        public int PollTimeout { get; set; }
+
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
+        public int BufferSize { get; set; }
+
+        internal Logger Logger { get; private set; }
     }
 }
 

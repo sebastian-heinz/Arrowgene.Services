@@ -18,16 +18,25 @@ namespace MarrySocket.MExtra.Packet
 {
     using System;
 
+    /// <summary>
+    /// TODO SUMMARY
+    /// </summary>
     public class PacketHeader
     {
+        /// <summary>TODO SUMMARY</summary>
         public const Int32 HEADER_SIZE = 16;
-
+        /// <summary>TODO SUMMARY</summary>
         public const Int32 HEADER_PACKET_LENGTH = 4;
+        /// <summary>TODO SUMMARY</summary>
         public const Int32 HEADER_ID_LENGTH = 4;
+        /// <summary>TODO SUMMARY</summary>
         public const Int32 HEADER_TYPE_LENGTH = 4;
+        /// <summary>TODO SUMMARY</summary>
         public const Int32 HEADER_SERIALIZED_CLASS_LENGTH = 4;
 
-
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public static PacketHeader CreateInstance(byte[] headerBuffer)
         {
             Int32 packetSize = BitConverter.ToInt32(headerBuffer, 0);
@@ -37,6 +46,9 @@ namespace MarrySocket.MExtra.Packet
             return new PacketHeader(packetSize, packetId, typeNameSize, serializedClassSize);
         }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public PacketHeader(Int32 packetSize, Int32 packetId, Int32 typeNameSize, Int32 serializedClassSize)
         {
             this.PacketSize = packetSize;
@@ -45,10 +57,15 @@ namespace MarrySocket.MExtra.Packet
             this.SerializedClassSize = serializedClassSize;
         }
 
+        /// <summary>TODO SUMMARY</summary>
         public Int32 PacketId { get; private set; }
+        /// <summary>TODO SUMMARY</summary>
         public Int32 PacketSize { get; private set; }
+        /// <summary>TODO SUMMARY</summary>
         public Int32 TypeNameSize { get; private set; }
+        /// <summary>TODO SUMMARY</summary>
         public Int32 SerializedClassSize { get; private set; }
+        /// <summary>TODO SUMMARY</summary>
         public Int32 DataSize { get { return this.PacketSize - HEADER_SIZE; } }
     }
 }

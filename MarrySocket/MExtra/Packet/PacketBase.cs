@@ -18,15 +18,24 @@ namespace MarrySocket.MExtra.Packet
 {
     using System.IO;
 
+    /// <summary>
+    /// TODO SUMMARY
+    /// </summary>
     public abstract class PacketBase
     {
+        /// <summary>TODO SUMMARY</summary>
         protected MemoryStream memoryBuffer;
 
-
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         protected PacketBase()
         {
         }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public virtual byte[] Buffer
         {
             get
@@ -38,6 +47,9 @@ namespace MarrySocket.MExtra.Packet
             }
         }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public int BufferPosition
         {
             get
@@ -50,6 +62,9 @@ namespace MarrySocket.MExtra.Packet
             }
         }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public int BufferSize
         {
             get

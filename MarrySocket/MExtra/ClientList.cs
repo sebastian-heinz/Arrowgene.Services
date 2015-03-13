@@ -19,16 +19,25 @@ namespace MarrySocket.MExtra
     using MarrySocket.MServer;
     using System.Collections.Generic;
 
+    /// <summary>
+    /// TODO SUMMARY
+    /// </summary>
     public class ClientList
     {
         private Dictionary<int, ClientSocket> marryClients { get; set; }
         private object myLock = new object();
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public ClientList()
         {
             this.marryClients = new Dictionary<int, ClientSocket>();
         }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public List<ClientSocket> GetAllClients()
         {
             List<ClientSocket> clientSockets = null;
@@ -39,6 +48,9 @@ namespace MarrySocket.MExtra
             return clientSockets;
         }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public void AddClient(ClientSocket marryClient)
         {
             lock (myLock)
@@ -48,6 +60,9 @@ namespace MarrySocket.MExtra
             }
         }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public void RemoveClient(int id)
         {
             lock (myLock)
@@ -57,6 +72,9 @@ namespace MarrySocket.MExtra
             }
         }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public ClientSocket GetClient(int id)
         {
             ClientSocket marryClient = null;
@@ -70,6 +88,9 @@ namespace MarrySocket.MExtra
             return marryClient;
         }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public bool Contains(int id)
         {
             bool contains = false;
@@ -85,6 +106,9 @@ namespace MarrySocket.MExtra
             return contains;
         }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
         public int Count()
         {
             int count = -1;
