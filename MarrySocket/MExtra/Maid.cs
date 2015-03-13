@@ -17,6 +17,7 @@
 namespace MarrySocket.MExtra
 {
     using System;
+    using System.Diagnostics;
     using System.Net;
     using System.Net.Sockets;
 
@@ -98,7 +99,7 @@ namespace MarrySocket.MExtra
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                Debug.Write("Maid:IPAddressLookup::" + ex.Message);
             }
 
             return ipAdress;
@@ -107,7 +108,8 @@ namespace MarrySocket.MExtra
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public enum OsVersion {
+        public enum OsVersion
+        {
             /// <summary>UNKNOWN</summary>
             UNKNOWN = 1,
             /// <summary>WIN_3_1</summary>
@@ -269,7 +271,7 @@ namespace MarrySocket.MExtra
             int major = Environment.OSVersion.Version.Major;
             PlatformID platformId = Environment.OSVersion.Platform;
 
-            if (platformId == PlatformID.Win32NT && major > 6)
+            if (platformId == PlatformID.Win32NT && major >= 6)
             {
                 result = true;
             }

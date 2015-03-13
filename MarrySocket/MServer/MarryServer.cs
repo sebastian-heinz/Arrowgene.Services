@@ -129,31 +129,13 @@ namespace MarrySocket.MServer
         private void ServerThread()
         {
             this.socketManager.Start();
-            this.serverSocket = null;
 
             try
             {
-                if (Maid.IPv6Support())
-                {
-                    this.serverSocket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
-                    this.serverSocket.SetSocketOption(SocketOptionLevel.IPv6, BaseConfig.USE_IPV6_ONLY, false);
-                    this.Logger.Write("Created IPv4 and IPv6 Socket...", LogType.SERVER);
-                }
-                else
-                {
-                    if (this.ServerConfig.ServerIP.AddressFamily != AddressFamily.InterNetworkV6)
-                    {
-                        this.serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                        this.Logger.Write("Created IPv4 only Socket...", LogType.SERVER);
-                    }
-                    else
-                    {
-                        this.Logger.Write("Can not Bind IPv6 IP [{0}] at IPv4 Socket", this.ServerConfig.ServerIP.ToString(), LogType.SERVER);
-                    }
-                }
+                this.serverSocket = this.CreateSocket(this.ServerConfig.ServerIP);
+
                 if (this.serverSocket != null)
                 {
-
                     this.serverSocket.Bind(new IPEndPoint(this.ServerConfig.ServerIP, this.ServerConfig.ServerPort));
                     this.serverSocket.Listen(this.ServerConfig.Backlog);
                     this.Logger.Write("Listening on port: {0}", this.ServerConfig.ServerPort, LogType.SERVER);
@@ -190,5 +172,24 @@ namespace MarrySocket.MServer
             }
 
         }
+
+        private Socket CreateSocket(IPAddress ipAddress)
+        {
+            Socket socket = null;
+            if (ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
+            {
+                socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+                socket.SetSocketOption(SocketOptionLevel.IPv6, BaseConfig.USE_IPV6_ONLY, false);
+                this.Logger.Write("Created IPv4 and IPv6 Socket...", LogType.SERVER);
+            }
+            else
+            {
+                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                this.Logger.Write("Created IPv4 Socket...", LogType.CLIENT);
+            }
+            return socket;
+        }
+
+
     }
 }

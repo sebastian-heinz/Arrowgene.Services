@@ -97,22 +97,30 @@ namespace MarrySocket.MClient
             {
                 try
                 {
-                    this.isValidConfiguration = SanityCheck();
-                    if (this.isValidConfiguration)
-                    {
-                        this.ServerSocket = new ServerSocket(this.CreateSocket(), this.Logger, this.ClientConfig.Serializer);
-                        this.socketManager = new SocketManager(this.ClientConfig, this.ServerSocket);
+                    Socket socket = this.CreateSocket(this.ClientConfig.ServerIP);
 
-                        IPEndPoint remoteEP = new IPEndPoint(this.ClientConfig.ServerIP, this.ClientConfig.ServerPort);
-                        this.ServerSocket.Socket.Connect(remoteEP);
-                        this.socketManager.Start();
-                        this.ClientConfig.IsConnected = true;
-                        this.ClientConfig.OnConnected(this.ServerSocket);
-                        this.Logger.Write("Client connected", LogType.CLIENT);
+                    if (socket != null)
+                    {
+                        this.isValidConfiguration = SanityCheck();
+                        if (this.isValidConfiguration)
+                        {
+                            this.ServerSocket = new ServerSocket(socket, this.Logger, this.ClientConfig.Serializer);
+                            this.socketManager = new SocketManager(this.ClientConfig, this.ServerSocket);
+                            IPEndPoint remoteEP = new IPEndPoint(this.ClientConfig.ServerIP, this.ClientConfig.ServerPort);
+                            this.ServerSocket.Socket.Connect(remoteEP);
+                            this.socketManager.Start();
+                            this.ClientConfig.IsConnected = true;
+                            this.ClientConfig.OnConnected(this.ServerSocket);
+                            this.Logger.Write("Client connected", LogType.CLIENT);
+                        }
+                        else
+                        {
+                            this.Logger.Write("Bad Configuration", LogType.CLIENT);
+                        }
                     }
                     else
                     {
-                        this.Logger.Write("Bad Configuration", LogType.ERROR);
+                        this.Logger.Write("Client could not connect.", LogType.CLIENT);
                     }
 
                 }
@@ -145,17 +153,17 @@ namespace MarrySocket.MClient
             return true;
         }
 
-        private Socket CreateSocket()
+        private Socket CreateSocket(IPAddress ipAddress)
         {
-            Socket socket;
-            if (this.ClientConfig.ServerIP.AddressFamily == AddressFamily.InterNetworkV6)
+            Socket socket = null;
+            if (ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
             {
-                this.Logger.Write("Creating IPv4 Socket...", LogType.CLIENT);
+                this.Logger.Write("Creating IPv6 Socket...", LogType.CLIENT);
                 socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
             }
             else
             {
-                this.Logger.Write("Creating IPv6 Socket...", LogType.CLIENT);
+                this.Logger.Write("Creating IPv4 Socket...", LogType.CLIENT);
                 socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             }
             return socket;
