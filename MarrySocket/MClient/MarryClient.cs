@@ -138,7 +138,12 @@ namespace MarrySocket.MClient
         /// <summary>
         /// Close connection.
         /// </summary>
-        public void Disconnect(string reason)
+        public void Disconnect()
+        {
+            this.Disconnect("Connection Closed");
+        }
+
+        private void Disconnect(string reason)
         {
             this.socketManager.Stop();
             this.ServerSocket.Close();
