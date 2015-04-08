@@ -40,11 +40,11 @@ namespace MarrySocket.MServer
             {
                 clientSocket.InTraffic += packet.PacketHeader.PacketSize;
                 this.serverConfig.OnReceivedPacket(packet.PacketHeader.PacketId, clientSocket, myClass);
-                this.logger.Write("Client[{0}]: Handled Packet: {0}", clientSocket.Id, packet.PacketHeader.PacketId, LogType.PACKET);
+                this.logger.Write("Client[{0}]: Handled Packet: {1}", clientSocket.Id, packet.PacketHeader.PacketId, LogType.PACKET);
             }
             else
             {
-                this.logger.Write("Client[{0}]: Could not handled packet: {0}", clientSocket.Id, packet.PacketHeader.PacketId, LogType.PACKET);
+                this.logger.Write("Client[{0}]: Could not handled packet: {1}", clientSocket.Id, packet.PacketHeader.PacketId, LogType.PACKET);
             }
         }
 
