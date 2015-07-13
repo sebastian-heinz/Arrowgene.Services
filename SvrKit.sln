@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvrKit", "SvrKit\SvrKit.csproj", "{8BE22FD5-6D33-4A1F-A308-99BE60D05FF9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvrKitTest", "SvrKitTest\SvrKitTest.csproj", "{CC4EC602-0790-4D2D-AC18-3A13FF730104}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{8BE22FD5-6D33-4A1F-A308-99BE60D05FF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8BE22FD5-6D33-4A1F-A308-99BE60D05FF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8BE22FD5-6D33-4A1F-A308-99BE60D05FF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC4EC602-0790-4D2D-AC18-3A13FF730104}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC4EC602-0790-4D2D-AC18-3A13FF730104}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC4EC602-0790-4D2D-AC18-3A13FF730104}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC4EC602-0790-4D2D-AC18-3A13FF730104}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
