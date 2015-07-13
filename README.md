@@ -1,7 +1,3 @@
-#MarrySocket
+#Server Kit
 
-TODO: Write a project description
-
-## Usage
-
-TODO: Write usage instructions
+Server Kit aids in creating a Server with multiple Clients.
