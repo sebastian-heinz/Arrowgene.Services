@@ -1,4 +1,4 @@
-﻿namespace SvrKit.Networking.QuickHttpServer
+﻿namespace SvrKit.Networking.Http.QuickHttp
 {
     using System;
     public class QHttpRequestAsyncResponse : EventArgs

@@ -1,4 +1,4 @@
-﻿namespace SvrKit.Networking.QuickHttpServer
+﻿namespace SvrKit.Networking.Http
 {
     using System;
     using System.Collections.Generic;
