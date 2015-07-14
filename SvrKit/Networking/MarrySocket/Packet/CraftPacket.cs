@@ -16,6 +16,7 @@
  */
 namespace SvrKit.Networking.MarrySocket.Packet
 {
+    using SvrKit.Kits;
     using System;
 
     /// <summary>
@@ -28,7 +29,7 @@ namespace SvrKit.Networking.MarrySocket.Packet
         /// </summary>
         public CraftPacket(Int32 packetId, Type type, byte[] serializedClass)
         {
-            byte[] typeName = Maid.GetBytes(type.AssemblyQualifiedName);
+            byte[] typeName = ConvertKit.GetBytes(type.AssemblyQualifiedName);
             Int32 packetSize = typeName.Length + serializedClass.Length + PacketHeader.HEADER_SIZE;
 
             this.Addint32(packetSize);

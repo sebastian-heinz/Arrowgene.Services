@@ -43,6 +43,11 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Kits\AppKit.cs" />
+    <Compile Include="Kits\ConvertKit.cs" />
+    <Compile Include="Kits\OSKit.cs" />
+    <Compile Include="Logging\LogType.cs" />
+    <Compile Include="Kits\IPKit.cs" />
     <Compile Include="Networking\MarrySocket\MBase\BaseSocket.cs" />
     <Compile Include="Networking\MarrySocket\MBase\BaseConfig.cs" />
     <Compile Include="Networking\MarrySocket\MClient\ConnectedEventArgs.cs" />
@@ -56,7 +61,6 @@
     <Compile Include="Networking\MarrySocket\Packet\PacketReader.cs" />
     <Compile Include="Networking\MarrySocket\Serialization\BinaryFormatterSerializer.cs" />
     <Compile Include="Networking\MarrySocket\Serialization\ISerialization.cs" />
-    <Compile Include="Extra\Maid.cs" />
     <Compile Include="Networking\MarrySocket\MClient\ClientConfig.cs" />
     <Compile Include="Networking\MarrySocket\MClient\MarryClient.cs" />
     <Compile Include="Networking\MarrySocket\MClient\PacketManager.cs" />
@@ -74,7 +78,14 @@
     <Compile Include="Networking\MarrySocket\MServer\ServerConfig.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Networking\MarrySocket\MServer\SocketManager.cs" />
+    <Compile Include="Networking\QuickHttpServer\HttpMime.cs" />
+    <Compile Include="Networking\QuickHttpServer\QHttpServer.cs" />
+    <Compile Include="Networking\QuickHttpServer\QHttpRequest.cs" />
+    <Compile Include="Networking\QuickHttpServer\QHttpRequestAsyncResponse.cs" />
+    <Compile Include="Networking\QuickHttpServer\QHttpHandleEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Provider\ByteBuffer.cs" />
+    <Compile Include="Provider\IniFile.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SvrKit.licenseheader" />

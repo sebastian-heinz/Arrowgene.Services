@@ -18,25 +18,7 @@ namespace SvrKit.Logging
 {
     using System;
     using System.Collections.Generic;
-
-    /// <summary>
-    /// TODO SUMMARY
-    /// </summary>
-    public enum LogType
-    {
-        /// <summary>TODO SUMMARY</summary>
-        NONE,
-        /// <summary>TODO SUMMARY</summary>
-        ERROR,
-        /// <summary>TODO SUMMARY</summary>
-        INFO,
-        /// <summary>TODO SUMMARY</summary>
-        CLIENT,
-        /// <summary>TODO SUMMARY</summary>
-        SERVER,
-        /// <summary>TODO SUMMARY</summary>
-        PACKET
-    }
+    using System.Diagnostics;
 
     /// <summary>
     /// Logging Class</summary>
@@ -52,7 +34,7 @@ namespace SvrKit.Logging
         public event EventHandler<LogWriteEventArgs> LogWrite;
         private object myLock;
         private Dictionary<int, Log> logs;
-        private volatile int count;
+        private volatile int currentId;
 
         /// <summary>
         /// TODO SUMMARY
@@ -62,12 +44,14 @@ namespace SvrKit.Logging
             this.myLock = new object();
             this.logs = new Dictionary<int, Log>();
             this.Clear();
+            this.WriteDebug = true;
         }
 
         /// <summary>
-        /// TODO SUMMARY
+        /// Write Logs to Debug output.
         /// </summary>
-        public int Count { get { return this.count; } }
+        public bool WriteDebug { get; set; }
+
 
         internal void OnLogWrite(Log log)
         {
@@ -86,8 +70,7 @@ namespace SvrKit.Logging
             lock (this.myLock)
             {
                 this.logs.Clear();
-                this.count = 0;
-
+                this.currentId = 0;
             }
         }
 
@@ -109,10 +92,19 @@ namespace SvrKit.Logging
         {
             lock (this.myLock)
             {
-                log.Id = this.count;
+                log.Id = this.currentId;
                 this.logs.Add(log.Id, log);
-                this.count++;
+                this.DebugWrite(log);
+                this.currentId++;
                 this.OnLogWrite(log);
+            }
+        }
+
+        private void DebugWrite(Log log)
+        {
+            if (this.WriteDebug)
+            {
+                Debug.WriteLine(log.Text);
             }
         }
 

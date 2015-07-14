@@ -16,6 +16,7 @@
  */
 namespace SvrKit.Networking.MarrySocket.Packet
 {
+    using SvrKit.Kits;
     using SvrKit.Networking.MarrySocket;
     using System;
 
@@ -31,7 +32,7 @@ namespace SvrKit.Networking.MarrySocket.Packet
         {
             this.PacketHeader = packetHeader;
 
-            string typeName = Maid.GetString(data, 0, this.PacketHeader.TypeNameSize);
+            string typeName = ConvertKit.GetString(data, 0, this.PacketHeader.TypeNameSize);
             this.Type = Type.GetType(typeName);
 
             this.SerializedClass = new byte[this.PacketHeader.SerializedClassSize];

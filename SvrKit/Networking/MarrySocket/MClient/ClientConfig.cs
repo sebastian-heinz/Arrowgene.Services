@@ -31,7 +31,7 @@ namespace SvrKit.Networking.MarrySocket.MClient
         public ClientConfig(ISerialization serializer)
             : base(serializer)
         {
-            base.ServerIP = Maid.IPAddressLookup("localhost");
+            base.ServerIP = IPTools.IPAddressLookup("localhost");
             base.ServerPort = 2345;
         }
 

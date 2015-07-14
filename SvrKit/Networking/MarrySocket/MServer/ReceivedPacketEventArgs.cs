@@ -28,7 +28,7 @@ namespace SvrKit.Networking.MarrySocket.MServer
         /// </summary>
         public ReceivedPacketEventArgs(int packetId, ClientSocket clientSocket, object myObject)
         {
-            this.ServerSocket = clientSocket;
+            this.ClientSocket = clientSocket;
             this.PacketId = packetId;
             this.MyObject = myObject;
         }
@@ -41,7 +41,7 @@ namespace SvrKit.Networking.MarrySocket.MServer
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public ClientSocket ServerSocket { get; private set; }
+        public ClientSocket ClientSocket { get; private set; }
 
         /// <summary>
         /// TODO SUMMARY

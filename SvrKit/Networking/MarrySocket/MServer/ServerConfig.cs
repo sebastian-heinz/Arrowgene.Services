@@ -33,7 +33,7 @@ namespace SvrKit.Networking.MarrySocket.MServer
         public ServerConfig(ISerialization serializer)
             : base(serializer)
         {
-            if (Maid.IPv6Support())
+            if (IPTools.IPv6Support())
             {
                 base.ServerIP = IPAddress.IPv6Any;
             }
@@ -82,7 +82,6 @@ namespace SvrKit.Networking.MarrySocket.MServer
         /// </summary>
         public int ReadTimeout { get; set; }
 
-        internal bool IsListening { get; set; }
 
         internal void OnReceivedPacket(int packetId, ClientSocket clientSocket, object myObject)
         {

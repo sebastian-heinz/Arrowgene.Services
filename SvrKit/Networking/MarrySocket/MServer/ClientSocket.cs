@@ -36,7 +36,7 @@ namespace SvrKit.Networking.MarrySocket.MServer
         public ClientSocket(Socket socket, Logger logger, ISerialization serializer)
             : base(socket, logger, serializer)
         {
-            this.Id = Maid.Random.Next(9999);
+            this.Id = new Random().Next(1, 9999);
             this.IsAlive = true;
             this.remoteIpEndPoint = socket.RemoteEndPoint as IPEndPoint;
             this.LastPing = DateTime.Now;

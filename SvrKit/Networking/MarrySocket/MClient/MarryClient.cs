@@ -27,7 +27,7 @@ namespace SvrKit.Networking.MarrySocket.MClient
     public class MarryClient
     {
         private SocketManager socketManager;
-        private bool isValidConfiguration;
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MarryClient"/> class.
@@ -101,8 +101,7 @@ namespace SvrKit.Networking.MarrySocket.MClient
 
                     if (socket != null)
                     {
-                        this.isValidConfiguration = SanityCheck();
-                        if (this.isValidConfiguration)
+                        if (SanityCheck())
                         {
                             this.ServerSocket = new ServerSocket(socket, this.Logger, this.ClientConfig.Serializer);
                             this.socketManager = new SocketManager(this.ClientConfig, this.ServerSocket);
@@ -145,8 +144,16 @@ namespace SvrKit.Networking.MarrySocket.MClient
 
         private void Disconnect(string reason)
         {
-            this.socketManager.Stop();
-            this.ServerSocket.Close();
+            if (this.socketManager != null)
+            {
+                this.socketManager.Stop();
+            }
+
+            if (this.ServerSocket != null)
+            {
+                this.ServerSocket.Close();
+            }
+
             this.ClientConfig.IsConnected = false;
             this.ClientConfig.OnDisconnected(this.ServerSocket);
             this.Logger.Write("Client disconnected: {0}", reason, LogType.CLIENT);

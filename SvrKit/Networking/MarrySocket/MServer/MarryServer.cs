@@ -31,7 +31,7 @@ namespace SvrKit.Networking.MarrySocket.MServer
         private Socket serverSocket;
         private SocketManager socketManager;
         private Thread serverThread;
-        private volatile bool isListening;
+        private bool isListening;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MarryServer"/> class.
@@ -58,7 +58,7 @@ namespace SvrKit.Networking.MarrySocket.MServer
         /// <summary>
         /// Server status.
         /// </summary>
-        public bool IsListening { get { return this.ServerConfig.IsListening; } }
+        public bool IsListening { get { return this.isListening; } }
 
         /// <summary>
         /// Occurs when a new client connected.
