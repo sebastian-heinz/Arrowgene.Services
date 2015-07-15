@@ -1,15 +1,15 @@
 ﻿namespace SvrKit.Networking.Proxy
 {
-    public class ProxyPacket : PacketReader
+    using SvrKit.Provider;
+    public class ProxyPacket 
     {
         public enum TrafficType { CLIENT, SERVER };
         public TrafficType Traffic { get; set; }
-        public byte[] RawPacket { get; set; }
+        public ByteBuffer Payload { get; set; }
 
-        public ProxyPacket(int bufferSize)
-            : base(bufferSize)
+        public ProxyPacket(ByteBuffer payload)
         {
-
+            this.Payload = payload;
         }
     }
 }

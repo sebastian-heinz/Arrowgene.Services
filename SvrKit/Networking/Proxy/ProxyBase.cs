@@ -1,16 +1,16 @@
 ﻿namespace SvrKit.Networking.Proxy
 {
+    using SvrKit.Logging;
+    using SvrKit.Provider;
     using System;
+    using System.Diagnostics;
     using System.Net.Sockets;
 
-    public class ProxyBase
+    public abstract class ProxyBase
     {
-        public bool isClientConnected;
-        public ProxyConfig ProxyConfig { get; private set; }
-
-        protected Socket clientSocket;
-        protected Socket serverSocket;
+        protected SvrKitSocket socket;
         protected byte[] buffer;
+
 
         protected ProxyBase(ProxyConfig proxyConfig)
         {
@@ -18,111 +18,67 @@
             this.buffer = new byte[this.ProxyConfig.BufferSize];
         }
 
-        protected void Disconnected(Socket socket, string reason)
+        public event EventHandler<ReceivedProxyPacketEventArgs> ReceivedPacket;
+
+        public ProxyConfig ProxyConfig { get; private set; }
+        public bool IsConnected { get; protected set; }
+
+        public abstract void Connect();
+        public abstract void Disconnect();
+
+        protected virtual void ReceivePacket(ProxyPacket proxyPacket)
         {
-            this.isClientConnected = false;
-            this.ProxyConfig.Logger.Write(reason);
+            this.OnReceivedPacket(proxyPacket);
         }
 
-        protected virtual void ReceivedPacket(ProxyPacket proxyPacket) { }
-
-        public void Send(PacketCrafter packetCrafter)
+        public void Write(byte[] data)
         {
-            packetCrafter.Finish();
-            this.Send(packetCrafter.Buffer);
+            this.socket.Send(data);
         }
 
-        public void Send(byte[] data)
+        protected void Read()
         {
-            this.clientSocket.Send(data);
-        }
-
-        protected void Listen()
-        {
-            while (this.isClientConnected)
+            while (this.IsConnected)
             {
-                if (!this.clientSocket.Connected)
+                ByteBuffer payload = new ByteBuffer();
+                if (!this.socket.Connected)
                 {
-                    this.Disconnected(this.clientSocket, "Client Not Connected");
+                    this.Disconnect();
                 }
 
-                if (this.clientSocket.Poll(100, SelectMode.SelectRead))
+                if (this.socket.Poll(100, SelectMode.SelectRead))
                 {
                     try
                     {
-                        if (this.clientSocket.Receive(this.headerBuffer, 0, this.ProxyConfig.HeaderSize, SocketFlags.None) < 1)
+                        int received = 0;
+
+                        while ((received = this.socket.Receive(this.buffer, 0, this.ProxyConfig.BufferSize, SocketFlags.None)) > 0)
                         {
-                            this.Disconnected(this.clientSocket, "Nothing To Receive");
-                            continue;
+                            payload.WriteBytes(this.buffer, 0, received);
                         }
                     }
-                    catch (Exception e)
+                    catch (Exception ex)
                     {
-                        if (!this.clientSocket.Connected)
-                        {
-                            this.Disconnected(clientSocket, "Client Error");
-                        }
-                        else
-                        {
-                            this.Disconnected(clientSocket, "failed to receive packet: " + e.Message);
-                        }
-                        continue;
+                        Debug.WriteLine(ex.ToString());
+                        this.Disconnect();
                     }
 
-                    Int32 packetLength = BitConverter.ToInt16(this.headerBuffer, 0) - this.ProxyConfig.HeaderSize;
-                    Int32 packetId = BitConverter.ToInt16(this.headerBuffer, 2);
-
-                    this.proxyHost.WriteOutput("Length: " + packetLength.ToString());
-                    this.proxyHost.WriteOutput("ID: " + packetId.ToString());
-                    if (packetLength < 0)
-                    {
-                        this.Disconnected(this.clientSocket, "Message length is less than zero");
-                        continue;
-                    }
-
-                    if (this.ProxyConfig.BufferSize > 0 && packetLength > this.ProxyConfig.BufferSize)
-                    {
-                        this.Disconnected(clientSocket, "Message length " + packetLength + " is larger than maximum message size " + this.ProxyConfig.BufferSize);
-                        continue;
-                    }
-
-                    if (packetLength == 0)
-                    {
-                        this.Disconnected(this.clientSocket, "empty packet");
-                        continue;
-                    }
-
-                    dataBuffer = new byte[packetLength];
-                    int bytesReceived = 0;
-
-                    while (bytesReceived < packetLength)
-                    {
-                        if (clientSocket.Poll(100, SelectMode.SelectRead))
-                            bytesReceived += clientSocket.Receive(dataBuffer, bytesReceived, packetLength - bytesReceived, SocketFlags.None);
-                    }
-
-                    ProxyPacket proxyPacket = new ProxyPacket(packetLength);
-                    proxyPacket.PacketId = packetId;
-                    proxyPacket.PacketSize = packetLength;
-                    proxyPacket.Buffer = dataBuffer;
-                    proxyPacket.BufferPosition = 0;
-
-                    byte[] rawPacket = new byte[this.ProxyConfig.HeaderSize + packetLength];
-                    Buffer.BlockCopy(headerBuffer, 0, rawPacket, 0, this.ProxyConfig.HeaderSize);
-                    Buffer.BlockCopy(dataBuffer, 0, rawPacket, this.ProxyConfig.HeaderSize, packetLength);
-                    proxyPacket.RawPacket = rawPacket;
-
-                    this.ReceivedPacket(proxyPacket);
+                    ProxyPacket proxyPacket = new ProxyPacket(payload);
+                    this.ReceivePacket(proxyPacket);
                 }
-
-
-
-
             }
         }
 
+        protected void OnReceivedPacket(ProxyPacket proxyPacket)
+        {
+            EventHandler<ReceivedProxyPacketEventArgs> receivedPacket = this.ReceivedPacket;
 
+            if (receivedPacket != null)
+            {
+                ReceivedProxyPacketEventArgs receivedProxyPacketEventArgs = new ReceivedProxyPacketEventArgs(proxyPacket);
+                receivedPacket(this, receivedProxyPacketEventArgs);
+            }
+        }
 
     }
 }
-

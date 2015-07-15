@@ -98,7 +98,6 @@ namespace SvrKit.Networking.MarrySocket.MServer
                 this.serverThread = new Thread(ServerThread);
                 this.serverThread.Name = "ServerThread";
                 this.serverThread.Start();
-                this.isListening = true;
             }
             else
             {
@@ -137,6 +136,7 @@ namespace SvrKit.Networking.MarrySocket.MServer
                 {
                     this.serverSocket.Bind(new IPEndPoint(this.ServerConfig.ServerIP, this.ServerConfig.ServerPort));
                     this.serverSocket.Listen(this.ServerConfig.Backlog);
+                    this.isListening = true;
                     this.Logger.Write("Listening on port: {0}", this.ServerConfig.ServerPort, LogType.SERVER);
                     this.Logger.Write("Server Online.", LogType.SERVER);
                     while (this.isListening)
@@ -151,7 +151,6 @@ namespace SvrKit.Networking.MarrySocket.MServer
                 {
                     this.Logger.Write("Server could not be started.", LogType.SERVER);
                 }
-
             }
             catch (Exception exception)
             {
@@ -179,12 +178,12 @@ namespace SvrKit.Networking.MarrySocket.MServer
             {
                 socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
                 socket.SetSocketOption(SocketOptionLevel.IPv6, BaseConfig.USE_IPV6_ONLY, false);
-                this.Logger.Write("Created IPv4 and IPv6 Socket...", LogType.SERVER);
+                this.Logger.Write("Created Socket (IPv4 and IPv6 Support)...", LogType.SERVER);
             }
             else
             {
                 socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                this.Logger.Write("Created IPv4 Socket...", LogType.CLIENT);
+                this.Logger.Write("Created Socket (IPv4 Support)...", LogType.CLIENT);
             }
             return socket;
         }

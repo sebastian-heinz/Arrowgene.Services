@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvrKit", "SvrKit\SvrKit.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvrKitTest", "SvrKitTest\SvrKitTest.csproj", "{CC4EC602-0790-4D2D-AC18-3A13FF730104}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvrKitConsolePlayground", "SvrKitConsolePlayground\SvrKitConsolePlayground.csproj", "{49BCDE27-B907-4909-9843-589409B4D9A7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{CC4EC602-0790-4D2D-AC18-3A13FF730104}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC4EC602-0790-4D2D-AC18-3A13FF730104}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC4EC602-0790-4D2D-AC18-3A13FF730104}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49BCDE27-B907-4909-9843-589409B4D9A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49BCDE27-B907-4909-9843-589409B4D9A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49BCDE27-B907-4909-9843-589409B4D9A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49BCDE27-B907-4909-9843-589409B4D9A7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

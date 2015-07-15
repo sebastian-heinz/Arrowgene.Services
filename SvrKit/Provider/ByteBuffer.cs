@@ -126,6 +126,11 @@
             this.binaryWriter.Write(b);
         }
 
+        public void WriteBytes(byte[] b, int index, int count)
+        {
+            this.binaryWriter.Write(b, index, count);
+        }
+
         public void WriteInt16(short i)
         {
             this.binaryWriter.Write(i);

@@ -79,6 +79,7 @@
     <Compile Include="Networking\MarrySocket\MServer\ServerConfig.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Networking\MarrySocket\MServer\SocketManager.cs" />
+    <Compile Include="Networking\Proxy\ReceivedProxyPacketEventArgs.cs" />
     <Compile Include="Networking\Proxy\ProxyBase.cs" />
     <Compile Include="Networking\Proxy\ProxyClient.cs" />
     <Compile Include="Networking\Proxy\ProxyConfig.cs" />
@@ -90,6 +91,7 @@
     <Compile Include="Networking\Http\QuickHttp\QHttpRequestAsyncResponse.cs" />
     <Compile Include="Networking\Http\QuickHttp\QHttpHandleEventArgs.cs" />
     <Compile Include="Networking\ServerDiscovery.cs" />
+    <Compile Include="Networking\SvrKitSocket.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Provider\ByteBuffer.cs" />
     <Compile Include="Provider\IniFile.cs" />

@@ -1,46 +1,50 @@
 ﻿namespace SvrKit.Networking.Proxy
 {
     using System;
+    using System.Diagnostics;
     using System.Net.Sockets;
     using System.Threading;
 
     public class ProxyClient : ProxyBase
     {
-
         public ProxyClient(ProxyConfig proxyConfig)
             : base(proxyConfig)
         {
 
         }
 
-        public void Connect(Socket serverSocket)
+        public override void Connect()
         {
-            this.serverSocket = serverSocket;
             Thread thread = new Thread(_Connect);
+            thread.Name = "ProxyClient";
             thread.Start();
+        }
+
+        public override void Disconnect()
+        {
+            base.IsConnected = false;
+        }
+
+        protected override void ReceivePacket(ProxyPacket proxyPacket)
+        {
+            proxyPacket.Traffic = ProxyPacket.TrafficType.CLIENT;
+            base.ReceivePacket(proxyPacket);
         }
 
         private void _Connect()
         {
-            this.clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            base.socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
-                this.clientSocket.Connect(base.ProxyConfig.ServerEndPoint);
-                this.isClientConnected = true;
-                this.proxyHost.WriteOutput("Proxy Connected to Server");
-                this.Listen();
+                base.socket.Connect(base.ProxyConfig.ServerEndPoint);
+                base.IsConnected = true;
+                base.Read();
             }
             catch (Exception ex)
             {
-                this.proxyHost.WriteOutput(ex.ToString());
+                Debug.WriteLine(ex.ToString());
+                this.Disconnect();
             }
-        }
-
-        protected override void ReceivedPacket(ProxyPacket packetReader)
-        {
-            packetReader.Traffic = ProxyPacket.TrafficType.SERVER;
-            this.proxyHost.WriteLog(packetReader);
-            this.serverSocket.Send(packetReader.RawPacket);
         }
 
     }
