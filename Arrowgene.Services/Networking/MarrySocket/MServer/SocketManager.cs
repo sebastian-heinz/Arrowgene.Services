@@ -129,8 +129,7 @@ namespace ArrowgeneServices.Networking.MarrySocket.MServer
                         {
                             clients[i].IsBusy = true;
 
-                            if (clients[i].Socket.Connected && clients[i].Socket.Poll(this.serverConfig.PollTimeout, SelectMode.SelectRead) ||
-                                !clients[i].IsAlive)
+                            if (clients[i].Socket.Connected && clients[i].Socket.Poll(this.serverConfig.PollTimeout, SelectMode.SelectRead) || !clients[i].IsAlive)
                             {
                                 readyclients.Add(clients[i]);
                             }
@@ -208,8 +207,7 @@ namespace ArrowgeneServices.Networking.MarrySocket.MServer
                             if (readyclients[0].Socket.Poll(this.serverConfig.PollTimeout, SelectMode.SelectRead))
                                 bytesReceived += readyclients[0].Socket.Receive(dataBuffer, bytesReceived, packetHeader.DataSize - bytesReceived, SocketFlags.None);
                         }
-
-
+                        
                         ReadPacket readPacket = new ReadPacket(packetHeader, dataBuffer);
 
                         packetManager.Handle(readyclients[0], readPacket);

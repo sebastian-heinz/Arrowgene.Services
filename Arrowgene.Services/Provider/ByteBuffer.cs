@@ -36,15 +36,15 @@
             }
         }
 
-        public long Position { get { return this.memoryStream.Position; } set { this.memoryStream.Position = value; } }
+        public int Size { get { return (int)this.Position; } }
 
-        public byte[] GetBytesTillPosition()
+        public long Position { get { return this.memoryStream.Position; } private set { this.memoryStream.Position = value; } }
+
+        public byte[] GetBytes()
         {
-            int length = (int)this.Position;
             this.Position = 0;
-            return this.ReadBytes(length);
+            return this.ReadBytes(this.Size);
         }
-
 
         #region read
         public byte ReadByte()

@@ -6,8 +6,9 @@
     {
         public static void Main(string[] args)
         {
-            new Proxy();
+            Proxy p = new Proxy();
             Console.ReadKey();
+            p.close();
         }
     }
 }

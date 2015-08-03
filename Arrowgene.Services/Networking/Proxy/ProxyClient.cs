@@ -13,14 +13,14 @@
 
         }
 
-        public override void Connect()
+        public override void Start()
         {
             Thread thread = new Thread(_Connect);
             thread.Name = "ProxyClient";
             thread.Start();
         }
 
-        public override void Disconnect()
+        public override void Stop()
         {
             base.IsConnected = false;
         }
@@ -43,7 +43,7 @@
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.ToString());
-                this.Disconnect();
+                this.Stop();
             }
         }
 

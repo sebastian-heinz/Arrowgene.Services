@@ -26,14 +26,14 @@
 
         public bool IsListening { get { return this.isListening; } }
 
-        public override void Connect()
+        public override void Start()
         {
             Thread thread = new Thread(_Start);
             thread.Name = "ProxyServer";
             thread.Start();
         }
 
-        public override void Disconnect()
+        public override void Stop()
         {
             this.isListening = false;
             base.IsConnected = false;
@@ -41,7 +41,7 @@
 
         protected override void ReceivePacket(ProxyPacket proxyPacket)
         {
-            byte[] forward = proxyPacket.Payload.GetBytesTillPosition();
+            byte[] forward = proxyPacket.Payload.GetBytes();
             this.proxyClient.Write(forward);
 
             proxyPacket.Traffic = ProxyPacket.TrafficType.SERVER;
@@ -50,7 +50,7 @@
 
         private void proxyClient_ReceivedPacket(object sender, ReceivedProxyPacketEventArgs e)
         {
-            byte[] forward = e.ProxyPacket.Payload.GetBytesTillPosition();
+            byte[] forward = e.ProxyPacket.Payload.GetBytes();
             base.Write(forward);
         }
 
@@ -74,7 +74,7 @@
                             base.socket = this.serverSocket.Accept();
                             this.IsConnected = true;
 
-                            this.proxyClient.Connect();
+                            this.proxyClient.Start();
 
                             while (!proxyClient.IsConnected)
                             {

@@ -23,8 +23,8 @@
         public ProxyConfig ProxyConfig { get; private set; }
         public bool IsConnected { get; protected set; }
 
-        public abstract void Connect();
-        public abstract void Disconnect();
+        public abstract void Start();
+        public abstract void Stop();
 
         protected virtual void ReceivePacket(ProxyPacket proxyPacket)
         {
@@ -43,7 +43,7 @@
                 ByteBuffer payload = new ByteBuffer();
                 if (!this.socket.Connected)
                 {
-                    this.Disconnect();
+                    this.Stop();
                 }
 
                 if (this.socket.Poll(100, SelectMode.SelectRead))
@@ -60,11 +60,14 @@
                     catch (Exception ex)
                     {
                         Debug.WriteLine(ex.ToString());
-                        this.Disconnect();
+                        this.Stop();
                     }
 
-                    ProxyPacket proxyPacket = new ProxyPacket(payload);
-                    this.ReceivePacket(proxyPacket);
+                    if (payload.Size > 0)
+                    {
+                        ProxyPacket proxyPacket = new ProxyPacket(payload);
+                        this.ReceivePacket(proxyPacket);
+                    }
                 }
             }
         }
