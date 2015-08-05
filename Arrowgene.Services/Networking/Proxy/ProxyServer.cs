@@ -12,7 +12,6 @@
     {
         private AGSocket serverSocket;
         private ProxyClient proxyClient;
-        private bool isListening;
         private Logger logger;
 
 
@@ -24,7 +23,7 @@
             this.proxyClient.ReceivedPacket += proxyClient_ReceivedPacket;
         }
 
-        public bool IsListening { get { return this.isListening; } }
+        public bool IsListening { get; private set; }
 
         public override void Start()
         {
@@ -35,8 +34,9 @@
 
         public override void Stop()
         {
-            this.isListening = false;
-            base.IsConnected = false;
+            base.Stop();
+            this.IsListening = false;
+            this.proxyClient.Stop();
         }
 
         protected override void ReceivePacket(ProxyPacket proxyPacket)
@@ -65,18 +65,18 @@
                     this.serverSocket.Bind(this.ProxyConfig.ProxyEndPoint);
                     this.serverSocket.Listen(10);
 
-                    this.isListening = true;
+                    this.IsListening = true;
 
-                    while (this.isListening)
+                    while (this.IsListening)
                     {
                         if (this.serverSocket.Poll(100, SelectMode.SelectRead))
                         {
                             base.socket = this.serverSocket.Accept();
-                            this.IsConnected = true;
+                            base.IsRunning = true;
 
                             this.proxyClient.Start();
 
-                            while (!proxyClient.IsConnected)
+                            while (!proxyClient.IsRunning)
                             {
                                 Thread.Sleep(100);
                             }

@@ -15,14 +15,10 @@
 
         public override void Start()
         {
+            base.Start();
             Thread thread = new Thread(_Connect);
             thread.Name = "ProxyClient";
             thread.Start();
-        }
-
-        public override void Stop()
-        {
-            base.IsConnected = false;
         }
 
         protected override void ReceivePacket(ProxyPacket proxyPacket)
@@ -37,7 +33,7 @@
             try
             {
                 base.socket.Connect(base.ProxyConfig.ServerEndPoint);
-                base.IsConnected = true;
+                base.IsRunning = true;
                 base.Read();
             }
             catch (Exception ex)

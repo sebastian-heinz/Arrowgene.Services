@@ -11,7 +11,6 @@
         protected AGSocket socket;
         protected byte[] buffer;
 
-
         protected ProxyBase(ProxyConfig proxyConfig)
         {
             this.ProxyConfig = proxyConfig;
@@ -21,10 +20,17 @@
         public event EventHandler<ReceivedProxyPacketEventArgs> ReceivedPacket;
 
         public ProxyConfig ProxyConfig { get; private set; }
-        public bool IsConnected { get; protected set; }
+        public bool IsRunning { get; protected set; }
 
-        public abstract void Start();
-        public abstract void Stop();
+        public virtual void Start()
+        {
+            this.IsRunning = true;
+        }
+
+        public virtual void Stop()
+        {
+            this.IsRunning = false;
+        }
 
         protected virtual void ReceivePacket(ProxyPacket proxyPacket)
         {
@@ -38,7 +44,7 @@
 
         protected void Read()
         {
-            while (this.IsConnected)
+            while (this.IsRunning)
             {
                 ByteBuffer payload = new ByteBuffer();
                 if (!this.socket.Connected)
