@@ -1,4 +1,4 @@
-﻿namespace SvrKitConsolePlayground
+﻿namespace Arrowgene.Services.Playground
 {
     using System;
 
@@ -7,7 +7,7 @@
         public static void Main(string[] args)
         {
             Proxy p = new Proxy();
-            Console.ReadKey();
+            p.Run();
             p.close();
         }
     }

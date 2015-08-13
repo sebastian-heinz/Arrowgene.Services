@@ -1,10 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ArrowgeneServices.Networking.MarrySocket.MClient;
-using ArrowgeneServices.Networking.MarrySocket.MServer;
-using System.Threading;
-
-namespace SvrKitTest
+﻿namespace Arrowgene.Services.Test.Networking.MarrySocket
 {
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Arrowgene.Services.Networking.MarrySocket.MClient;
+    using Arrowgene.Services.Networking.MarrySocket.MServer;
+    using System.Threading;
+
     [TestClass]
     public class MarrySocketConnection
     {

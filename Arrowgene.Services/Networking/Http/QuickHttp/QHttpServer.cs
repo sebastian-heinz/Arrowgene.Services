@@ -1,4 +1,4 @@
-﻿namespace ArrowgeneServices.Networking.Http.QuickHttp
+﻿namespace Arrowgene.Services.Networking.Http.QuickHttp
 {
 
     using System;

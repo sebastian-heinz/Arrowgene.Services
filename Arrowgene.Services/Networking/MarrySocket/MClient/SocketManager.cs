@@ -14,10 +14,10 @@
  * limitations under the License.
  * 
  */
-namespace ArrowgeneServices.Networking.MarrySocket.MClient
+namespace Arrowgene.Services.Networking.MarrySocket.MClient
 {
-    using ArrowgeneServices.Logging;
-    using ArrowgeneServices.Networking.MarrySocket.Packet;
+    using Arrowgene.Services.Logging;
+    using Arrowgene.Services.Networking.MarrySocket.Packet;
     using System;
     using System.Net.Sockets;
     using System.Threading;

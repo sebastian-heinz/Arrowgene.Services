@@ -1,4 +1,4 @@
-﻿namespace ArrowgeneServices.Networking
+﻿namespace Arrowgene.Services.Networking
 {
     using System;
     using System.Collections.Generic;

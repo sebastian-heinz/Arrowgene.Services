@@ -1,9 +1,9 @@
-﻿namespace SvrKitConsolePlayground
+﻿namespace Arrowgene.Services.Playground
 {
-    using ArrowgeneServices.Networking;
-    using ArrowgeneServices.Networking.MarrySocket.MClient;
-    using ArrowgeneServices.Networking.MarrySocket.MServer;
-    using ArrowgeneServices.Networking.Proxy;
+    using Arrowgene.Services.Networking;
+    using Arrowgene.Services.Networking.MarrySocket.MClient;
+    using Arrowgene.Services.Networking.MarrySocket.MServer;
+    using Arrowgene.Services.Networking.Proxy;
     using System;
     using System.Net;
     using System.Threading;
@@ -56,12 +56,12 @@
             Console.WriteLine("a");
         }
 
-        private void Client_ReceivedPacket(object sender, ArrowgeneServices.Networking.MarrySocket.MClient.ReceivedPacketEventArgs e)
+        private void Client_ReceivedPacket(object sender, Arrowgene.Services.Networking.MarrySocket.MClient.ReceivedPacketEventArgs e)
         {
             Console.WriteLine("b");
         }
 
-        private void Server_ReceivedPacket(object sender, ArrowgeneServices.Networking.MarrySocket.MServer.ReceivedPacketEventArgs e)
+        private void Server_ReceivedPacket(object sender, Arrowgene.Services.Networking.MarrySocket.MServer.ReceivedPacketEventArgs e)
         {
             Console.WriteLine("c");
         }
@@ -71,6 +71,11 @@
             proxyServer.Stop();
             client.Disconnect();
             server.Stop();
+        }
+
+        internal void Run()
+        {
+       
         }
     }
 }

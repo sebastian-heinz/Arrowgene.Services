@@ -14,10 +14,10 @@
  * limitations under the License.
  * 
  */
-namespace ArrowgeneServices.Networking.MarrySocket.MServer
+namespace Arrowgene.Services.Networking.MarrySocket.MServer
 {
-    using ArrowgeneServices.Networking.MarrySocket.MBase;
-    using ArrowgeneServices.Networking.MarrySocket.Serialization;
+    using Arrowgene.Services.Networking.MarrySocket.MBase;
+    using Arrowgene.Services.Networking.MarrySocket.Serialization;
     using System;
     using System.Net;
 

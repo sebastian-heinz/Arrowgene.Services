@@ -14,10 +14,10 @@
  * limitations under the License.
  * 
  */
-namespace ArrowgeneServices.Networking.MarrySocket.Packet
+namespace Arrowgene.Services.Networking.MarrySocket.Packet
 {
-    using ArrowgeneServices.Common;
-    using ArrowgeneServices.Networking.MarrySocket;
+    using Arrowgene.Services.Common;
+    using Arrowgene.Services.Networking.MarrySocket;
     using System;
 
     /// <summary>

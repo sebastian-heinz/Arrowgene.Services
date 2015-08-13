@@ -7,7 +7,7 @@
     <ProjectGuid>{8BE22FD5-6D33-4A1F-A308-99BE60D05FF9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ArrowgeneServices</RootNamespace>
+    <RootNamespace>Arrowgene.Services</RootNamespace>
     <AssemblyName>Arrowgene.Services</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -96,7 +96,7 @@
     <Compile Include="Provider\IniFile.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="SvrKit.licenseheader" />
+    <None Include="Arrowgene.Services.licenseheader" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

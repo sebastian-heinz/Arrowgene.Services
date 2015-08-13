@@ -1,4 +1,4 @@
-﻿namespace ArrowgeneServices.Logging
+﻿namespace Arrowgene.Services.Logging
 {
     /// <summary>
     /// TODO SUMMARY

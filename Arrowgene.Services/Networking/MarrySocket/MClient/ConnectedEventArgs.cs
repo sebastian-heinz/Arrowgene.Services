@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-namespace ArrowgeneServices.Networking.MarrySocket.MClient
+namespace Arrowgene.Services.Networking.MarrySocket.MClient
 {
     using System;
 

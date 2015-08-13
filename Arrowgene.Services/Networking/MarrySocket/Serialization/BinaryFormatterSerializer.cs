@@ -14,9 +14,9 @@
  * limitations under the License.
  * 
  */
-namespace ArrowgeneServices.Networking.MarrySocket.Serialization
+namespace Arrowgene.Services.Networking.MarrySocket.Serialization
 {
-    using ArrowgeneServices.Logging;
+    using Arrowgene.Services.Logging;
     using System;
     using System.IO;
     using System.Runtime.Serialization;

@@ -1,7 +1,7 @@
-﻿namespace ArrowgeneServices.Networking.Proxy
+﻿namespace Arrowgene.Services.Networking.Proxy
 {
-    using ArrowgeneServices.Logging;
-    using ArrowgeneServices.Provider;
+    using Arrowgene.Services.Logging;
+    using Arrowgene.Services.Provider;
     using System;
     using System.Diagnostics;
     using System.Net.Sockets;

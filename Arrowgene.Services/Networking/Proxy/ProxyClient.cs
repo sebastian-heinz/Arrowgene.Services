@@ -1,4 +1,4 @@
-﻿namespace ArrowgeneServices.Networking.Proxy
+﻿namespace Arrowgene.Services.Networking.Proxy
 {
     using System;
     using System.Diagnostics;

@@ -1,6 +1,6 @@
-﻿namespace ArrowgeneServices.Networking.Proxy
+﻿namespace Arrowgene.Services.Networking.Proxy
 {
-    using ArrowgeneServices.Logging;
+    using Arrowgene.Services.Logging;
     using System.Net;
 
     public class ProxyConfig

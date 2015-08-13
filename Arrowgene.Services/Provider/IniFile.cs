@@ -1,4 +1,4 @@
-﻿namespace ArrowgeneServices.Provider
+﻿namespace Arrowgene.Services.Provider
 {
     using System;
     using System.Runtime.InteropServices;

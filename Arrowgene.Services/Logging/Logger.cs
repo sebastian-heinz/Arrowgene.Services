@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-namespace ArrowgeneServices.Logging
+namespace Arrowgene.Services.Logging
 {
     using System;
     using System.Collections.Generic;

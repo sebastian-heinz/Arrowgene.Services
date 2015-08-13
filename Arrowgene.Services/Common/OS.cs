@@ -1,4 +1,4 @@
-﻿namespace ArrowgeneServices.Common
+﻿namespace Arrowgene.Services.Common
 {
     using System;
 
