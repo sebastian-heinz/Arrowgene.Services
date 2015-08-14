@@ -174,17 +174,25 @@ namespace Arrowgene.Services.Network.MarrySocket.MServer
         private Socket CreateSocket(IPAddress ipAddress)
         {
             Socket socket = null;
-            if (ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
+
+            if (this.ServerConfig.IPv4v6AgnosticSocket)
             {
                 socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
                 socket.SetSocketOption(SocketOptionLevel.IPv6, BaseConfig.USE_IPV6_ONLY, false);
+                this.ServerConfig.ServerIP = IPAddress.IPv6Any;
                 this.Logger.Write("Created Socket (IPv4 and IPv6 Support)...", LogType.SERVER);
+            }
+            else if (ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
+            {
+                socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+                this.Logger.Write("Created Socket (IPv6 Support)...", LogType.SERVER);
             }
             else
             {
                 socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 this.Logger.Write("Created Socket (IPv4 Support)...", LogType.CLIENT);
             }
+
             return socket;
         }
 

@@ -106,7 +106,7 @@
                     }
                 }
 
-                if (ipAdress == null)
+                if (ipAdress == null && IPv6Support())
                 {
                     foreach (IPAddress ipAddr in ipAddresses)
                     {

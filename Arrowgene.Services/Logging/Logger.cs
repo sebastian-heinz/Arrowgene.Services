@@ -52,9 +52,9 @@ namespace Arrowgene.Services.Logging
         /// Write Logs to Debug output.
         /// </summary>
         public bool WriteDebug { get; set; }
-      
-        public string Name { get; set; }
 
+        public string Name { get; set; }
+        public int Count { get { return this.logs.Count; } }
 
         internal void OnLogWrite(Log log)
         {

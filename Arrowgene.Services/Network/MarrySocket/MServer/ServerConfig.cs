@@ -21,6 +21,7 @@ namespace Arrowgene.Services.Network.MarrySocket.MServer
     using Exception;
     using System;
     using System.Net;
+    using System.Net.Sockets;
 
     /// <summary>
     /// TODO SUMMARY
@@ -44,6 +45,7 @@ namespace Arrowgene.Services.Network.MarrySocket.MServer
             this.ReadTimeout = 20;
             this.ManagerCount = 5;
             this.LogUnknownPacket = true;
+            this.IPv4v6AgnosticSocket = true;
         }
 
 
@@ -80,6 +82,12 @@ namespace Arrowgene.Services.Network.MarrySocket.MServer
         /// </summary>
         public int ReadTimeout { get; set; }
 
+        /// <summary>
+        /// Enables measures to achieve an IPv4/IPv6 agnostic socket.
+        /// Binds <see cref="Socket"/> always automatically to <see cref="IPAddress.IPv6Any"/>. 
+        /// Sets the <see cref="SocketOptionLevel"/>(27) "USE_IPV6_ONLY" to false.
+        /// </summary>
+        public bool IPv4v6AgnosticSocket { get; set; }
 
         internal void OnReceivedPacket(int packetId, ClientSocket clientSocket, object myObject)
         {
