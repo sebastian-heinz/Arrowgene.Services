@@ -39,8 +39,9 @@ namespace Arrowgene.Services.Logging
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public Logger()
+        public Logger(string name)
         {
+            this.Name = name;
             this.myLock = new object();
             this.logs = new Dictionary<int, Log>();
             this.Clear();
@@ -51,6 +52,8 @@ namespace Arrowgene.Services.Logging
         /// Write Logs to Debug output.
         /// </summary>
         public bool WriteDebug { get; set; }
+      
+        public string Name { get; set; }
 
 
         internal void OnLogWrite(Log log)
@@ -104,7 +107,7 @@ namespace Arrowgene.Services.Logging
         {
             if (this.WriteDebug)
             {
-                Debug.WriteLine(log.Text);
+                Debug.WriteLine(log.Text, this.Name);
             }
         }
 

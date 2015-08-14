@@ -30,7 +30,7 @@
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("AppKit::TryCreateDirectory:" + ex.ToString());
+                Debug.WriteLine("Application::TryCreateDirectory:" + ex.ToString());
             }
         }
 

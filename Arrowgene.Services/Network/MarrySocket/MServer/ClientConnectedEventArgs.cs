@@ -14,42 +14,26 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Logging
+namespace Arrowgene.Services.Network.MarrySocket.MServer
 {
     using System;
 
     /// <summary>
     /// TODO SUMMARY
     /// </summary>
-    public class Log
+    public class ClientConnectedEventArgs : EventArgs
     {
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public Log(string text)
+        public ClientConnectedEventArgs(ClientSocket clientSocket)
         {
-            this.Text = text;
-            this.LogType = LogType.NONE;
-            this.DateTime = DateTime.Now;
-            this.Id = -1;
+            this.ClientSocket = clientSocket;
         }
 
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public Log(string text, LogType logType) : this(text)
-        {
-            this.LogType = logType;
-        }
-
-        /// <summary>TODO SUMMARY</summary>
-        public int Id { get; set; }
-        /// <summary>TODO SUMMARY</summary>
-        public string Text { get; private set; }
-        /// <summary>TODO SUMMARY</summary>
-        public LogType LogType { get; private set; }
-        /// <summary>TODO SUMMARY</summary>
-        public DateTime DateTime { get; private set; }
-
+        public ClientSocket ClientSocket { get; set; }
     }
 }

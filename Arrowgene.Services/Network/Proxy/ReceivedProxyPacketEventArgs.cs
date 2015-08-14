@@ -14,42 +14,26 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Logging
+namespace Arrowgene.Services.Network.Proxy
 {
     using System;
 
     /// <summary>
     /// TODO SUMMARY
     /// </summary>
-    public class Log
+    public class ReceivedProxyPacketEventArgs : EventArgs
     {
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public Log(string text)
+        public ReceivedProxyPacketEventArgs(ProxyPacket proxyPacket)
         {
-            this.Text = text;
-            this.LogType = LogType.NONE;
-            this.DateTime = DateTime.Now;
-            this.Id = -1;
+            this.ProxyPacket = proxyPacket;
         }
 
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public Log(string text, LogType logType) : this(text)
-        {
-            this.LogType = logType;
-        }
-
-        /// <summary>TODO SUMMARY</summary>
-        public int Id { get; set; }
-        /// <summary>TODO SUMMARY</summary>
-        public string Text { get; private set; }
-        /// <summary>TODO SUMMARY</summary>
-        public LogType LogType { get; private set; }
-        /// <summary>TODO SUMMARY</summary>
-        public DateTime DateTime { get; private set; }
-
+        public ProxyPacket ProxyPacket { get; set; }
     }
 }

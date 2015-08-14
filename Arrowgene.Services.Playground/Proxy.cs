@@ -1,11 +1,11 @@
 ﻿namespace Arrowgene.Services.Playground
 {
-    using Arrowgene.Services.Networking;
-    using Arrowgene.Services.Networking.MarrySocket.MClient;
-    using Arrowgene.Services.Networking.MarrySocket.MServer;
-    using Arrowgene.Services.Networking.Proxy;
-    using System;
+    using Arrowgene.Services.Network;
+    using Arrowgene.Services.Network.MarrySocket.MClient;
+    using Arrowgene.Services.Network.MarrySocket.MServer;
+    using Arrowgene.Services.Network.Proxy;
     using System.Net;
+    using System.Net.Sockets;
     using System.Threading;
 
     public class Proxy
@@ -16,17 +16,44 @@
 
         public Proxy()
         {
-            ServerConfig serverConfig = new ServerConfig();
-            serverConfig.ServerPort = 2345;
+
+
+
+        }
+
+        private void ProxyServer_ReceivedPacket(object sender, ReceivedProxyPacketEventArgs e)
+        {
+
+        }
+
+        private void Client_ReceivedPacket(object sender, Arrowgene.Services.Network.MarrySocket.MClient.ReceivedPacketEventArgs e)
+        {
+
+        }
+
+        private void Server_ReceivedPacket(object sender, Arrowgene.Services.Network.MarrySocket.MServer.ReceivedPacketEventArgs e)
+        {
+            e.ClientSocket.SendObject(1000, "world!");
+        }
+
+        internal void close()
+        {
+            client.Disconnect();
+            proxyServer.Stop();
+            server.Stop();
+        }
+
+        internal void Run()
+        {
+            ServerConfig serverConfig = new ServerConfig(AGSocket.IPAddressLocalhost(AddressFamily.InterNetworkV6), 2345);
             server = new MarryServer(serverConfig);
             server.ReceivedPacket += Server_ReceivedPacket;
 
-            ClientConfig clientConfig = new ClientConfig();
-            clientConfig.ServerPort = 2349;
+            ClientConfig clientConfig = new ClientConfig(AGSocket.IPAddressLocalhost(AddressFamily.InterNetworkV6), 2349);
             client = new MarryClient(clientConfig);
             client.ReceivedPacket += Client_ReceivedPacket;
 
-            ProxyConfig proxyConfig = new ProxyConfig(IPAddress.IPv6Any, 2349, AGSocket.IPAddressLookup("127.0.0.1", System.Net.Sockets.AddressFamily.InterNetworkV6), 2345);
+            ProxyConfig proxyConfig = new ProxyConfig(IPAddress.IPv6Any, 2349, AGSocket.IPAddressLocalhost(AddressFamily.InterNetworkV6), 2345);
             proxyServer = new ProxyServer(proxyConfig);
             proxyServer.ReceivedPacket += ProxyServer_ReceivedPacket;
 
@@ -45,37 +72,8 @@
 
             if (client.IsConnected)
             {
-                client.ServerSocket.SendObject(1000, "hello");
+                client.ServerSocket.SendObject(1000, "hello?");
             }
-
-
-        }
-
-        private void ProxyServer_ReceivedPacket(object sender, ReceivedProxyPacketEventArgs e)
-        {
-            Console.WriteLine("a");
-        }
-
-        private void Client_ReceivedPacket(object sender, Arrowgene.Services.Networking.MarrySocket.MClient.ReceivedPacketEventArgs e)
-        {
-            Console.WriteLine("b");
-        }
-
-        private void Server_ReceivedPacket(object sender, Arrowgene.Services.Networking.MarrySocket.MServer.ReceivedPacketEventArgs e)
-        {
-            Console.WriteLine("c");
-        }
-
-        internal void close()
-        {
-            proxyServer.Stop();
-            client.Disconnect();
-            server.Stop();
-        }
-
-        internal void Run()
-        {
-       
         }
     }
 }

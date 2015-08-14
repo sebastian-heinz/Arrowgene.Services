@@ -14,42 +14,43 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Logging
+namespace Arrowgene.Services.Network.MarrySocket.Packet
 {
+    using Arrowgene.Services.Common;
     using System;
 
     /// <summary>
     /// TODO SUMMARY
     /// </summary>
-    public class Log
+    public class ReadPacket
     {
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public Log(string text)
+        public ReadPacket(PacketHeader packetHeader, byte[] data)
         {
-            this.Text = text;
-            this.LogType = LogType.NONE;
-            this.DateTime = DateTime.Now;
-            this.Id = -1;
+            this.PacketHeader = packetHeader;
+
+            string typeName = Conversion.GetString(data, 0, this.PacketHeader.TypeNameSize);
+            this.Type = Type.GetType(typeName);
+
+            this.SerializedClass = new byte[this.PacketHeader.SerializedClassSize];
+            Array.Copy(data, this.PacketHeader.TypeNameSize, this.SerializedClass, 0, this.PacketHeader.SerializedClassSize);
         }
 
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public Log(string text, LogType logType) : this(text)
-        {
-            this.LogType = logType;
-        }
+        public PacketHeader PacketHeader { get; private set; }
 
-        /// <summary>TODO SUMMARY</summary>
-        public int Id { get; set; }
-        /// <summary>TODO SUMMARY</summary>
-        public string Text { get; private set; }
-        /// <summary>TODO SUMMARY</summary>
-        public LogType LogType { get; private set; }
-        /// <summary>TODO SUMMARY</summary>
-        public DateTime DateTime { get; private set; }
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
+        public Type Type { get; private set; }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
+        public byte[] SerializedClass { get; private set; }
     }
 }

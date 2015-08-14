@@ -14,42 +14,38 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Logging
+namespace Arrowgene.Services.Network.MarrySocket.MClient
 {
-    using System;
+    using Arrowgene.Services.Logging;
+    using Arrowgene.Services.Network.MarrySocket.MBase;
+    using Arrowgene.Services.Network.MarrySocket.Serialization;
+    using System.Net.Sockets;
 
     /// <summary>
     /// TODO SUMMARY
     /// </summary>
-    public class Log
+    public class ServerSocket : BaseSocket
     {
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public Log(string text)
+        public ServerSocket(Socket socket, Logger logger, ISerialization serializer)
+            : base(socket, logger, serializer)
         {
-            this.Text = text;
-            this.LogType = LogType.NONE;
-            this.DateTime = DateTime.Now;
-            this.Id = -1;
+
+        }
+
+        internal void Close()
+        {
+            base.Disconnect();
         }
 
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public Log(string text, LogType logType) : this(text)
+        protected override void Error(string error)
         {
-            this.LogType = logType;
+            this.logger.Write(error, LogType.ERROR);
         }
-
-        /// <summary>TODO SUMMARY</summary>
-        public int Id { get; set; }
-        /// <summary>TODO SUMMARY</summary>
-        public string Text { get; private set; }
-        /// <summary>TODO SUMMARY</summary>
-        public LogType LogType { get; private set; }
-        /// <summary>TODO SUMMARY</summary>
-        public DateTime DateTime { get; private set; }
-
     }
 }

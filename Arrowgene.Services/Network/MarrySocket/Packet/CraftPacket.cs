@@ -14,42 +14,32 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Logging
+namespace Arrowgene.Services.Network.MarrySocket.Packet
 {
+    using Arrowgene.Services.Common;
     using System;
 
     /// <summary>
     /// TODO SUMMARY
     /// </summary>
-    public class Log
+    public class CraftPacket : PacketCrafter
     {
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public Log(string text)
+        public CraftPacket(Int32 packetId, Type type, byte[] serializedClass)
         {
-            this.Text = text;
-            this.LogType = LogType.NONE;
-            this.DateTime = DateTime.Now;
-            this.Id = -1;
+            byte[] typeName = Conversion.GetBytes(type.AssemblyQualifiedName);
+            Int32 packetSize = typeName.Length + serializedClass.Length + PacketHeader.HEADER_SIZE;
+
+            this.Addint32(packetSize);
+            this.Addint32(packetId);
+            this.Addint32(typeName.Length);
+            this.Addint32(serializedClass.Length);
+            this.Addbytes(typeName);
+            this.Addbytes(serializedClass);
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
-        public Log(string text, LogType logType) : this(text)
-        {
-            this.LogType = logType;
-        }
-
-        /// <summary>TODO SUMMARY</summary>
-        public int Id { get; set; }
-        /// <summary>TODO SUMMARY</summary>
-        public string Text { get; private set; }
-        /// <summary>TODO SUMMARY</summary>
-        public LogType LogType { get; private set; }
-        /// <summary>TODO SUMMARY</summary>
-        public DateTime DateTime { get; private set; }
 
     }
 }

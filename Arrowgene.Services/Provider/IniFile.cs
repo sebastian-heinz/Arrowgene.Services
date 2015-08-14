@@ -1,6 +1,5 @@
 ﻿namespace Arrowgene.Services.Provider
 {
-    using System;
     using System.Runtime.InteropServices;
     using System.Text;
 

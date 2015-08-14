@@ -2,6 +2,8 @@
 {
     using System.IO;
 
+    //TODO Increase buffer size on demand
+
     public class ByteBuffer
     {
         private MemoryStream memoryStream;
@@ -42,8 +44,10 @@
 
         public byte[] GetBytes()
         {
+            int tmpSize = (int)this.Position;
             this.Position = 0;
-            return this.ReadBytes(this.Size);
+            return this.ReadBytes(tmpSize);
+            this.Position = tmpSize;
         }
 
         #region read
