@@ -2,7 +2,7 @@
 {
     using System.IO;
 
-    //TODO Increase buffer size on demand
+    //TODO MaxBufferSize = Int32.Max
 
     public class ByteBuffer
     {
@@ -38,16 +38,13 @@
             }
         }
 
-        public int Size { get { return (int)this.Position; } }
+        public long Size { get { return this.memoryStream.Length; } }
 
         public long Position { get { return this.memoryStream.Position; } private set { this.memoryStream.Position = value; } }
 
         public byte[] GetBytes()
         {
-            int tmpSize = (int)this.Position;
-            this.Position = 0;
-            return this.ReadBytes(tmpSize);
-            this.Position = tmpSize;
+            return this.ReadBytes((int)this.Size);
         }
 
         #region read

@@ -1,9 +1,9 @@
 ﻿namespace Arrowgene.Services.Network
 {
-    public class ServerDiscovery
+    public class Broadcast
     {
 
-        public ServerDiscovery()
+        public Broadcast()
         {
 
         }

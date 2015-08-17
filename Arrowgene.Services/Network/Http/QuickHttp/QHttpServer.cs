@@ -26,7 +26,7 @@
         /// <summary>
         /// 
         /// </summary>
-        public EventHandler<QHttpHandleEventArgs> HttpHandleEvent;
+        public event EventHandler<QHttpHandleEventArgs> HttpHandleEvent;
 
         /// <summary>
         /// 

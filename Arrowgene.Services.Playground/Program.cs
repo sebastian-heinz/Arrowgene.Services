@@ -4,9 +4,8 @@
     {
         public static void Main(string[] args)
         {
-            Proxy p = new Proxy();
-            p.Run();
-            p.close();
+            Http p = new Http();
+
         }
     }
 }

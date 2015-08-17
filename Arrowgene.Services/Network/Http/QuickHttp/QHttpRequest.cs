@@ -16,11 +16,11 @@
             this.requestUrl = url;
             this.Timeout = 1000;
             this.AcceptLanguage = "en-US";
-            this.UserAgent = "SvrKit";
+            this.UserAgent = "QuickHttp";
             this.ContentType = "text/html";
         }
 
-        public EventHandler<QHttpRequestAsyncResponse> AsyncResponse;
+        public event EventHandler<QHttpRequestAsyncResponse> AsyncResponse;
 
         public int Timeout { get; set; }
         public string UserAgent { get; set; }

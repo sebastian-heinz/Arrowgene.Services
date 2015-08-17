@@ -48,6 +48,9 @@
     <Compile Include="Common\OS.cs" />
     <Compile Include="Common\Search.cs" />
     <Compile Include="Logging\LogType.cs" />
+    <Compile Include="Network\Discovery\PortScan.cs" />
+    <Compile Include="Network\Http\QuickHttp\QHttpHandler.cs" />
+    <Compile Include="Network\Http\QuickHttp\StaticFileServer.cs" />
     <Compile Include="Network\MarrySocket\MBase\BaseSocket.cs" />
     <Compile Include="Network\MarrySocket\MBase\BaseConfig.cs" />
     <Compile Include="Exception\InvalidParameterException.cs" />
@@ -85,12 +88,11 @@
     <Compile Include="Network\Proxy\ProxyConfig.cs" />
     <Compile Include="Network\Proxy\ProxyPacket.cs" />
     <Compile Include="Network\Proxy\ProxyServer.cs" />
-    <Compile Include="Network\Http\HttpMime.cs" />
     <Compile Include="Network\Http\QuickHttp\QHttpServer.cs" />
     <Compile Include="Network\Http\QuickHttp\QHttpRequest.cs" />
     <Compile Include="Network\Http\QuickHttp\QHttpRequestAsyncResponse.cs" />
     <Compile Include="Network\Http\QuickHttp\QHttpHandleEventArgs.cs" />
-    <Compile Include="Network\ServerDiscovery.cs" />
+    <Compile Include="Network\Discovery\Broadcast.cs" />
     <Compile Include="Network\AGSocket.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Provider\ByteBuffer.cs" />

@@ -49,35 +49,37 @@
         {
             while (this.IsRunning)
             {
-                ByteBuffer payload = new ByteBuffer();
-
-                if (!this.socket.Connected)
+                if (this.socket.Connected)
                 {
-                    this.Stop();
-                }
+                    ByteBuffer payload = new ByteBuffer();
 
-                try
-                {
-                    int received = 0;
-
-                    while (this.socket.Poll(this.ProxyConfig.PollResponseWait, SelectMode.SelectRead) && (received = this.socket.Receive(this.buffer, 0, this.ProxyConfig.BufferSize, SocketFlags.None)) > 0)
+                    try
                     {
-                        payload.WriteBytes(this.buffer, 0, received);
+                        int received = 0;
+
+                        while (this.socket.Poll(this.ProxyConfig.PollResponseWait, SelectMode.SelectRead) && (received = this.socket.Receive(this.buffer, 0, this.ProxyConfig.BufferSize, SocketFlags.None)) > 0)
+                        {
+                            payload.WriteBytes(this.buffer, 0, received);
+                        }
                     }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex.ToString());
+                        this.Stop();
+                    }
+
+                    if (payload.Size > 0)
+                    {
+                        ProxyPacket proxyPacket = new ProxyPacket(payload);
+                        this.ReceivePacket(proxyPacket);
+                    }
+
+                    Thread.Sleep(this.ProxyConfig.ReadTimeout);
                 }
-                catch (Exception ex)
+                else
                 {
-                    Debug.WriteLine(ex.ToString());
                     this.Stop();
                 }
-
-                if (payload.Size > 0)
-                {
-                    ProxyPacket proxyPacket = new ProxyPacket(payload);
-                    this.ReceivePacket(proxyPacket);
-                }
-
-                Thread.Sleep(this.ProxyConfig.ReadTimeout);
             }
         }
 
