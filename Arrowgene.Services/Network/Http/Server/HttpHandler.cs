@@ -1,13 +1,13 @@
-﻿namespace Arrowgene.Services.Network.Http.QuickHttp
+﻿namespace Arrowgene.Services.Network.Http.Server
 {
     using System;
     using System.IO;
     using System.Net;
 
-    public abstract class QHttpHandler
+    public abstract class HttpHandler
     {
 
-        public QHttpHandler()
+        public HttpHandler()
         {
 
         }

@@ -1,4 +1,4 @@
-﻿namespace Arrowgene.Services.Network.Http.QuickHttp
+﻿namespace Arrowgene.Services.Network.Http.Client
 {
     using System;
     using System.Diagnostics;
@@ -6,12 +6,12 @@
     using System.Net;
     using System.Threading;
 
-    public class QHttpRequest
+    public class HttpRequest
     {
         private Thread thread;
         private string requestUrl;
 
-        public QHttpRequest(string url)
+        public HttpRequest(string url)
         {
             this.requestUrl = url;
             this.Timeout = 1000;
@@ -20,7 +20,7 @@
             this.ContentType = "text/html";
         }
 
-        public event EventHandler<QHttpRequestAsyncResponse> AsyncResponse;
+        public event EventHandler<HttpRequestAsyncResponse> AsyncResponse;
 
         public int Timeout { get; set; }
         public string UserAgent { get; set; }
@@ -78,7 +78,7 @@
         {
             if (this.AsyncResponse != null)
             {
-                QHttpRequestAsyncResponse handle = new QHttpRequestAsyncResponse(response);
+                HttpRequestAsyncResponse handle = new HttpRequestAsyncResponse(response);
                 this.AsyncResponse(this, handle);
             }
         }

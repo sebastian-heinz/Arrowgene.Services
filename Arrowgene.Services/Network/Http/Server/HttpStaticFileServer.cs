@@ -1,4 +1,4 @@
-﻿namespace Arrowgene.Services.Network.Http.QuickHttp
+﻿namespace Arrowgene.Services.Network.Http.Server
 {
     using System;
     using System.Collections.Generic;
@@ -6,7 +6,7 @@
     using System.Net;
     using System.Text;
 
-    public class StaticFileServer : QHttpHandler
+    public class HttpStaticFileServer : HttpHandler
     {
         public static string DefaultMime = "application/octet-stream";
 
@@ -85,7 +85,7 @@
 
         private string rootDirectory;
 
-        public StaticFileServer(string rootDirectory)
+        public HttpStaticFileServer(string rootDirectory)
         {
             this.rootDirectory = rootDirectory;
         }
@@ -117,7 +117,7 @@
                     Stream input = new FileStream(filename, FileMode.Open);
 
                     string mime;
-                    context.Response.ContentType = StaticFileServer.MimeTypeMappings.TryGetValue(Path.GetExtension(filename), out mime) ? mime : StaticFileServer.DefaultMime;
+                    context.Response.ContentType = HttpStaticFileServer.MimeTypeMappings.TryGetValue(Path.GetExtension(filename), out mime) ? mime : HttpStaticFileServer.DefaultMime;
                     context.Response.ContentLength64 = input.Length;
                     context.Response.AddHeader("Date", DateTime.Now.ToString("r"));
                     context.Response.AddHeader("Last-Modified", File.GetLastWriteTime(filename).ToString("r"));

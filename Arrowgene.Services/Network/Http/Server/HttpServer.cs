@@ -1,4 +1,4 @@
-﻿namespace Arrowgene.Services.Network.Http.QuickHttp
+﻿namespace Arrowgene.Services.Network.Http.Server
 {
 
     using System;
@@ -7,9 +7,9 @@
     using System.Threading;
 
     /// <summary>
-    /// 
+    /// Http Server needs admin priveleges
     /// </summary>
-    public class QHttpServer
+    public class HttpServer
     {
         private Thread serverThread;
         private HttpListener listener;
@@ -18,7 +18,7 @@
         /// <summary>
         /// 
         /// </summary>
-        public QHttpServer()
+        public HttpServer()
         {
 
         }
@@ -26,7 +26,7 @@
         /// <summary>
         /// 
         /// </summary>
-        public event EventHandler<QHttpHandleEventArgs> HttpHandleEvent;
+        public event EventHandler<HttpHandleEventArgs> HttpHandleEvent;
 
         /// <summary>
         /// 
@@ -79,7 +79,7 @@
         {
             if (HttpHandleEvent != null)
             {
-                QHttpHandleEventArgs httpHandleEventArgs = new QHttpHandleEventArgs(context);
+                HttpHandleEventArgs httpHandleEventArgs = new HttpHandleEventArgs(context);
                 HttpHandleEvent(this, httpHandleEventArgs);
             }
         }

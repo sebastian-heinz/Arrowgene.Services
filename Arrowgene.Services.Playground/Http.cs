@@ -3,22 +3,22 @@
     using System;
     using System.Collections.Generic;
     using System.Text;
-    using Arrowgene.Services.Network.Http.QuickHttp;
+    using Arrowgene.Services.Network.Http.Server;
 
     public class Http
     {
 
-        QHttpServer server;
+        HttpServer server;
 
         public Http()
         {
-            server = new QHttpServer();
+            server = new HttpServer();
             server.HttpHandleEvent += Server_HttpHandleEvent;
             server.Initialize(8888);
 
         }
 
-        private void Server_HttpHandleEvent(object sender, QHttpHandleEventArgs e)
+        private void Server_HttpHandleEvent(object sender, HttpHandleEventArgs e)
         {
       
         }

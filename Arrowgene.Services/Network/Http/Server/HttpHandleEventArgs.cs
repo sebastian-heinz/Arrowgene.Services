@@ -1,11 +1,11 @@
-﻿namespace Arrowgene.Services.Network.Http.QuickHttp
+﻿namespace Arrowgene.Services.Network.Http.Server
 {
     using System;
     using System.Net;
 
-    public class QHttpHandleEventArgs : EventArgs
+    public class HttpHandleEventArgs : EventArgs
     {
-        public QHttpHandleEventArgs(HttpListenerContext context)
+        public HttpHandleEventArgs(HttpListenerContext context)
         {
             this.Context = context;
         }
