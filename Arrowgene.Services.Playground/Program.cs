@@ -4,7 +4,7 @@
     {
         public static void Main(string[] args)
         {
-            Http p = new Http();
+         new Discover();
 
         }
     }

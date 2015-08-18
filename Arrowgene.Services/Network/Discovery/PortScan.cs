@@ -4,7 +4,15 @@ using System.Text;
 
 namespace Arrowgene.Services.Network.Discovery
 {
-    class PortScan
+    public class PortScan
     {
+
+
+
+
+
+
+
+
     }
 }
