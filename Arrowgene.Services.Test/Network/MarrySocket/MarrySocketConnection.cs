@@ -1,6 +1,7 @@
 ﻿namespace Arrowgene.Services.Test.Network.MarrySocket
 {
     using Arrowgene.Services.Network;
+    using Services.Network.Discovery;
     using Arrowgene.Services.Network.MarrySocket.MClient;
     using Arrowgene.Services.Network.MarrySocket.MServer;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -19,7 +20,7 @@
         public void Initialize()
         {
             this.server = new MarryServer(new ServerConfig(IPAddress.IPv6Any, 2345));
-            this.client = new MarryClient(new ClientConfig(AGSocket.IPAddressLocalhost(AddressFamily.InterNetworkV6), 2345));
+            this.client = new MarryClient(new ClientConfig(IP.AddressLocalhost(AddressFamily.InterNetworkV6), 2345));
         }
 
 

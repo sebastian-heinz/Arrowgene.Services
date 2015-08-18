@@ -1,6 +1,7 @@
 ﻿namespace Arrowgene.Services.Playground
 {
     using Arrowgene.Services.Network;
+    using Network.Discovery;
     using Arrowgene.Services.Network.MarrySocket.MClient;
     using Arrowgene.Services.Network.MarrySocket.MServer;
     using Arrowgene.Services.Network.Proxy;
@@ -45,15 +46,15 @@
 
         internal void Run()
         {
-            ServerConfig serverConfig = new ServerConfig(AGSocket.IPAddressLocalhost(AddressFamily.InterNetworkV6), 2345);
+            ServerConfig serverConfig = new ServerConfig(IP.AddressLocalhost(AddressFamily.InterNetworkV6), 2345);
             server = new MarryServer(serverConfig);
             server.ReceivedPacket += Server_ReceivedPacket;
 
-            ClientConfig clientConfig = new ClientConfig(AGSocket.IPAddressLocalhost(AddressFamily.InterNetworkV6), 2349);
+            ClientConfig clientConfig = new ClientConfig(IP.AddressLocalhost(AddressFamily.InterNetworkV6), 2349);
             client = new MarryClient(clientConfig);
             client.ReceivedPacket += Client_ReceivedPacket;
 
-            ProxyConfig proxyConfig = new ProxyConfig(IPAddress.IPv6Any, 2349, AGSocket.IPAddressLocalhost(AddressFamily.InterNetworkV6), 2345);
+            ProxyConfig proxyConfig = new ProxyConfig(IPAddress.IPv6Any, 2349, IP.AddressLocalhost(AddressFamily.InterNetworkV6), 2345);
             proxyServer = new ProxyServer(proxyConfig);
             proxyServer.ReceivedPacket += ProxyServer_ReceivedPacket;
 

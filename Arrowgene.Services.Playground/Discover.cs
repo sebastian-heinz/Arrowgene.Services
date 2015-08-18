@@ -15,7 +15,7 @@ namespace Arrowgene.Services.Playground
 
              IPAddress ad =  IPAddress.Parse("127.0.0.1");
             IPAddress b  =IP.QueryRoutingInterface(ad).Address;
-            NetworkInterface a = IP.GetNetworkInterface(b);
+            NetworkInterface a = IP.FindNetworkInterface(b);
             int i;
             if (a != null)
             {
