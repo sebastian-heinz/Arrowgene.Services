@@ -34,7 +34,7 @@
 
 
         /// <summary>
-        /// Trys to determine the most possible <see cref="IPEndPoint"/> for connecting to the specified <see cref="IPAddress"/>.
+        /// Determines most possible local <see cref="IPEndPoint"/> for connecting to the specified <see cref="IPAddress"/>.
         /// </summary>
         /// <param name="remoteIp"></param>
         /// <returns></returns>
@@ -47,7 +47,7 @@
         }
 
         /// <summary>
-        /// Trys to determine the best suited <see cref="NetworkInterface"/> for connecting to the specified <see cref="IPAddress"/>.
+        /// Determines the <see cref="NetworkInterface"/> of the specified <see cref="IPAddress"/>.
         /// </summary>
         /// <param name="ipAddress"></param>
         /// <returns></returns>
