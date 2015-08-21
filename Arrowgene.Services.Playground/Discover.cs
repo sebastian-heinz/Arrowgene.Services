@@ -1,4 +1,5 @@
-﻿using Arrowgene.Services.Network.Discovery;
+﻿using Arrowgene.Services.Network;
+using Arrowgene.Services.Network.Discovery;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -13,23 +14,18 @@ namespace Arrowgene.Services.Playground
         public Discover()
         {
 
-             IPAddress ad =  IPAddress.Parse("127.0.0.1");
-            IPAddress b  =IP.QueryRoutingInterface(ad).Address;
-            NetworkInterface a = IP.FindNetworkInterface(b);
-            int i;
-            if (a != null)
-            {
-                i = 1;
-            }
-            else
-            {
-                i = 2;
-            }
+            Broadcast bc = new Broadcast(15000);
+            bc.ReceivedBroadcast += Bc_ReceivedBroadcast;
+            bc.Listen();
 
-            i = 0;
+
+            Broadcast b1c = new Broadcast(15000);
+            b1c.Send(new byte[10]);
         }
 
-       
-
+        private void Bc_ReceivedBroadcast(object sender, ReceivedBroadcastPacketEventArgs e)
+        {
+            
+        }
     }
 }
