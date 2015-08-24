@@ -4,8 +4,8 @@
     {
         public static void Main(string[] args)
         {
-         new Discover();
-
+      //   new Discover();
+            new Proxy();
         }
     }
 }

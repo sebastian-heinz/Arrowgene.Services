@@ -24,19 +24,91 @@
         /// </summary>
         public const SocketOptionName USE_IPV6_ONLY = (SocketOptionName)27;
 
-        private Socket socket;
+        /// <summary>
+        /// Creates a <see cref="Socket"/> bound to a specified <see cref="IPEndPoint"/>.
+        /// </summary>
+        /// <param name="localEndPoint"></param>
+        /// <param name="socketType"></param>
+        /// <param name="protocolType"></param>
+        /// <param name="IPv4v6AgnosticSocket"></param>
+        /// <returns></returns>
+        public static Socket CreateServerSocket(IPEndPoint localEndPoint, SocketType socketType, ProtocolType protocolType, bool IPv4v6AgnosticSocket)
+        {
+            Socket socket = null;
 
+            if (IPv4v6AgnosticSocket)
+            {
+                socket = new Socket(AddressFamily.InterNetworkV6, socketType, protocolType);
+                socket.SetSocketOption(SocketOptionLevel.IPv6, AGSocket.USE_IPV6_ONLY, false);
+                localEndPoint = new IPEndPoint(IPAddress.IPv6Any, localEndPoint.Port);
+                Debug.WriteLine("AGSocket::CreateServerSocket: Created Socket (IPv4 and IPv6 Support)...");
+            }
+            else
+            {
+                if (localEndPoint.AddressFamily == AddressFamily.InterNetworkV6)
+                {
+                    socket = new Socket(AddressFamily.InterNetworkV6, socketType, protocolType);
+                    Debug.WriteLine("AGSocket::CreateServerSocket: Created Socket (IPv6 Support)...");
+                }
+                else
+                {
+                    socket = new Socket(AddressFamily.InterNetwork, socketType, protocolType);
+                    Debug.WriteLine("AGSocket::CreateServerSocket: Created Socket (IPv4 Support)...");
+                }
+            }
+
+            if (socket != null)
+            {
+                socket.Bind(localEndPoint);
+                Debug.WriteLine(string.Format("Socket bound to {0}", localEndPoint.ToString()));
+            }
+
+            return socket;
+        }
+
+        /// <summary>
+        /// Associates a default <see cref="Socket"/> (TCP, Stream) with a local <see cref="IPEndPoint"/>.
+        /// </summary>
+        public static Socket CreateServerSocket(IPEndPoint localEndPoint)
+        {
+            return AGSocket.CreateServerSocket(localEndPoint, SocketType.Stream, ProtocolType.Tcp, true);
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="Socket"/>.
+        /// </summary>
+        /// <param name="localEndPoint"></param>
+        /// <param name="socketType"></param>
+        /// <param name="protocolType"></param>
+        /// <returns></returns>
+        public static Socket CreateSocket(IPEndPoint localEndPoint, SocketType socketType, ProtocolType protocolType)
+        {
+            Socket socket = null;
+            if (localEndPoint.AddressFamily == AddressFamily.InterNetworkV6)
+            {
+                socket = new Socket(AddressFamily.InterNetworkV6, socketType, protocolType);
+                Debug.WriteLine("AGSocket::CreateClientSocket: Created IPv6 Socket...");
+            }
+            else
+            {
+                socket = new Socket(AddressFamily.InterNetwork, socketType, protocolType);
+                Debug.WriteLine("AGSocket::CreateClientSocket: Created IPv4 Socket...");
+            }
+            return socket;
+        }
+
+        private Socket socket;
 
         /// <summary>
         /// Creates a new instance.
         /// </summary>
         public AGSocket()
         {
-            this.socket = CreateSocket();
+
         }
 
         /// <summary>
-        /// Creates a new instance with an existing socket.
+        /// Creates a new instance with an existing <see cref="Socket"/>.
         /// </summary>
         public AGSocket(Socket socket)
         {
@@ -44,50 +116,32 @@
         }
 
         /// <summary>
-        /// Gets a value that indicates whether a Socket is connected to a remote host as of the last Send or Receive operation.
+        /// Closes the <see cref="Socket"/> connection and releases all associated resources.
+        /// </summary>
+        public void Close()
+        {
+            this.socket.Close();
+        }
+
+        /// <summary>
+        /// Gets a value that indicates whether a <see cref="Socket"/> is connected to a remote host as of the last Send or Receive operation.
         /// </summary>
         public bool Connected { get { return this.socket.Connected; } }
 
-      
 
         /// <summary>
-        /// Creates a default .net TCP Stream Socket with the specified adress family.
+        /// Gets a value that indicates whether the <see cref="Socket"/> is bound to a specific local port.
         /// </summary>
-        public static Socket CreateSocket(AddressFamily adressFamily)
-        {
-            Socket socket = null;
-            if (adressFamily == AddressFamily.InterNetworkV6)
-            {
-                socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
-                socket.SetSocketOption(SocketOptionLevel.IPv6, USE_IPV6_ONLY, false);
-            }
-            else
-            {
-                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            }
-            return socket;
-        }
+        public bool IsBound { get { return this.socket.IsBound; } }
 
         /// <summary>
-        /// Creates a default .net TCP Stream Socket.
-        /// If creation of an IPv6 socket fails, an IPv4 socket will be created.
+        /// Gets or sets a Boolean value that specifies whether the Socket can send or receive broadcast packets.
         /// </summary>
-        public static Socket CreateSocket()
-        {
-            Socket socket = null;
-            if (IP.V6Support())
-            {
-                socket = CreateSocket(AddressFamily.InterNetworkV6);
-            }
-            else
-            {
-                socket = CreateSocket(AddressFamily.InterNetwork);
-            }
-            return socket;
-        }
+        public bool EnableBroadcast { get { return this.socket.EnableBroadcast; } set { this.socket.EnableBroadcast = value; } }
+
 
         /// <summary>
-        /// Sends data to a connected socket.
+        /// Sends data to a connected <see cref="Socket"/>.
         /// </summary>
         public void Send(byte[] buffer)
         {
@@ -95,7 +149,7 @@
         }
 
         /// <summary>
-        /// Determines the status of the Socket.
+        /// Determines the status of the <see cref="Socket"/>.
         /// </summary>
         public bool Poll(int microSeconds, SelectMode mode)
         {
@@ -103,31 +157,57 @@
         }
 
         /// <summary>
-        /// Receives data from a bound Socket into a receive buffer.
+        /// Receives data from a bound <see cref="Socket"/> into a receive buffer.
         /// </summary>
         public int Receive(byte[] buffer, int offset, int size, SocketFlags socketFlags)
         {
             return this.socket.Receive(buffer, offset, size, socketFlags);
         }
 
+
+
         /// <summary>
         /// Establishes a connection to a remote host.
+        /// Creates a new <see cref="Socket"/> if none provided.
         /// </summary>
         public void Connect(IPEndPoint remoteEp)
         {
+            if (this.socket == null)
+            {
+                this.socket = CreateSocket(remoteEp, SocketType.Stream, ProtocolType.Tcp);
+            }
+
             this.socket.Connect(remoteEp);
         }
 
         /// <summary>
-        /// Associates a Socket with a local endpoint.
+        /// Establishes a connection to a remote host. 
+        /// Always creates a new <see cref="Socket"/>.
         /// </summary>
-        public void Bind(IPEndPoint localEP)
+        public void Connect(IPEndPoint remoteEp, SocketType socketType, ProtocolType protocolType)
         {
-            this.socket.Bind(localEP);
+            this.socket = CreateSocket(remoteEp, socketType, protocolType);
+            this.socket.Connect(remoteEp);
         }
 
         /// <summary>
-        /// Places a Socket in a listening state.
+        /// Associates a new <see cref="Socket"/> with a local endpoint.
+        /// </summary>
+        public void Bind(IPEndPoint localEP, SocketType socketType, ProtocolType protocolType, bool iPv4v6AgnosticSocket)
+        {
+            this.socket = AGSocket.CreateServerSocket(localEP, socketType, protocolType, iPv4v6AgnosticSocket);
+        }
+
+        /// <summary>
+        /// Associates a default Socket (TCP, Stream) with a local endpoint.
+        /// </summary>
+        public void Bind(IPEndPoint localEP)
+        {
+            this.socket = AGSocket.CreateServerSocket(localEP);
+        }
+
+        /// <summary>
+        /// Places a <see cref="Socket"/> in a listening state.
         /// </summary>
         public void Listen(int backlog)
         {
@@ -135,7 +215,7 @@
         }
 
         /// <summary>
-        /// Creates a new Socket for a newly created connection.
+        /// Creates a new <see cref="Socket"/> for a newly created connection.
         /// </summary>
         public AGSocket Accept()
         {

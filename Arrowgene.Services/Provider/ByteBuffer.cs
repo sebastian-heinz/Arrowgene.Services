@@ -44,6 +44,7 @@
 
         public byte[] GetBytes()
         {
+            this.Position = 0;
             return this.ReadBytes((int)this.Size);
         }
 

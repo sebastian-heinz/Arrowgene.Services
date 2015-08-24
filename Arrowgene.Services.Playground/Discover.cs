@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
+using System.Threading;
 
 namespace Arrowgene.Services.Playground
 {
@@ -20,7 +21,8 @@ namespace Arrowgene.Services.Playground
 
 
             Broadcast b1c = new Broadcast(15000);
-            b1c.Send(new byte[10]);
+            b1c.Send(new byte[309]);
+  
         }
 
         private void Bc_ReceivedBroadcast(object sender, ReceivedBroadcastPacketEventArgs e)
