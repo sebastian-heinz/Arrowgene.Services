@@ -14,31 +14,28 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network.Discovery
+namespace Arrowgene.Services.Network.PortScan
 {
-    using Arrowgene.Services.Provider;
     using System;
-    using System.Net.Sockets;
+    using System.Collections.Generic;
 
     /// <summary>
     /// TODO SUMMARY
     /// </summary>
-    public class ReceivedBroadcastPacketEventArgs : EventArgs
+    public class PortScannerCompletedEventArgs : EventArgs
     {
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public ReceivedBroadcastPacketEventArgs(ByteBuffer payload)
+        public PortScannerCompletedEventArgs(List<PortScannerResult> portScanResults)
         {
-            this.Payload = payload;
+            this.PortScanResults = portScanResults;
         }
 
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public ByteBuffer Payload { get; set; }
-
-        public Socket Client;
+        public List<PortScannerResult> PortScanResults { get; private set; }
     }
 
 }

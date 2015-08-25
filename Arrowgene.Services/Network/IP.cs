@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network.Discovery
+namespace Arrowgene.Services.Network
 {
     using System;
     using System.Diagnostics;

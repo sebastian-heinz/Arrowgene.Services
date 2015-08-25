@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network.Discovery
+namespace Arrowgene.Services.Network.PortScan
 {
     using System;
     using System.Collections.Generic;
@@ -25,7 +25,7 @@ namespace Arrowgene.Services.Network.Discovery
     /// <summary>
     /// Scan for open ports.
     /// </summary>
-    public class PortScan
+    public class PortScanner
     {
         private const int TICKS_PER_MS = 10000;
 
@@ -35,7 +35,7 @@ namespace Arrowgene.Services.Network.Discovery
         private List<ushort> portRange;
         private IPAddress ipAddress;
         private List<IPAddress> ipAddressPool;
-        private List<PortScanResult> portScanResults;
+        private List<PortScannerResult> portScanResults;
         private TimeSpan timeout;
         private bool isRunning;
 
@@ -44,7 +44,7 @@ namespace Arrowgene.Services.Network.Discovery
         /// </summary>
         /// <param name="connections">Simultaneous connections</param>
         /// <param name="timeoutMs">Time to wait for a response, before a port counts as closed</param>
-        public PortScan(int connections, int timeoutMs)
+        public PortScanner(int connections, int timeoutMs)
         {
             long ticks = timeoutMs * TICKS_PER_MS;
 
@@ -57,7 +57,7 @@ namespace Arrowgene.Services.Network.Discovery
         /// <summary>
         /// Scan Completed
         /// </summary>
-        public event EventHandler<PortScanCompletedEventArgs> PortScanCompleted;
+        public event EventHandler<PortScannerCompletedEventArgs> PortScanCompleted;
 
         /// <summary>
         /// Simultaneous connections.
@@ -83,7 +83,7 @@ namespace Arrowgene.Services.Network.Discovery
             }
 
             this.isRunning = true;
-            this.portScanResults = new List<PortScanResult>();
+            this.portScanResults = new List<PortScannerResult>();
             this.ipAddress = ipAddress;
             this.portRange = new List<ushort>();
             this.threadFinishedCount = 0;
@@ -119,7 +119,7 @@ namespace Arrowgene.Services.Network.Discovery
             }
 
             this.isRunning = true;
-            this.portScanResults = new List<PortScanResult>();
+            this.portScanResults = new List<PortScannerResult>();
             this.ipAddressPool = new List<IPAddress>(ipAddressPool);
             this.port = port;
             this.threadFinishedCount = 0;
@@ -149,7 +149,7 @@ namespace Arrowgene.Services.Network.Discovery
             {
                 bool isOpen = AGSocket.ConnectTest(this.ipAddress, processPort, this.timeout);
 
-                PortScanResult portScanResult = new PortScanResult(this.ipAddress, processPort, isOpen);
+                PortScannerResult portScanResult = new PortScannerResult(this.ipAddress, processPort, isOpen);
                 this.portScanResults.Add(portScanResult);
 
                 processPort = 0;
@@ -193,7 +193,7 @@ namespace Arrowgene.Services.Network.Discovery
             {
                 bool isOpen = AGSocket.ConnectTest(processIPAddress, this.port, this.timeout);
 
-                PortScanResult portScanResult = new PortScanResult(processIPAddress, this.port, isOpen);
+                PortScannerResult portScanResult = new PortScannerResult(processIPAddress, this.port, isOpen);
                 this.portScanResults.Add(portScanResult);
 
                 processIPAddress = null;
@@ -224,12 +224,12 @@ namespace Arrowgene.Services.Network.Discovery
         {
             this.isRunning = false;
 
-            EventHandler<PortScanCompletedEventArgs> portScanCompleted = this.PortScanCompleted;
+            EventHandler<PortScannerCompletedEventArgs> portScanCompleted = this.PortScanCompleted;
 
             if (portScanCompleted != null)
             {
                 this.portScanResults.Sort((x, y) => x.Port.CompareTo(y.Port));
-                PortScanCompletedEventArgs portScanCompletedEventArgs = new PortScanCompletedEventArgs(this.portScanResults);
+                PortScannerCompletedEventArgs portScanCompletedEventArgs = new PortScannerCompletedEventArgs(this.portScanResults);
                 portScanCompleted(this, portScanCompletedEventArgs);
             }
         }

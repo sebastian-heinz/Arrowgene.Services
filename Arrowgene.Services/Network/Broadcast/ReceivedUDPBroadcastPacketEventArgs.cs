@@ -16,26 +16,28 @@
  */
 namespace Arrowgene.Services.Network.Discovery
 {
+    using Arrowgene.Services.Provider;
     using System;
-    using System.Collections.Generic;
+    using System.Net.Sockets;
 
     /// <summary>
     /// TODO SUMMARY
     /// </summary>
-    public class PortScanCompletedEventArgs : EventArgs
+    public class ReceivedUDPBroadcastPacketEventArgs : EventArgs
     {
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public PortScanCompletedEventArgs(List<PortScanResult> portScanResults)
+        public ReceivedUDPBroadcastPacketEventArgs(ByteBuffer payload)
         {
-            this.PortScanResults = portScanResults;
+            this.Payload = payload;
         }
 
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public List<PortScanResult> PortScanResults { get; private set; }
+        public ByteBuffer Payload { get; set; }
+
     }
 
 }

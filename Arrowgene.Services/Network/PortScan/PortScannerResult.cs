@@ -14,15 +14,15 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network.Discovery
+namespace Arrowgene.Services.Network.PortScan
 {
     using System.Diagnostics;
     using System.Net;
 
     [DebuggerDisplay("{Port} open={IsConnected} {IPAddress}")]
-    public class PortScanResult
+    public class PortScannerResult
     {
-        public PortScanResult(IPAddress ipAddress, ushort port, bool isOpen)
+        public PortScannerResult(IPAddress ipAddress, ushort port, bool isOpen)
         {
             this.IPAddress = ipAddress;
             this.Port = port;

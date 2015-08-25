@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network
+namespace Arrowgene.Services.Network.Broadcast
 {
     using Arrowgene.Services.Network.Discovery;
     using Arrowgene.Services.Provider;
@@ -27,7 +27,7 @@ namespace Arrowgene.Services.Network
     /// <summary>
     /// Listen or Send a Broadcast
     /// </summary>
-    public class Broadcast
+    public class UDPBroadcast
     {
         /// <summary>
         /// Defines the maximum size to be received,
@@ -44,7 +44,7 @@ namespace Arrowgene.Services.Network
         /// Initialize with given port
         /// </summary>
         /// <param name="port"></param>
-        public Broadcast(int port)
+        public UDPBroadcast(int port)
         {
             this.socket = new AGSocket();
             this.isListening = false;
@@ -54,7 +54,7 @@ namespace Arrowgene.Services.Network
         /// <summary>
         /// Notifies broadcast received
         /// </summary>
-        public event EventHandler<ReceivedBroadcastPacketEventArgs> ReceivedBroadcast;
+        public event EventHandler<ReceivedUDPBroadcastPacketEventArgs> ReceivedBroadcast;
 
 
         private void Read()
@@ -95,11 +95,11 @@ namespace Arrowgene.Services.Network
 
         private void OnReceivedBroadcast(ByteBuffer payload)
         {
-            EventHandler<ReceivedBroadcastPacketEventArgs> receivedBroadcast = this.ReceivedBroadcast;
+            EventHandler<ReceivedUDPBroadcastPacketEventArgs> receivedBroadcast = this.ReceivedBroadcast;
 
             if (payload != null)
             {
-                ReceivedBroadcastPacketEventArgs receivedProxyPacketEventArgs = new ReceivedBroadcastPacketEventArgs(payload);
+                ReceivedUDPBroadcastPacketEventArgs receivedProxyPacketEventArgs = new ReceivedUDPBroadcastPacketEventArgs(payload);
                 receivedBroadcast(this, receivedProxyPacketEventArgs);
             }
         }
@@ -126,7 +126,7 @@ namespace Arrowgene.Services.Network
         /// <param name="ip"></param>
         public void Send(byte[] data, IPAddress ip)
         {
-            if (data.Length <= Broadcast.MAX_PAYLOAD_SIZE_BYTES)
+            if (data.Length <= UDPBroadcast.MAX_PAYLOAD_SIZE_BYTES)
             {
                 IPEndPoint broadcastEndPoint = new IPEndPoint(ip, this.port);
 
@@ -136,7 +136,7 @@ namespace Arrowgene.Services.Network
             }
             else
             {
-                Debug.WriteLine(string.Format("Broadcast::Send: Exceeded maximum payload size of {0} byte", Broadcast.MAX_PAYLOAD_SIZE_BYTES));
+                Debug.WriteLine(string.Format("Broadcast::Send: Exceeded maximum payload size of {0} byte", UDPBroadcast.MAX_PAYLOAD_SIZE_BYTES));
             }
         }
 
