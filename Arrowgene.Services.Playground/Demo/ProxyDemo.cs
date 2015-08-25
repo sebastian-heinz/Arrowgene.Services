@@ -1,25 +1,22 @@
-﻿namespace Arrowgene.Services.Playground
+﻿namespace Arrowgene.Services.Playground.Demo
 {
-    using Arrowgene.Services.Network;
-    using Network.Discovery;
     using Arrowgene.Services.Network.MarrySocket.MClient;
     using Arrowgene.Services.Network.MarrySocket.MServer;
     using Arrowgene.Services.Network.Proxy;
+    using Network.Discovery;
     using System.Net;
     using System.Net.Sockets;
     using System.Threading;
 
-    public class Proxy
+    public class ProxyDemo
     {
         MarryServer server;
         MarryClient client;
         ProxyServer proxyServer;
 
-        public Proxy()
+        public ProxyDemo()
         {
-
             this.Run();
-
         }
 
         private void ProxyServer_ReceivedPacket(object sender, ReceivedProxyPacketEventArgs e)

@@ -42,11 +42,12 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Discover.cs" />
-    <Compile Include="Http.cs" />
+    <Compile Include="Demo\BroadcastDemo.cs" />
+    <Compile Include="Demo\HttpServerDemo.cs" />
+    <Compile Include="Demo\PortScanDemo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Proxy.cs" />
+    <Compile Include="Demo\ProxyDemo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

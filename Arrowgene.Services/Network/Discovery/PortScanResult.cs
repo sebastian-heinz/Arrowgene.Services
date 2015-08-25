@@ -14,27 +14,23 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Exception
+namespace Arrowgene.Services.Network.Discovery
 {
-    using System;
-    using System.Runtime.Serialization;
+    using System.Diagnostics;
+    using System.Net;
 
-    class InvalidParameterException : Exception
+    [DebuggerDisplay("{Port} open={IsConnected} {IPAddress}")]
+    public class PortScanResult
     {
-        public InvalidParameterException()
+        public PortScanResult(IPAddress ipAddress, ushort port, bool isOpen)
         {
+            this.IPAddress = ipAddress;
+            this.Port = port;
+            this.IsOpen = isOpen;
         }
 
-        public InvalidParameterException(string message) : base(message)
-        {
-        }
-
-        public InvalidParameterException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        protected InvalidParameterException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
+        public IPAddress IPAddress { get; private set; }
+        public bool IsOpen { get; private set; }
+        public ushort Port { get; private set; }
     }
 }

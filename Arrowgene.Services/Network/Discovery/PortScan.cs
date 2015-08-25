@@ -1,92 +1,234 @@
-﻿namespace Arrowgene.Services.Network.Discovery
+﻿/*
+ *  Copyright 2015 Sebastian Heinz <sebastian.heinz.gt@googlemail.com>
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
+namespace Arrowgene.Services.Network.Discovery
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Net;
-    using System.Text;
     using System.Threading;
 
+    /// <summary>
+    /// Scan for open ports.
+    /// </summary>
     public class PortScan
     {
+        private const int TICKS_PER_MS = 10000;
 
-        public PortScan(int connections)
+        private object sync;
+        private int threadFinishedCount;
+        private ushort port;
+        private List<ushort> portRange;
+        private IPAddress ipAddress;
+        private List<IPAddress> ipAddressPool;
+        private List<PortScanResult> portScanResults;
+        private TimeSpan timeout;
+        private bool isRunning;
+
+        /// <summary>
+        /// Initializes a new PortScan.
+        /// </summary>
+        /// <param name="connections">Simultaneous connections</param>
+        /// <param name="timeoutMs">Time to wait for a response, before a port counts as closed</param>
+        public PortScan(int connections, int timeoutMs)
         {
-            this.timeout = new TimeSpan(5000);
+            long ticks = timeoutMs * TICKS_PER_MS;
+
+            this.timeout = new TimeSpan(ticks);
             this.Connections = connections;
             this.sync = new object();
+            this.isRunning = false;
         }
 
+        /// <summary>
+        /// Scan Completed
+        /// </summary>
         public event EventHandler<PortScanCompletedEventArgs> PortScanCompleted;
 
+        /// <summary>
+        /// Simultaneous connections.
+        /// </summary>
         public int Connections { get; private set; }
 
-        public void Scan(IPAddress ipAddress, int startPort, int endPort)
+        /// <summary>
+        /// Scan a given <see cref="IPAddress"/> for a port range.
+        /// </summary>
+        /// <param name="ipAddress"></param>
+        /// <param name="startPort"></param>
+        /// <param name="endPort"></param>
+        public void Scan(IPAddress ipAddress, ushort startPort, ushort endPort)
         {
+            if (startPort <= 0 || endPort <= 0)
+            {
+                throw new Exception("Invalid port number supplied.");
+            }
+
+            if (this.isRunning)
+            {
+                throw new Exception("Scan is already in Progress.");
+            }
+
+            this.isRunning = true;
             this.portScanResults = new List<PortScanResult>();
             this.ipAddress = ipAddress;
-            this.portRange = new List<int>();
+            this.portRange = new List<ushort>();
+            this.threadFinishedCount = 0;
 
-            for (int i = startPort; startPort < endPort; i++)
+            for (ushort i = startPort; i < endPort; i++)
             {
-                portRange.Add(i);
+                this.portRange.Add(i);
             }
 
             for (int i = 0; i < this.Connections; i++)
             {
                 Thread portScan = new Thread(this.ScanPortRange);
-                portScan.Name = string.Format("PortScan {0}", i);
+                portScan.Name = string.Format("PortScan PortRange {0}", i);
                 portScan.Start();
             }
-
         }
 
-        public void Scan(IPAddress startIPAddress, IPAddress sendIPAddress, int port)
+        /// <summary>
+        /// Scan a pool of <see cref="IPAddress"/> for a port.
+        /// </summary>
+        /// <param name="ipAddressPool"></param>
+        /// <param name="port"></param>
+        public void Scan(List<IPAddress> ipAddressPool, ushort port)
         {
+            if (port <= 0)
+            {
+                throw new Exception("Invalid port number supplied.");
+            }
 
+            if(this.isRunning)
+            {
+                throw new Exception("Scan is already in Progress.");
+            }
 
+            this.isRunning = true;
+            this.portScanResults = new List<PortScanResult>();
+            this.ipAddressPool = new List<IPAddress>(ipAddressPool);
+            this.port = port;
+            this.threadFinishedCount = 0;
 
+            for (int i = 0; i < this.Connections; i++)
+            {
+                Thread portScan = new Thread(this.ScanIPRange);
+                portScan.Name = string.Format("PortScan IPRange {0}", i);
+                portScan.Start();
+            }
         }
-
-        private object sync;
-        private List<int> portRange;
-        private IPAddress ipAddress;
-        private TimeSpan timeout;
-        private List<PortScanResult> portScanResults;
 
         private void ScanPortRange()
         {
-            int count = 0;
+            ushort processPort = 0;
+
             lock (this.sync)
             {
-                count = portRange.Count;
+                if (this.portRange.Count > 0)
+                {
+                    processPort = this.portRange[0];
+                    this.portRange.RemoveAt(0);
+                }
             }
 
-            while (count > 0)
+            while (processPort > 0)
             {
-                int processPort = 0;
+                bool isOpen = AGSocket.ConnectTest(this.ipAddress, processPort, this.timeout);
+
+                PortScanResult portScanResult = new PortScanResult(this.ipAddress, processPort, isOpen);
+                this.portScanResults.Add(portScanResult);
+
+                processPort = 0;
 
                 lock (this.sync)
                 {
-                    processPort = portRange[0];
-                    portRange.RemoveAt(0);
+                    if (this.portRange.Count > 0)
+                    {
+                        processPort = this.portRange[0];
+                        this.portRange.RemoveAt(0);
+                        Debug.WriteLine(string.Format("Scanning Port: {0}", processPort));
+                    }
                 }
-
-                bool isConnected = AGSocket.ConnectTest(this.ipAddress, processPort, this.timeout);
-
-                PortScanResult portScanResult = new PortScanResult(this.ipAddress, processPort, isConnected);
-                this.portScanResults.Add(portScanResult);
             }
 
+            lock (this.sync)
+            {
+                this.threadFinishedCount++;
 
+                if (this.Connections == this.threadFinishedCount)
+                {
+                    this.OnPortScanCompleted();
+                }
+            }
+        }
 
+        private void ScanIPRange()
+        {
+            IPAddress processIPAddress = null;
+
+            lock (this.sync)
+            {
+                if (this.ipAddressPool.Count > 0)
+                {
+                    processIPAddress = this.ipAddressPool[0];
+                    this.ipAddressPool.RemoveAt(0);
+                }
+            }
+
+            while (processIPAddress != null)
+            {
+                bool isOpen = AGSocket.ConnectTest(processIPAddress, this.port, this.timeout);
+
+                PortScanResult portScanResult = new PortScanResult(processIPAddress, this.port, isOpen);
+                this.portScanResults.Add(portScanResult);
+
+                processIPAddress = null;
+
+                lock (this.sync)
+                {
+                    if (this.ipAddressPool.Count > 0)
+                    {
+                        processIPAddress = this.ipAddressPool[0];
+                        this.ipAddressPool.RemoveAt(0);
+                        Debug.WriteLine(string.Format("Scanning IP: {0}", processIPAddress));
+                    }
+                }
+            }
+
+            lock (this.sync)
+            {
+                this.threadFinishedCount++;
+
+                if (this.Connections == this.threadFinishedCount)
+                {
+                    this.OnPortScanCompleted();
+                }
+            }
         }
 
         private void OnPortScanCompleted()
         {
+            this.isRunning = false;
+
             EventHandler<PortScanCompletedEventArgs> portScanCompleted = this.PortScanCompleted;
 
             if (portScanCompleted != null)
             {
+                this.portScanResults.Sort((x, y) => x.Port.CompareTo(y.Port));
                 PortScanCompletedEventArgs portScanCompletedEventArgs = new PortScanCompletedEventArgs(this.portScanResults);
                 portScanCompleted(this, portScanCompletedEventArgs);
             }
