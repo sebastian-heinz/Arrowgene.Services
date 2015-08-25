@@ -50,6 +50,8 @@
     <Compile Include="Logging\LogType.cs" />
     <Compile Include="Network\Discovery\IP.cs" />
     <Compile Include="Network\Discovery\PortScan.cs" />
+    <Compile Include="Network\Discovery\PortScanResult.cs" />
+    <Compile Include="Network\Discovery\PortScanCompletedEventArgs.cs" />
     <Compile Include="Network\Discovery\ReceivedBroadcastPacketEventArgs.cs" />
     <Compile Include="Network\Http\Server\HttpHandler.cs" />
     <Compile Include="Network\Http\Server\HttpStaticFileServer.cs" />
