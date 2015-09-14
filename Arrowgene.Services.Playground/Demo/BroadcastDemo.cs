@@ -8,15 +8,17 @@
     {
         public BroadcastDemo()
         {
-            UDPBroadcast bc = new UDPBroadcast(15000);
+            BroadcastServer bc = new BroadcastServer(15000);
             bc.ReceivedBroadcast += Bc_ReceivedBroadcast;
             bc.Listen();
 
-            UDPBroadcast b1c = new UDPBroadcast(15000);
-            b1c.Send(new byte[309]);
+              BroadcastClient b1c = new BroadcastClient();
+               b1c.Send(new byte[309], 15000);
+
+        
         }
 
-        private void Bc_ReceivedBroadcast(object sender, ReceivedUDPBroadcastPacketEventArgs e)
+        private void Bc_ReceivedBroadcast(object sender, ReceivedBroadcastEventArgs e)
         {
             
         }

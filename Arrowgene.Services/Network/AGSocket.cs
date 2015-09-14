@@ -200,6 +200,10 @@ namespace Arrowgene.Services.Network
         /// </summary>
         public bool EnableBroadcast { get { return this.socket.EnableBroadcast; } set { this.socket.EnableBroadcast = value; } }
 
+        public EndPoint LocalEndPoint { get { return this.socket.LocalEndPoint; } }
+        public EndPoint RemoteEndPoint { get { return this.socket.RemoteEndPoint; } }
+
+
         /// <summary>
         /// Sends data to a connected <see cref="Socket"/>.
         /// </summary>
@@ -279,6 +283,58 @@ namespace Arrowgene.Services.Network
         {
             return new AGSocket(this.socket.Accept());
         }
+
+        /// <summary>
+        /// Ends a pending asynchronous read from a specific endpoint. This method also reveals more information about the packet than EndReceiveFrom
+        /// </summary>
+        /// <param name="asyncResult"></param>
+        /// <param name="socketFlags"></param>
+        /// <param name="endPoint"></param>
+        /// <param name="ipPacketInformation"></param>
+        /// <returns></returns>
+        public int EndReceiveMessageFrom(IAsyncResult asyncResult, ref SocketFlags socketFlags, ref EndPoint endPoint, out IPPacketInformation ipPacketInformation)
+        {
+            return this.socket.EndReceiveMessageFrom(asyncResult, ref socketFlags, ref endPoint, out ipPacketInformation);
+        }
+
+        /// <summary>
+        /// Begins to asynchronously receive the specified number of bytes of data into the specified location of the data buffer, 
+        /// using the specified SocketFlags, and stores the endpoint and packet information.
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="offset"></param>
+        /// <param name="size"></param>
+        /// <param name="socketFlags"></param>
+        /// <param name="remoteEP"></param>
+        /// <param name="callback"></param>
+        /// <param name="state"></param>
+        /// <returns></returns>
+        public IAsyncResult BeginReceiveMessageFrom(byte[] buffer, int offset, int size, SocketFlags socketFlags, ref EndPoint remoteEP, AsyncCallback callback, object state)
+        {
+            return this.socket.BeginReceiveMessageFrom(buffer, offset, size, socketFlags, ref remoteEP, callback, state);
+        }
+
+
+        public void SetSocketOption(SocketOptionLevel optionLevel, SocketOptionName optionName, object optionValue)
+        {
+            this.socket.SetSocketOption(optionLevel, optionName, optionValue);
+        }
+
+        public void SetSocketOption(SocketOptionLevel optionLevel, SocketOptionName optionName, bool optionValue)
+        {
+            this.socket.SetSocketOption(optionLevel, optionName, optionValue);
+        }
+
+        public void SetSocketOption(SocketOptionLevel optionLevel, SocketOptionName optionName, byte[] optionValue)
+        {
+            this.socket.SetSocketOption(optionLevel, optionName, optionValue);
+        }
+
+        public void SetSocketOption(SocketOptionLevel optionLevel, SocketOptionName optionName, int optionValue)
+        {
+            this.socket.SetSocketOption(optionLevel, optionName, optionValue);
+        }
+
 
     }
 }

@@ -27,7 +27,7 @@ namespace Arrowgene.Services.Network.Broadcast
     /// <summary>
     /// Listen or Send a Broadcast
     /// </summary>
-    public class UDPBroadcast
+    public class BroadcastServer
     {
         /// <summary>
         /// Defines the maximum size to be received,
@@ -39,38 +39,46 @@ namespace Arrowgene.Services.Network.Broadcast
         private Thread broadcastThread;
         private AGSocket socket;
         private bool isListening;
+        private byte[] buffer;
 
         /// <summary>
         /// Initialize with given port
         /// </summary>
         /// <param name="port"></param>
-        public UDPBroadcast(int port)
+        public BroadcastServer(int port)
         {
-            this.socket = new AGSocket();
             this.isListening = false;
             this.port = port;
+            this.buffer = new byte[MAX_PAYLOAD_SIZE_BYTES];
         }
 
         /// <summary>
         /// Notifies broadcast received
         /// </summary>
-        public event EventHandler<ReceivedUDPBroadcastPacketEventArgs> ReceivedBroadcast;
+        public event EventHandler<ReceivedBroadcastEventArgs> ReceivedBroadcast;
 
 
         private void Read()
         {
+
             while (this.isListening)
             {
                 if (socket.IsBound)
                 {
-                    ByteBuffer payload = new ByteBuffer();
-                    byte[] buffer = new byte[MAX_PAYLOAD_SIZE_BYTES];
+                   // ByteBuffer payload = new ByteBuffer();
+                  //  byte[] buffer = new byte[MAX_PAYLOAD_SIZE_BYTES];
                     try
                     {
-                        int received = 0;
-                        if (socket.Poll(10, SelectMode.SelectRead) && (received = socket.Receive(buffer, 0, buffer.Length, SocketFlags.None)) > 0)
+                      //  int received = 0;
+                        if (socket.Poll(10, SelectMode.SelectRead)) //&& (received = socket.Receive(buffer, 0, buffer.Length, SocketFlags.None)) > 0)
                         {
-                            payload.WriteBytes(buffer, 0, received);
+                            IPEndPoint localIPEndPoint = new IPEndPoint(IPAddress.IPv6Any, this.port);
+                            EndPoint localEndPoint = localIPEndPoint as EndPoint;
+                            //diff ep?
+                            this.socket.BeginReceiveMessageFrom(buffer, 0, buffer.Length, SocketFlags.None, ref localEndPoint, ReceiveCallback, this.socket);
+
+
+                           // payload.WriteBytes(buffer, 0, received);
                         }
                     }
                     catch (Exception ex)
@@ -79,10 +87,10 @@ namespace Arrowgene.Services.Network.Broadcast
                         this.isListening = false;
                     }
 
-                    if (payload.Size > 0)
-                    {
-                        this.OnReceivedBroadcast(payload);
-                    }
+                 //   if (payload.Size > 0)
+                  //  {
+                 //       this.OnReceivedBroadcast(payload);
+                //    }
 
                     Thread.Sleep(10);
                 }
@@ -95,13 +103,29 @@ namespace Arrowgene.Services.Network.Broadcast
 
         private void OnReceivedBroadcast(ByteBuffer payload)
         {
-            EventHandler<ReceivedUDPBroadcastPacketEventArgs> receivedBroadcast = this.ReceivedBroadcast;
+            EventHandler<ReceivedBroadcastEventArgs> receivedBroadcast = this.ReceivedBroadcast;
 
             if (payload != null)
             {
-                ReceivedUDPBroadcastPacketEventArgs receivedProxyPacketEventArgs = new ReceivedUDPBroadcastPacketEventArgs(payload);
+                ReceivedBroadcastEventArgs receivedProxyPacketEventArgs = new ReceivedBroadcastEventArgs(payload, this.socket.RemoteEndPoint);
                 receivedBroadcast(this, receivedProxyPacketEventArgs);
             }
+        }
+
+        private void ReceiveCallback(IAsyncResult iar)
+        {
+            IPPacketInformation packetInfo;
+            EndPoint remoteEnd = new IPEndPoint(IPAddress.Any, 0);
+            SocketFlags flags = SocketFlags.None;
+            AGSocket sock = (AGSocket)iar.AsyncState;
+
+            int received = sock.EndReceiveMessageFrom(iar, ref flags, ref remoteEnd, out packetInfo);
+            Debug.WriteLine(string.Format(
+                "{0} bytes received from {1} to {2}",
+                received,
+                remoteEnd,
+                packetInfo.Address)
+            );
         }
 
         /// <summary>
@@ -109,44 +133,29 @@ namespace Arrowgene.Services.Network.Broadcast
         /// </summary>
         public void Listen()
         {
+            IPEndPoint localIPEndPoint = new IPEndPoint(IPAddress.IPv6Any, this.port);
+            EndPoint localEndPoint = localIPEndPoint as EndPoint;
 
-            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.IPv6Any, this.port);
-            socket.Bind(localEndPoint, SocketType.Dgram, ProtocolType.Udp, true);
-            socket.EnableBroadcast = true;
+            this.socket = new AGSocket();
+            this.socket.Bind(localIPEndPoint, SocketType.Dgram, ProtocolType.Udp, true);
+            this.socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
+            this.socket.EnableBroadcast = true;
+
+
             this.isListening = true;
+
             this.broadcastThread = new Thread(this.Read);
             this.broadcastThread.Name = "Broadcast";
             this.broadcastThread.Start();
         }
 
         /// <summary>
-        /// Send a broadcast message, to a given <see cref="IPAddress"/>
+        /// Stops Listening
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="ip"></param>
-        public void Send(byte[] data, IPAddress ip)
+        public void Stop()
         {
-            if (data.Length <= UDPBroadcast.MAX_PAYLOAD_SIZE_BYTES)
-            {
-                IPEndPoint broadcastEndPoint = new IPEndPoint(ip, this.port);
-
-                this.socket.Connect(broadcastEndPoint, SocketType.Dgram, ProtocolType.Udp);
-                this.socket.Send(data);
-                this.socket.Close();
-            }
-            else
-            {
-                Debug.WriteLine(string.Format("Broadcast::Send: Exceeded maximum payload size of {0} byte", UDPBroadcast.MAX_PAYLOAD_SIZE_BYTES));
-            }
-        }
-
-        /// <summary>
-        /// Send a broadcast message to <see cref="IPAddress.Broadcast"/>
-        /// </summary>
-        /// <param name="data"></param>
-        public void Send(byte[] data)
-        {
-            this.Send(data, IPAddress.Broadcast);
+            this.isListening = false;
+            this.socket.Close();
         }
 
     }

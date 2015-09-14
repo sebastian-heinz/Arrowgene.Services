@@ -55,8 +55,8 @@
 
             this.client.ReceivedPacket += (sender, e) =>
             {
-                clientReceived = e.MyObject as string;
-                wait = false;
+        
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
             };
 
             this.Connect();

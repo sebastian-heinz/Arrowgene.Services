@@ -18,19 +18,21 @@ namespace Arrowgene.Services.Network.Discovery
 {
     using Arrowgene.Services.Provider;
     using System;
+    using System.Net;
     using System.Net.Sockets;
 
     /// <summary>
     /// TODO SUMMARY
     /// </summary>
-    public class ReceivedUDPBroadcastPacketEventArgs : EventArgs
+    public class ReceivedBroadcastEventArgs : EventArgs
     {
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public ReceivedUDPBroadcastPacketEventArgs(ByteBuffer payload)
+        public ReceivedBroadcastEventArgs(ByteBuffer payload, EndPoint remoteEndPoint)
         {
             this.Payload = payload;
+            this.RemoteEndPoint = remoteEndPoint;
         }
 
         /// <summary>
@@ -38,6 +40,10 @@ namespace Arrowgene.Services.Network.Discovery
         /// </summary>
         public ByteBuffer Payload { get; set; }
 
+        /// <summary>
+        /// TODO SUMMARY
+        /// </summary>
+        public EndPoint RemoteEndPoint { get; set; }
     }
 
 }

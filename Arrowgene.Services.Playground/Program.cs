@@ -6,7 +6,7 @@
     {
         public static void Main(string[] args)
         {
-            new PortScanDemo();
+            new BroadcastDemo();
 
         }
     }
