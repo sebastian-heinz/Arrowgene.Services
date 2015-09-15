@@ -25,7 +25,7 @@ namespace Arrowgene.Services.Network.Proxy
 
     public abstract class ProxyBase
     {
-        protected AGSocket socket;
+        protected Socket socket;
         protected byte[] buffer;
         protected Logger logger;
 

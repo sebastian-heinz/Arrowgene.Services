@@ -43,11 +43,11 @@ namespace Arrowgene.Services.Network.Broadcast
         {
             if (data.Length <= BroadcastServer.MAX_PAYLOAD_SIZE_BYTES)
             {
-                AGSocket socket = new AGSocket();
-
                 IPEndPoint broadcastEndPoint = new IPEndPoint(ip, port);
 
-                socket.Connect(broadcastEndPoint, SocketType.Dgram, ProtocolType.Udp);
+                Socket socket = AGSocket.CreateSocket(broadcastEndPoint, SocketType.Dgram, ProtocolType.Udp);
+                socket.Connect(broadcastEndPoint);
+
                 socket.Send(data);
                 socket.Close();
             }
@@ -64,7 +64,7 @@ namespace Arrowgene.Services.Network.Broadcast
         /// <param name="port"></param>
         public void Send(byte[] data, int port)
         {
-            this.Send(data, IPAddress.Broadcast, port);
+            this.Send(data, IPAddress.Loopback, port);
         }
 
     }

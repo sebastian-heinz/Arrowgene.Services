@@ -22,6 +22,7 @@ namespace Arrowgene.Services.Network.Broadcast
     using System.Diagnostics;
     using System.Net;
     using System.Net.Sockets;
+    using System.Text;
     using System.Threading;
 
     /// <summary>
@@ -37,7 +38,7 @@ namespace Arrowgene.Services.Network.Broadcast
 
         private int port;
         private Thread broadcastThread;
-        private AGSocket socket;
+        private Socket socket;
         private bool isListening;
         private byte[] buffer;
 
@@ -65,21 +66,21 @@ namespace Arrowgene.Services.Network.Broadcast
             {
                 if (socket.IsBound)
                 {
-                   // ByteBuffer payload = new ByteBuffer();
-                  //  byte[] buffer = new byte[MAX_PAYLOAD_SIZE_BYTES];
+                    // ByteBuffer payload = new ByteBuffer();
+                    //  byte[] buffer = new byte[MAX_PAYLOAD_SIZE_BYTES];
                     try
                     {
-                      //  int received = 0;
-                        if (socket.Poll(10, SelectMode.SelectRead)) //&& (received = socket.Receive(buffer, 0, buffer.Length, SocketFlags.None)) > 0)
-                        {
-                            IPEndPoint localIPEndPoint = new IPEndPoint(IPAddress.IPv6Any, this.port);
-                            EndPoint localEndPoint = localIPEndPoint as EndPoint;
-                            //diff ep?
-                            this.socket.BeginReceiveMessageFrom(buffer, 0, buffer.Length, SocketFlags.None, ref localEndPoint, ReceiveCallback, this.socket);
+                        //  int received = 0;
+                        // if (socket.Poll(10, SelectMode.SelectRead)) //&& (received = socket.Receive(buffer, 0, buffer.Length, SocketFlags.None)) > 0)
+                        //   {
+                        IPEndPoint localIPEndPoint = new IPEndPoint(IPAddress.IPv6Any, this.port);
+                        EndPoint localEndPoint = localIPEndPoint as EndPoint;
+                        //diff ep?
+                        this.socket.BeginReceiveMessageFrom(buffer, 0, buffer.Length, SocketFlags.None, ref localEndPoint, ReceiveCallback, this.socket);
 
 
-                           // payload.WriteBytes(buffer, 0, received);
-                        }
+                        // payload.WriteBytes(buffer, 0, received);
+                        //  }
                     }
                     catch (Exception ex)
                     {
@@ -87,10 +88,10 @@ namespace Arrowgene.Services.Network.Broadcast
                         this.isListening = false;
                     }
 
-                 //   if (payload.Size > 0)
-                  //  {
-                 //       this.OnReceivedBroadcast(payload);
-                //    }
+                    //   if (payload.Size > 0)
+                    //  {
+                    //       this.OnReceivedBroadcast(payload);
+                    //    }
 
                     Thread.Sleep(10);
                 }
@@ -115,10 +116,10 @@ namespace Arrowgene.Services.Network.Broadcast
         private void ReceiveCallback(IAsyncResult iar)
         {
             IPPacketInformation packetInfo;
-            EndPoint remoteEnd = new IPEndPoint(IPAddress.Any, 0);
+            EndPoint remoteEnd = new IPEndPoint(IPAddress.Any, this.port);
             SocketFlags flags = SocketFlags.None;
-            AGSocket sock = (AGSocket)iar.AsyncState;
-
+            Socket sock = (Socket)iar.AsyncState;
+         
             int received = sock.EndReceiveMessageFrom(iar, ref flags, ref remoteEnd, out packetInfo);
             Debug.WriteLine(string.Format(
                 "{0} bytes received from {1} to {2}",
@@ -128,25 +129,33 @@ namespace Arrowgene.Services.Network.Broadcast
             );
         }
 
+
+
+
         /// <summary>
         /// Listen for broadcast messages
         /// </summary>
         public void Listen()
         {
-            IPEndPoint localIPEndPoint = new IPEndPoint(IPAddress.IPv6Any, this.port);
+            IPEndPoint localIPEndPoint = new IPEndPoint(IPAddress.Any, this.port);
             EndPoint localEndPoint = localIPEndPoint as EndPoint;
 
-            this.socket = new AGSocket();
-            this.socket.Bind(localIPEndPoint, SocketType.Dgram, ProtocolType.Udp, true);
-            this.socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
+            this.socket = AGSocket.CreateBoundServerSocket(localIPEndPoint, SocketType.Dgram, ProtocolType.Udp);
             this.socket.EnableBroadcast = true;
-
-
             this.isListening = true;
 
-            this.broadcastThread = new Thread(this.Read);
-            this.broadcastThread.Name = "Broadcast";
-            this.broadcastThread.Start();
+           
+
+         //   IPEndPoint localIPEndPoint = new IPEndPoint(IPAddress.IPv6Any, this.port);
+        //  //  EndPoint localEndPoint = localIPEndPoint as EndPoint;
+    
+           this.socket.BeginReceiveMessageFrom(buffer, 0, buffer.Length, SocketFlags.None, ref localEndPoint, ReceiveCallback, this.socket);
+
+
+
+       //     this.broadcastThread = new Thread(this.Read);
+       //     this.broadcastThread.Name = "Broadcast";
+      //      this.broadcastThread.Start();
         }
 
         /// <summary>

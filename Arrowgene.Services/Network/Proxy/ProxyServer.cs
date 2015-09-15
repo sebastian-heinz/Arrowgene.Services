@@ -23,7 +23,7 @@ namespace Arrowgene.Services.Network.Proxy
 
     public class ProxyServer : ProxyBase
     {
-        private AGSocket serverSocket;
+        private Socket serverSocket;
         private ProxyClient proxyClient;
 
         public ProxyServer(ProxyConfig proxyConfig)
@@ -71,11 +71,10 @@ namespace Arrowgene.Services.Network.Proxy
             try
             {
                 base.logger.Write("Proxy Server Started");
-                this.serverSocket = new AGSocket();
+                this.serverSocket = AGSocket.CreateBoundServerSocket(this.ProxyConfig.ProxyEndPoint, SocketType.Stream, ProtocolType.Tcp);
 
                 if (this.serverSocket != null)
                 {
-                    this.serverSocket.Bind(this.ProxyConfig.ProxyEndPoint);
                     this.serverSocket.Listen(base.ProxyConfig.Backlog);
 
                     this.IsListening = true;

@@ -18,6 +18,7 @@ namespace Arrowgene.Services.Network.Proxy
 {
     using System;
     using System.Diagnostics;
+    using System.Net.Sockets;
     using System.Threading;
 
     public class ProxyClient : ProxyBase
@@ -45,7 +46,7 @@ namespace Arrowgene.Services.Network.Proxy
 
         private void _Connect()
         {
-            base.socket = new AGSocket();
+            base.socket = AGSocket.CreateSocket(base.ProxyConfig.ServerEndPoint, SocketType.Stream, ProtocolType.Tcp);
             try
             {
                 base.socket.Connect(base.ProxyConfig.ServerEndPoint);

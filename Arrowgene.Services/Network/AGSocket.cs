@@ -31,15 +31,12 @@ namespace Arrowgene.Services.Network
         /// Creates a <see cref="Socket"/> bound to a specified <see cref="IPEndPoint"/>.
         /// </summary>
         /// <param name="localEndPoint"></param>
-        /// <param name="socketType"></param>
-        /// <param name="protocolType"></param>
-        /// <param name="IPv4v6AgnosticSocket"></param>
         /// <returns></returns>
-        public static Socket CreateServerSocket(IPEndPoint localEndPoint, SocketType socketType, ProtocolType protocolType, bool IPv4v6AgnosticSocket)
+        public static Socket CreateBoundServerSocket(IPEndPoint localEndPoint, SocketType socketType, ProtocolType protocolType)
         {
             Socket socket = null;
 
-            if (IPv4v6AgnosticSocket)
+            if (localEndPoint.AddressFamily == AddressFamily.InterNetworkV6)
             {
                 socket = new Socket(AddressFamily.InterNetworkV6, socketType, protocolType);
                 socket.SetSocketOption(SocketOptionLevel.IPv6, AGSocket.USE_IPV6_ONLY, false);
@@ -48,33 +45,18 @@ namespace Arrowgene.Services.Network
             }
             else
             {
-                if (localEndPoint.AddressFamily == AddressFamily.InterNetworkV6)
-                {
-                    socket = new Socket(AddressFamily.InterNetworkV6, socketType, protocolType);
-                    Debug.WriteLine("AGSocket::CreateServerSocket: Created Socket (IPv6 Support)...");
-                }
-                else
-                {
-                    socket = new Socket(AddressFamily.InterNetwork, socketType, protocolType);
-                    Debug.WriteLine("AGSocket::CreateServerSocket: Created Socket (IPv4 Support)...");
-                }
+                socket = new Socket(AddressFamily.InterNetwork, socketType, protocolType);
+                Debug.WriteLine("AGSocket::CreateServerSocket: Created Socket (IPv4 Support)...");
             }
 
-            if (socket != null)
+            if(socket != null)
             {
+                socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
                 socket.Bind(localEndPoint);
                 Debug.WriteLine(string.Format("Socket bound to {0}", localEndPoint.ToString()));
             }
 
             return socket;
-        }
-
-        /// <summary>
-        /// Associates a default <see cref="Socket"/> (TCP, Stream) with a local <see cref="IPEndPoint"/>.
-        /// </summary>
-        public static Socket CreateServerSocket(IPEndPoint localEndPoint)
-        {
-            return AGSocket.CreateServerSocket(localEndPoint, SocketType.Stream, ProtocolType.Tcp, true);
         }
 
         /// <summary>
@@ -90,23 +72,16 @@ namespace Arrowgene.Services.Network
             if (localEndPoint.AddressFamily == AddressFamily.InterNetworkV6)
             {
                 socket = new Socket(AddressFamily.InterNetworkV6, socketType, protocolType);
-                Debug.WriteLine("AGSocket::CreateClientSocket: Created IPv6 Socket...");
+                socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
+                Debug.WriteLine("AGSocket::CreateSocket: Created IPv6 Socket...");
             }
             else
             {
                 socket = new Socket(AddressFamily.InterNetwork, socketType, protocolType);
-                Debug.WriteLine("AGSocket::CreateClientSocket: Created IPv4 Socket...");
+                socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
+                Debug.WriteLine("AGSocket::CreateSocket: Created IPv4 Socket...");
             }
             return socket;
-        }
-
-        /// <summary>
-        /// Associates a default <see cref="Socket"/> (TCP, Stream) with a local <see cref="IPEndPoint"/>.
-        /// </summary>
-        /// <param name="localEndPoint"></param>
-        public static Socket CreateSocket(IPEndPoint localEndPoint)
-        {
-            return AGSocket.CreateSocket(localEndPoint, SocketType.Stream, ProtocolType.Tcp);
         }
 
         /// <summary>
@@ -116,7 +91,7 @@ namespace Arrowgene.Services.Network
         /// <param name="timeout">The timeout.</param>
         public static bool ConnectTest(IPEndPoint endpoint, TimeSpan timeout)
         {
-            Socket socket = AGSocket.CreateSocket(endpoint);
+            Socket socket = AGSocket.CreateSocket(endpoint, SocketType.Stream, ProtocolType.Tcp);
             IAsyncResult result = socket.BeginConnect(endpoint, null, null);
 
             bool success = result.AsyncWaitHandle.WaitOne(timeout, true);
@@ -133,6 +108,7 @@ namespace Arrowgene.Services.Network
                 //   throw new SocketException(10060); // Connection timed out.
             }
         }
+
         /// <summary>
         /// Connects the specified socket.
         /// </summary>
@@ -146,194 +122,18 @@ namespace Arrowgene.Services.Network
 
         #endregion static
 
-            /// <summary>
-            ///https://msdn.microsoft.com/en-us/library/system.net.sockets.socketoptionname.aspx
-            /// IPv6Only	
-            /// Indicates if a socket created for the AF_INET6 address family is restricted to IPv6 communications only.
-            /// Sockets created for the AF_INET6 address family may be used for both IPv6 and IPv4 communications.
-            /// Some applications may want to restrict their use of a socket created for the AF_INET6 address family to IPv6 communications only.
-            /// When this value is non-zero (the default on Windows), a socket created for the AF_INET6 address family can be used to send and receive IPv6 packets only.
-            /// When this value is zero, a socket created for the AF_INET6 address family can be used to send and receive packets to and from an IPv6 address or an IPv4 address.
-            /// Note that the ability to interact with an IPv4 address requires the use of IPv4 mapped addresses.
-            /// This socket option is supported on Windows Vista or later.
-            /// </summary>
+        /// <summary>
+        ///https://msdn.microsoft.com/en-us/library/system.net.sockets.socketoptionname.aspx
+        /// IPv6Only	
+        /// Indicates if a socket created for the AF_INET6 address family is restricted to IPv6 communications only.
+        /// Sockets created for the AF_INET6 address family may be used for both IPv6 and IPv4 communications.
+        /// Some applications may want to restrict their use of a socket created for the AF_INET6 address family to IPv6 communications only.
+        /// When this value is non-zero (the default on Windows), a socket created for the AF_INET6 address family can be used to send and receive IPv6 packets only.
+        /// When this value is zero, a socket created for the AF_INET6 address family can be used to send and receive packets to and from an IPv6 address or an IPv4 address.
+        /// Note that the ability to interact with an IPv4 address requires the use of IPv4 mapped addresses.
+        /// This socket option is supported on Windows Vista or later.
+        /// </summary>
         public const SocketOptionName USE_IPV6_ONLY = (SocketOptionName)27;
-
-        private Socket socket;
-
-        /// <summary>
-        /// Creates a new instance.
-        /// </summary>
-        public AGSocket()
-        {
-
-        }
-
-        /// <summary>
-        /// Creates a new instance with an existing <see cref="Socket"/>.
-        /// </summary>
-        public AGSocket(Socket socket)
-        {
-            this.socket = socket;
-        }
-
-        /// <summary>
-        /// Closes the <see cref="Socket"/> connection and releases all associated resources.
-        /// </summary>
-        public void Close()
-        {
-            this.socket.Close();
-        }
-
-        /// <summary>
-        /// Gets a value that indicates whether a <see cref="Socket"/> is connected to a remote host as of the last Send or Receive operation.
-        /// </summary>
-        public bool Connected { get { return this.socket.Connected; } }
-
-        /// <summary>
-        /// Gets a value that indicates whether the <see cref="Socket"/> is bound to a specific local port.
-        /// </summary>
-        public bool IsBound { get { return this.socket.IsBound; } }
-
-        /// <summary>
-        /// Gets or sets a Boolean value that specifies whether the Socket can send or receive broadcast packets.
-        /// </summary>
-        public bool EnableBroadcast { get { return this.socket.EnableBroadcast; } set { this.socket.EnableBroadcast = value; } }
-
-        public EndPoint LocalEndPoint { get { return this.socket.LocalEndPoint; } }
-        public EndPoint RemoteEndPoint { get { return this.socket.RemoteEndPoint; } }
-
-
-        /// <summary>
-        /// Sends data to a connected <see cref="Socket"/>.
-        /// </summary>
-        public void Send(byte[] buffer)
-        {
-            this.socket.Send(buffer);
-        }
-
-        /// <summary>
-        /// Determines the status of the <see cref="Socket"/>.
-        /// </summary>
-        public bool Poll(int microSeconds, SelectMode mode)
-        {
-            return this.socket.Poll(microSeconds, mode);
-        }
-
-        /// <summary>
-        /// Receives data from a bound <see cref="Socket"/> into a receive buffer.
-        /// </summary>
-        public int Receive(byte[] buffer, int offset, int size, SocketFlags socketFlags)
-        {
-            return this.socket.Receive(buffer, offset, size, socketFlags);
-        }
-
-        /// <summary>
-        /// Establishes a connection to a remote host.
-        /// Creates a new <see cref="Socket"/> if none provided.
-        /// </summary>
-        public void Connect(IPEndPoint remoteEp)
-        {
-            if (this.socket == null)
-            {
-                this.socket = CreateSocket(remoteEp, SocketType.Stream, ProtocolType.Tcp);
-            }
-
-            this.socket.Connect(remoteEp);
-        }
-
-        /// <summary>
-        /// Establishes a connection to a remote host. 
-        /// Always creates a new <see cref="Socket"/>.
-        /// </summary>
-        public void Connect(IPEndPoint remoteEp, SocketType socketType, ProtocolType protocolType)
-        {
-            this.socket = CreateSocket(remoteEp, socketType, protocolType);
-            this.socket.Connect(remoteEp);
-        }
-
-        /// <summary>
-        /// Associates a new <see cref="Socket"/> with a local endpoint.
-        /// </summary>
-        public void Bind(IPEndPoint localEP, SocketType socketType, ProtocolType protocolType, bool iPv4v6AgnosticSocket)
-        {
-            this.socket = AGSocket.CreateServerSocket(localEP, socketType, protocolType, iPv4v6AgnosticSocket);
-        }
-
-        /// <summary>
-        /// Associates a default Socket (TCP, Stream) with a local endpoint.
-        /// </summary>
-        public void Bind(IPEndPoint localEP)
-        {
-            this.socket = AGSocket.CreateServerSocket(localEP);
-        }
-
-        /// <summary>
-        /// Places a <see cref="Socket"/> in a listening state.
-        /// </summary>
-        public void Listen(int backlog)
-        {
-            this.socket.Listen(backlog);
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="Socket"/> for a newly created connection.
-        /// </summary>
-        public AGSocket Accept()
-        {
-            return new AGSocket(this.socket.Accept());
-        }
-
-        /// <summary>
-        /// Ends a pending asynchronous read from a specific endpoint. This method also reveals more information about the packet than EndReceiveFrom
-        /// </summary>
-        /// <param name="asyncResult"></param>
-        /// <param name="socketFlags"></param>
-        /// <param name="endPoint"></param>
-        /// <param name="ipPacketInformation"></param>
-        /// <returns></returns>
-        public int EndReceiveMessageFrom(IAsyncResult asyncResult, ref SocketFlags socketFlags, ref EndPoint endPoint, out IPPacketInformation ipPacketInformation)
-        {
-            return this.socket.EndReceiveMessageFrom(asyncResult, ref socketFlags, ref endPoint, out ipPacketInformation);
-        }
-
-        /// <summary>
-        /// Begins to asynchronously receive the specified number of bytes of data into the specified location of the data buffer, 
-        /// using the specified SocketFlags, and stores the endpoint and packet information.
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="offset"></param>
-        /// <param name="size"></param>
-        /// <param name="socketFlags"></param>
-        /// <param name="remoteEP"></param>
-        /// <param name="callback"></param>
-        /// <param name="state"></param>
-        /// <returns></returns>
-        public IAsyncResult BeginReceiveMessageFrom(byte[] buffer, int offset, int size, SocketFlags socketFlags, ref EndPoint remoteEP, AsyncCallback callback, object state)
-        {
-            return this.socket.BeginReceiveMessageFrom(buffer, offset, size, socketFlags, ref remoteEP, callback, state);
-        }
-
-
-        public void SetSocketOption(SocketOptionLevel optionLevel, SocketOptionName optionName, object optionValue)
-        {
-            this.socket.SetSocketOption(optionLevel, optionName, optionValue);
-        }
-
-        public void SetSocketOption(SocketOptionLevel optionLevel, SocketOptionName optionName, bool optionValue)
-        {
-            this.socket.SetSocketOption(optionLevel, optionName, optionValue);
-        }
-
-        public void SetSocketOption(SocketOptionLevel optionLevel, SocketOptionName optionName, byte[] optionValue)
-        {
-            this.socket.SetSocketOption(optionLevel, optionName, optionValue);
-        }
-
-        public void SetSocketOption(SocketOptionLevel optionLevel, SocketOptionName optionName, int optionValue)
-        {
-            this.socket.SetSocketOption(optionLevel, optionName, optionValue);
-        }
 
 
     }
