@@ -16,12 +16,25 @@
  */
 namespace Arrowgene.Services.Provider
 {
+    using System;
     using System.IO;
 
     //TODO MaxBufferSize = Int32.Max
 
     public class ByteBuffer
     {
+        public static byte[] BlockCopy(byte[] source)
+        {
+            return ByteBuffer.BlockCopy(source, source.Length);
+        }
+
+        public static byte[] BlockCopy(byte[] source, int size)
+        {
+            byte[] destination = new byte[size];
+            Buffer.BlockCopy(source, 0, destination, 0, size);
+            return destination;
+        }
+
         private MemoryStream memoryStream;
         private BinaryWriter binaryWriter;
         private BinaryReader binaryReader;
@@ -37,6 +50,12 @@ namespace Arrowgene.Services.Provider
             : this()
         {
             this.binaryWriter.Write(buffer);
+        }
+
+        public ByteBuffer(byte[] buffer, int index, int count)
+     : this()
+        {
+            this.binaryWriter.Write(buffer, index, count);
         }
 
         public ByteBuffer(string filePath)

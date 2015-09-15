@@ -4,7 +4,6 @@
     using Arrowgene.Services.Network.MarrySocket.MClient;
     using Arrowgene.Services.Network.MarrySocket.MServer;
     using Arrowgene.Services.Network.Proxy;
-    using Network.Discovery;
     using System.Net;
     using System.Net.Sockets;
     using System.Threading;

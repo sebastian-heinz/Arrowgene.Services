@@ -48,12 +48,12 @@
     <Compile Include="Common\OS.cs" />
     <Compile Include="Common\Search.cs" />
     <Compile Include="Logging\LogType.cs" />
-    <Compile Include="Network\Broadcast\BroadcastClient.cs" />
+    <Compile Include="Network\UDP\Broadcast\BroadcastClient.cs" />
     <Compile Include="Network\IP.cs" />
     <Compile Include="Network\PortScan\PortScannerResult.cs" />
     <Compile Include="Network\PortScan\PortScanner.cs" />
     <Compile Include="Network\PortScan\PortScannerCompletedEventArgs.cs" />
-    <Compile Include="Network\Broadcast\ReceivedBroadcastEventArgs.cs" />
+    <Compile Include="Network\UDP\ReceivedUDPPacketEventArgs.cs" />
     <Compile Include="Network\Http\Server\HttpHandler.cs" />
     <Compile Include="Network\Http\Server\HttpStaticFileServer.cs" />
     <Compile Include="Network\MarrySocket\MBase\BaseSocket.cs" />
@@ -97,7 +97,7 @@
     <Compile Include="Network\Http\Client\HttpRequest.cs" />
     <Compile Include="Network\Http\Client\HttpRequestAsyncResponse.cs" />
     <Compile Include="Network\Http\Server\HttpHandleEventArgs.cs" />
-    <Compile Include="Network\Broadcast\BroadcastServer.cs" />
+    <Compile Include="Network\UDP\UDPServer.cs" />
     <Compile Include="Network\AGSocket.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Provider\ByteBuffer.cs" />

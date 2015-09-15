@@ -14,14 +14,14 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network.Broadcast
+namespace Arrowgene.Services.Network.UDP.Broadcast
 {
     using System.Diagnostics;
     using System.Net;
     using System.Net.Sockets;
 
     /// <summary>
-    /// Listen or Send a Broadcast
+    /// Send a Broadcast
     /// </summary>
     public class BroadcastClient
     {
@@ -41,7 +41,7 @@ namespace Arrowgene.Services.Network.Broadcast
         /// <param name="port"></param>
         public void Send(byte[] data, IPAddress ip, int port)
         {
-            if (data.Length <= BroadcastServer.MAX_PAYLOAD_SIZE_BYTES)
+            if (data.Length <= UDPServer.MAX_PAYLOAD_SIZE_BYTES)
             {
                 IPEndPoint broadcastEndPoint = new IPEndPoint(ip, port);
 
@@ -53,7 +53,7 @@ namespace Arrowgene.Services.Network.Broadcast
             }
             else
             {
-                Debug.WriteLine(string.Format("Broadcast::Send: Exceeded maximum payload size of {0} byte", BroadcastServer.MAX_PAYLOAD_SIZE_BYTES));
+                Debug.WriteLine(string.Format("BroadcastClient::Send: Exceeded maximum size of {0} byte", UDPServer.MAX_PAYLOAD_SIZE_BYTES));
             }
         }
 
@@ -64,7 +64,7 @@ namespace Arrowgene.Services.Network.Broadcast
         /// <param name="port"></param>
         public void Send(byte[] data, int port)
         {
-            this.Send(data, IPAddress.Loopback, port);
+            this.Send(data, IPAddress.Broadcast, port);
         }
 
     }

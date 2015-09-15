@@ -14,36 +14,57 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network.Discovery
+namespace Arrowgene.Services.Network.UDP
 {
     using Arrowgene.Services.Provider;
     using System;
     using System.Net;
-    using System.Net.Sockets;
 
     /// <summary>
     /// TODO SUMMARY
     /// </summary>
-    public class ReceivedBroadcastEventArgs : EventArgs
+    public class ReceivedUDPPacketEventArgs : EventArgs
     {
+        private ByteBuffer readableBuffer;
+
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public ReceivedBroadcastEventArgs(ByteBuffer payload, EndPoint remoteEndPoint)
+        public ReceivedUDPPacketEventArgs(int size, byte[] received, IPEndPoint remoteIPEndPoint)
         {
-            this.Payload = payload;
-            this.RemoteEndPoint = remoteEndPoint;
+            this.Size = size;
+            this.Received = received;
+            this.RemoteIPEndPoint = remoteIPEndPoint;
         }
 
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public ByteBuffer Payload { get; set; }
+        public ByteBuffer ReadableBuffer { get { return this.GetReadableBuffer(); } }
 
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public EndPoint RemoteEndPoint { get; set; }
-    }
+        public IPEndPoint RemoteIPEndPoint { get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public byte[] Received { get; private set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int Size { get; private set; }
+
+        private ByteBuffer GetReadableBuffer()
+        {
+            if (this.readableBuffer == null)
+            {
+                readableBuffer = new ByteBuffer(this.Received);
+            }
+            return this.readableBuffer;
+        }
+
+    }
 }

@@ -1,7 +1,6 @@
 ﻿namespace Arrowgene.Services.Test.Network.MarrySocket
 {
     using Arrowgene.Services.Network;
-    using Services.Network.Discovery;
     using Arrowgene.Services.Network.MarrySocket.MClient;
     using Arrowgene.Services.Network.MarrySocket.MServer;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
