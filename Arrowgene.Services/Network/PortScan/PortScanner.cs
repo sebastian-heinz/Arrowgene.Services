@@ -113,7 +113,7 @@ namespace Arrowgene.Services.Network.PortScan
                 throw new Exception("Invalid port number supplied.");
             }
 
-            if(this.isRunning)
+            if (this.isRunning)
             {
                 throw new Exception("Scan is already in Progress.");
             }
@@ -150,12 +150,13 @@ namespace Arrowgene.Services.Network.PortScan
                 bool isOpen = AGSocket.ConnectTest(this.ipAddress, processPort, this.timeout);
 
                 PortScannerResult portScanResult = new PortScannerResult(this.ipAddress, processPort, isOpen);
-                this.portScanResults.Add(portScanResult);
 
                 processPort = 0;
 
                 lock (this.sync)
                 {
+                    this.portScanResults.Add(portScanResult);
+
                     if (this.portRange.Count > 0)
                     {
                         processPort = this.portRange[0];
@@ -194,12 +195,13 @@ namespace Arrowgene.Services.Network.PortScan
                 bool isOpen = AGSocket.ConnectTest(processIPAddress, this.port, this.timeout);
 
                 PortScannerResult portScanResult = new PortScannerResult(processIPAddress, this.port, isOpen);
-                this.portScanResults.Add(portScanResult);
 
                 processIPAddress = null;
 
                 lock (this.sync)
                 {
+                    this.portScanResults.Add(portScanResult);
+
                     if (this.ipAddressPool.Count > 0)
                     {
                         processIPAddress = this.ipAddressPool[0];

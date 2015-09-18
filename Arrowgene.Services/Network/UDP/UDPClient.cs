@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network.UDP.Broadcast
+namespace Arrowgene.Services.Network.UDP
 {
     using System.Diagnostics;
     using System.Net;
@@ -23,15 +23,8 @@ namespace Arrowgene.Services.Network.UDP.Broadcast
     /// <summary>
     /// Send a Broadcast
     /// </summary>
-    public class BroadcastClient
+    public class UDPClient : UDPBase
     {
-        /// <summary>
-        /// Initialize BroadcastClient
-        /// </summary>
-        public BroadcastClient()
-        {
-
-        }
 
         /// <summary>
         /// Send a broadcast message, to a given <see cref="IPAddress"/>
@@ -39,33 +32,51 @@ namespace Arrowgene.Services.Network.UDP.Broadcast
         /// <param name="data"></param>
         /// <param name="ip"></param>
         /// <param name="port"></param>
-        public void Send(byte[] data, IPAddress ip, int port)
+        public static void SendBroadcast(byte[] data, IPAddress ip, int port)
         {
             if (data.Length <= UDPServer.MAX_PAYLOAD_SIZE_BYTES)
             {
                 IPEndPoint broadcastEndPoint = new IPEndPoint(ip, port);
 
                 Socket socket = AGSocket.CreateSocket(broadcastEndPoint, SocketType.Dgram, ProtocolType.Udp);
+                socket.EnableBroadcast = true;
                 socket.Connect(broadcastEndPoint);
-
                 socket.Send(data);
                 socket.Close();
             }
             else
             {
-                Debug.WriteLine(string.Format("BroadcastClient::Send: Exceeded maximum size of {0} byte", UDPServer.MAX_PAYLOAD_SIZE_BYTES));
+                Debug.WriteLine(string.Format("UDPClient::SendBroadcast: Exceeded maximum size of {0} byte", UDPServer.MAX_PAYLOAD_SIZE_BYTES));
             }
         }
 
-        /// <summary>
-        /// Send a broadcast message to <see cref="IPAddress.Broadcast"/>
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="port"></param>
-        public void Send(byte[] data, int port)
+        public static void SendBroadcast(byte[] data, int port)
         {
-            this.Send(data, IPAddress.Broadcast, port);
+            SendBroadcast(data, IPAddress.Broadcast, port);
         }
+
+
+        /// <summary>
+        /// Initialize BroadcastClient
+        /// </summary>
+        public UDPClient(int port) : base (port)
+        {
+            this.socket = AGSocket.CreateSocket(this.IPEndPoint, SocketType.Dgram, ProtocolType.Udp);
+        }
+
+        public void Connect(IPAddress ipAddress, int port)
+        {
+            this.socket.Connect(ipAddress, port);
+            this.Receive();
+        }
+
+        public override void SendTo(byte[] buffer, EndPoint remoteEP)
+        {
+            base.SendTo(buffer, remoteEP);
+        }
+
+
+
 
     }
 }

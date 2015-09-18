@@ -16,46 +16,23 @@
  */
 namespace Arrowgene.Services.Network.UDP
 {
-    using Arrowgene.Services.Provider;
-    using System;
-    using System.Diagnostics;
     using System.Net;
     using System.Net.Sockets;
-    using System.Threading;
 
     /// <summary>
     /// Listen for UDP Packets
     /// </summary>
-    public class UDPServer
+    public class UDPServer : UDPBase
     {
-        /// <summary>
-        /// Defines the maximum size to be received,
-        /// drops send requests exceeding this limit.
-        /// </summary>
-        public const int MAX_PAYLOAD_SIZE_BYTES = 384;
-
-        private int port;
-        private IPAddress ipAddress;
-        private Socket socket;
-        private byte[] buffer;
-        IAsyncResult asyncResult;
-
         /// <summary>
         /// Initialize with given port
         /// </summary>
         /// <param name="port"></param>
-        public UDPServer(int port)
+        public UDPServer(int port) : base(port)
         {
-            this.ipAddress = IPAddress.Any;
-            this.port = port;
-            this.buffer = new byte[MAX_PAYLOAD_SIZE_BYTES];
+
             this.IsListening = false;
         }
-
-        /// <summary>
-        /// Server IPEndPoint
-        /// </summary>
-        public IPEndPoint IPEndPoint { get { return new IPEndPoint(this.ipAddress, this.port); } }
 
         /// <summary>
         /// IsListening
@@ -63,17 +40,11 @@ namespace Arrowgene.Services.Network.UDP
         public bool IsListening { get; private set; }
 
         /// <summary>
-        /// Notifies packet received
-        /// </summary>
-        public event EventHandler<ReceivedUDPPacketEventArgs> ReceivedPacket;
-
-        /// <summary>
         /// Start Listening
         /// </summary>
         public void Listen()
         {
             this.socket = AGSocket.CreateBoundServerSocket(this.IPEndPoint, SocketType.Dgram, ProtocolType.Udp);
-            this.socket.EnableBroadcast = true;
             this.IsListening = true;
             this.Receive();
         }
@@ -87,59 +58,12 @@ namespace Arrowgene.Services.Network.UDP
             this.socket.Close();
         }
 
-        private void Receive()
+        protected override void Receive()
         {
             if (this.IsListening)
             {
-                EndPoint localEndPoint = this.IPEndPoint as EndPoint;
-                this.asyncResult = this.socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref localEndPoint, ReceiveCallback, null);
+                base.Receive();
             }
         }
-
-        private void ReceiveCallback(IAsyncResult iar)
-        {
-            EndPoint remoteEnd = new IPEndPoint(IPAddress.Any, this.port);
-            int receivedBytesCount = 0;
-
-            try
-            {
-                receivedBytesCount = this.socket.EndReceiveFrom(iar, ref remoteEnd);
-            }
-            catch (ObjectDisposedException odex)
-            {
-                Debug.WriteLine("UDPServer::ReceiveCallbackPacket: Socket Closed");
-                return;
-            }
-
-            if (receivedBytesCount <= 0)
-            {
-                Debug.WriteLine(string.Format("UDPServer::ReceiveCallbackPacket: Invalid Packet size ({0} bytes)", receivedBytesCount));
-                return;
-            }
-
-            if (receivedBytesCount >= UDPServer.MAX_PAYLOAD_SIZE_BYTES)
-            {
-                Debug.WriteLine(string.Format("UDPServer::ReceiveCallbackPacket: dropped packet({0} bytes), exceeded maximum size of {1} bytes", receivedBytesCount, UDPServer.MAX_PAYLOAD_SIZE_BYTES));
-                return;
-            }
-
-            IPEndPoint remoteIPEndPoint = (IPEndPoint)remoteEnd;
-            byte[] received = ByteBuffer.BlockCopy(this.buffer, receivedBytesCount);
-
-            this.OnReceivedUDPPacket(receivedBytesCount, received, remoteIPEndPoint);
-            this.Receive();
-        }
-
-        private void OnReceivedUDPPacket(int receivedBytesCount, byte[] received, IPEndPoint remoteIPEndPoint)
-        {
-            EventHandler<ReceivedUDPPacketEventArgs> receivedBroadcast = this.ReceivedPacket;
-
-            if (received != null)
-            {
-                ReceivedUDPPacketEventArgs receivedProxyPacketEventArgs = new ReceivedUDPPacketEventArgs(receivedBytesCount, received, remoteIPEndPoint);
-                receivedBroadcast(this, receivedProxyPacketEventArgs);
-            }
-        }
-
     }
 }

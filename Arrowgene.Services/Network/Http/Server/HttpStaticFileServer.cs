@@ -20,7 +20,6 @@ namespace Arrowgene.Services.Network.Http.Server
     using System.Collections.Generic;
     using System.IO;
     using System.Net;
-    using System.Text;
 
     public class HttpStaticFileServer : HttpHandler
     {
@@ -160,5 +159,6 @@ namespace Arrowgene.Services.Network.Http.Server
 
             context.Response.OutputStream.Close();
         }
+
     }
 }

@@ -48,7 +48,8 @@
     <Compile Include="Common\OS.cs" />
     <Compile Include="Common\Search.cs" />
     <Compile Include="Logging\LogType.cs" />
-    <Compile Include="Network\UDP\Broadcast\BroadcastClient.cs" />
+    <Compile Include="Network\UDP\UDPBase.cs" />
+    <Compile Include="Network\UDP\UDPClient.cs" />
     <Compile Include="Network\IP.cs" />
     <Compile Include="Network\PortScan\PortScannerResult.cs" />
     <Compile Include="Network\PortScan\PortScanner.cs" />

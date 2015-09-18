@@ -51,7 +51,6 @@ namespace Arrowgene.Services.Network
 
             if(socket != null)
             {
-                socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
                 socket.Bind(localEndPoint);
                 Debug.WriteLine(string.Format("Socket bound to {0}", localEndPoint.ToString()));
             }
@@ -72,13 +71,11 @@ namespace Arrowgene.Services.Network
             if (localEndPoint.AddressFamily == AddressFamily.InterNetworkV6)
             {
                 socket = new Socket(AddressFamily.InterNetworkV6, socketType, protocolType);
-                socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
                 Debug.WriteLine("AGSocket::CreateSocket: Created IPv6 Socket...");
             }
             else
             {
                 socket = new Socket(AddressFamily.InterNetwork, socketType, protocolType);
-                socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
                 Debug.WriteLine("AGSocket::CreateSocket: Created IPv4 Socket...");
             }
             return socket;
@@ -105,7 +102,6 @@ namespace Arrowgene.Services.Network
             {
                 socket.Close();
                 return false;
-                //   throw new SocketException(10060); // Connection timed out.
             }
         }
 

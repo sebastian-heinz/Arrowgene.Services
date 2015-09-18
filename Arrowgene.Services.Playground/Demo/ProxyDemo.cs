@@ -1,9 +1,10 @@
 ﻿namespace Arrowgene.Services.Playground.Demo
 {
-    using Network;
     using Arrowgene.Services.Network.MarrySocket.MClient;
     using Arrowgene.Services.Network.MarrySocket.MServer;
     using Arrowgene.Services.Network.Proxy;
+    using Network;
+    using System.Diagnostics;
     using System.Net;
     using System.Net.Sockets;
     using System.Threading;
@@ -21,16 +22,17 @@
 
         private void ProxyServer_ReceivedPacket(object sender, ReceivedProxyPacketEventArgs e)
         {
-
+            Debug.WriteLine("ProxyDemo::ProxyServer_ReceivedPacket: Proxy forwarded packet from: " + e.ProxyPacket.Traffic);
         }
 
         private void Client_ReceivedPacket(object sender, Arrowgene.Services.Network.MarrySocket.MClient.ReceivedPacketEventArgs e)
         {
-
+            Debug.WriteLine("ProxyDemo::Client_ReceivedPacket: " + (string)e.MyObject);
         }
 
         private void Server_ReceivedPacket(object sender, Arrowgene.Services.Network.MarrySocket.MServer.ReceivedPacketEventArgs e)
         {
+            Debug.WriteLine("ProxyDemo::Server_ReceivedPacket: " + (string)e.MyObject);
             e.ClientSocket.SendObject(1000, "world!");
         }
 
@@ -70,6 +72,7 @@
 
             if (client.IsConnected)
             {
+                Debug.WriteLine("ProxyDemo::Run: Client Sends Packet...");
                 client.ServerSocket.SendObject(1000, "hello?");
             }
         }
