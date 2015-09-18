@@ -9,7 +9,8 @@
             // new BroadcastDemo();
             // new HttpServerDemo();
             // new PortScanDemo();
-            new ProxyDemo();
+            // new ProxyDemo();
+            new UdpDemo();
         }
     }
 }

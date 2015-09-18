@@ -25,7 +25,7 @@
         {
             UDPServer server = sender as UDPServer;
             Debug.WriteLine("Server: " + server.IPEndPoint.ToString() + " Received: " + e.Size + " bytes from " + e.RemoteIPEndPoint.ToString());
-            this.received = true;
+            //this.received = true;
         }
 
     }
