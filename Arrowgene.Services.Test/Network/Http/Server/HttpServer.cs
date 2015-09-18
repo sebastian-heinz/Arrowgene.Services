@@ -1,4 +1,4 @@
-﻿namespace Arrowgene.Services.Test.Network.Http.QuickHttp
+﻿namespace Arrowgene.Services.Test.Network.Http.Server
 {
     using System;
     using System.Collections.Generic;
