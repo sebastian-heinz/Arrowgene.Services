@@ -2,6 +2,7 @@
 {
     using Network.UDP;
     using System.Diagnostics;
+    using System.Net;
     using System.Threading;
 
     public class BroadcastDemo
@@ -10,11 +11,11 @@
 
         public BroadcastDemo()
         {
-            UDPServer bc = new UDPServer(15000);
+            IPAddress serverIP = IPAddress.Parse("127.0.0.1");
+            Broadcast bc = new Broadcast(serverIP, 15000);
             bc.ReceivedPacket += Bc_ReceivedPacket;
-            bc.Listen();
-
-            UDPClient.SendBroadcast(new byte[309], 15000);
+     
+     
 
             //Wait to receive broadcast.
             while (!this.received)
@@ -23,8 +24,8 @@
 
         private void Bc_ReceivedPacket(object sender, ReceivedUDPPacketEventArgs e)
         {
-            UDPServer server = sender as UDPServer;
-            Debug.WriteLine("Server: " + server.IPEndPoint.ToString() + " Received: " + e.Size + " bytes from " + e.RemoteIPEndPoint.ToString());
+            UDPSocket server = sender as UDPSocket;
+            Debug.WriteLine("Server: " + server.LocalIPEndPoint.ToString() + " Received: " + e.Size + " bytes from " + e.RemoteIPEndPoint.ToString());
             //this.received = true;
         }
 

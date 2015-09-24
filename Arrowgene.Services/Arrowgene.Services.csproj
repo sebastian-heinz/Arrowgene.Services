@@ -58,8 +58,8 @@
     <Compile Include="Common\OS.cs" />
     <Compile Include="Common\Search.cs" />
     <Compile Include="Logging\LogType.cs" />
-    <Compile Include="Network\UDP\UDPBase.cs" />
-    <Compile Include="Network\UDP\UDPClient.cs" />
+    <Compile Include="Network\UDP\Broadcast.cs" />
+    <Compile Include="Network\UDP\UDPSocket.cs" />
     <Compile Include="Network\IP.cs" />
     <Compile Include="Network\PortScan\PortScannerResult.cs" />
     <Compile Include="Network\PortScan\PortScanner.cs" />
@@ -108,7 +108,6 @@
     <Compile Include="Network\Http\Client\HttpRequest.cs" />
     <Compile Include="Network\Http\Client\HttpRequestAsyncResponse.cs" />
     <Compile Include="Network\Http\Server\HttpHandleEventArgs.cs" />
-    <Compile Include="Network\UDP\UDPServer.cs" />
     <Compile Include="Network\AGSocket.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Provider\ByteBuffer.cs" />

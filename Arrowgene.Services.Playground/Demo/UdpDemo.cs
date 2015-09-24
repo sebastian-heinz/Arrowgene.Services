@@ -12,15 +12,16 @@
 
         public UdpDemo()
         {
-            IPAddress serverIP = IPAddress.Parse("127.0.0.1");
+            IPAddress serverIP = IPAddress.Any;
+            IPAddress clientIP = IPAddress.Parse("192.168.178.20");
 
-            UDPServer echoServer = new UDPServer(PORT);
+            UDPSocket echoServer = new UDPSocket(serverIP, PORT);
             echoServer.ReceivedPacket += EchoServer_ReceivedPacket;
-            echoServer.Listen();
 
-            UDPClient client = new UDPClient(PORT);
+
+            UDPSocket client = new UDPSocket(clientIP , PORT);
             client.ReceivedPacket += Client_ReceivedPacket;
-            client.Connect(serverIP, PORT);
+
 
             Debug.WriteLine("UdpDemo::ctor: Sending Message...");
             client.SendTo(new byte[10], new IPEndPoint(serverIP, PORT));
@@ -39,7 +40,7 @@
         private void EchoServer_ReceivedPacket(object sender, ReceivedUDPPacketEventArgs e)
         {
             Debug.WriteLine("UdpDemo::EchoServer_ReceivedPacket: received: " + e.Size + "bytes");
-            UDPServer echoServer = sender as UDPServer;
+            UDPSocket echoServer = sender as UDPSocket;
             echoServer.SendTo(new byte[20], e.RemoteIPEndPoint);
         }
 
