@@ -5,106 +5,138 @@
     using System.Diagnostics;
     using System.Net;
     using System.Net.Sockets;
+    using System.Threading;
 
     public class UDPSocket
     {
         /// <summary>
-        /// Defines the maximum size to be received,
-        /// drops send requests exceeding this limit.
+        /// Defines the maximum size to be received or send,
+        /// drops requests exceeding this limit.
         /// </summary>
         public const int MAX_PAYLOAD_SIZE_BYTES = 384;
 
-        protected int localPort;
-        protected IPAddress localIPAddress;
-
-        protected Socket socket;
+        private Socket socket;
         private byte[] buffer;
+        private Thread udpThread;
+        private bool receive;
 
-        private IAsyncResult asyncResult;
 
-        public UDPSocket(IPEndPoint localEP) : this(localEP.Address, localEP.Port)
+        public UDPSocket()
         {
+            this.receive = false;
+            this.buffer = new byte[MAX_PAYLOAD_SIZE_BYTES];
+            this.socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         }
 
-        public UDPSocket(IPAddress localIPAddress, int localPort)
-        {
-            this.localPort = localPort;
-            this.localIPAddress = localIPAddress;
-            this.Init();
-        }
-
-        public IPEndPoint LocalIPEndPoint { get { return new IPEndPoint(this.localIPAddress, this.localPort); } }
-
-
+        /// <summary>
+        /// Occurs when data is received
+        /// </summary>
         public event EventHandler<ReceivedUDPPacketEventArgs> ReceivedPacket;
 
-        private void Init()
+        /// <summary>
+        /// Listen for incomming data
+        /// </summary>
+        /// <param name="remoteEP"></param>
+        public void StartListen(IPEndPoint remoteEP)
         {
-            this.buffer = new byte[MAX_PAYLOAD_SIZE_BYTES];
-            this.socket = new Socket(this.localIPAddress.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
-            this.socket.Bind(this.LocalIPEndPoint);
-            this.Receive();
+            this.socket.Bind(remoteEP);
+            this.StartReceive();
         }
 
-        public void Stop()
+        /// <summary>
+        /// Send data to an destination
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="remoteEP"></param>
+        public void Send(byte[] buffer, EndPoint remoteEP)
         {
+            this.SendTo(buffer, remoteEP);
+            this.StartReceive();
+        }
+
+        /// <summary>
+        /// Send data as broadcast.
+        /// 
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="port"></param>
+        public void SendBroadcast(byte[] buffer, int port)
+        {
+            this.SendToBroadcast(buffer, port);
+            this.StartReceive();
+        }
+
+        /// <summary>
+        /// Stops receiving any data
+        /// </summary>
+        public void Close()
+        {
+            this.receive = false;
+
+            if (this.udpThread != null)
+            {
+                int waitTimeout = 1000;
+
+                if (!this.udpThread.Join(waitTimeout))
+                {
+                    Debug.WriteLine(string.Format("UDPBase::Stop: Exceeded maximum timeout of {0} ms, aborting thread...", waitTimeout));
+                    this.udpThread.Abort();
+                }
+            }
+
             this.socket.Close();
         }
 
-        public void SendTo(byte[] buffer, EndPoint remoteEP)
+        private void StartReceive()
         {
-            if (buffer.Length <= UDPSocket.MAX_PAYLOAD_SIZE_BYTES)
+            if (!this.receive)
             {
-                this.socket.BeginSendTo(buffer, 0, buffer.Length, SocketFlags.None, remoteEP, null, null);
-            }
-            else
-            {
-                Debug.WriteLine(string.Format("UDPBase::SendTo: Exceeded maximum size of {0} byte", UDPSocket.MAX_PAYLOAD_SIZE_BYTES));
+                this.receive = true;
+                this.udpThread = new Thread(Receive);
+                this.udpThread.Name = "UdpReceive";
+                this.udpThread.Start();
             }
         }
 
         private void Receive()
         {
-            EndPoint localEndPoint = this.LocalIPEndPoint as EndPoint;
-            this.asyncResult = this.socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref localEndPoint, ReceiveCallback, null);
+            while (this.receive)
+            {
+                if (socket.Poll(10, SelectMode.SelectRead))
+                {
+                    // Create EndPoint, Senders information will be written to this object.
+                    IPEndPoint sender = new IPEndPoint(IPAddress.Any, 0);
+                    EndPoint senderRemote = (EndPoint)sender;
+
+                    int read = this.socket.ReceiveFrom(this.buffer, 0, this.buffer.Length, SocketFlags.None, ref senderRemote);
+
+                    IPEndPoint remoteIPEndPoint = (IPEndPoint)senderRemote;
+                    byte[] received = ByteBuffer.BlockCopy(this.buffer, read);
+                    this.OnReceivedUDPPacket(read, received, remoteIPEndPoint);
+                }
+            }
         }
 
-        private void ReceiveCallback(IAsyncResult iar)
+        private void SendTo(byte[] buffer, EndPoint remoteEP)
         {
-            EndPoint remoteEnd = (EndPoint)iar.AsyncState;
-            int receivedBytesCount = 0;
-
-            try
+            if (buffer.Length <= UDPSocket.MAX_PAYLOAD_SIZE_BYTES)
             {
-                receivedBytesCount = this.socket.EndReceiveFrom(iar, ref remoteEnd);
+                this.socket.SendTo(buffer, 0, buffer.Length, SocketFlags.None, remoteEP);
             }
-            catch (ObjectDisposedException odex)
+            else
             {
-                Debug.WriteLine("UDPBase::ReceiveCallbackPacket: Socket Closed");
-                return;
+                Debug.WriteLine(string.Format("UDPBase::SendTo: Exceeded maximum size of {0} byte", MAX_PAYLOAD_SIZE_BYTES));
             }
-
-            if (receivedBytesCount <= 0)
-            {
-                Debug.WriteLine(string.Format("UDPBase::ReceiveCallbackPacket: Invalid Packet size ({0} bytes)", receivedBytesCount));
-                return;
-            }
-
-            if (receivedBytesCount >= UDP.UDPSocket.MAX_PAYLOAD_SIZE_BYTES)
-            {
-                Debug.WriteLine(string.Format("UDPBase::ReceiveCallbackPacket: dropped packet({0} bytes), exceeded maximum size of {1} bytes", receivedBytesCount, UDP.UDPSocket.MAX_PAYLOAD_SIZE_BYTES));
-                return;
-            }
-
-            IPEndPoint remoteIPEndPoint = (IPEndPoint)remoteEnd;
-            byte[] received = ByteBuffer.BlockCopy(this.buffer, receivedBytesCount);
-
-            this.Receive();
-
-            this.OnReceivedUDPPacket(receivedBytesCount, received, remoteIPEndPoint);
         }
 
-        protected virtual void OnReceivedUDPPacket(int receivedBytesCount, byte[] received, IPEndPoint remoteIPEndPoint)
+        private void SendToBroadcast(byte[] buffer, int port)
+        {
+            this.socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, true);
+            this.socket.SendTo(buffer, 0, buffer.Length, SocketFlags.None, new IPEndPoint(IPAddress.Broadcast, port));
+            this.socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, false);
+        }
+
+        private void OnReceivedUDPPacket(int receivedBytesCount, byte[] received, IPEndPoint remoteIPEndPoint)
         {
             EventHandler<ReceivedUDPPacketEventArgs> receivedBroadcast = this.ReceivedPacket;
 
