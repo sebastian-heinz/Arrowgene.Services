@@ -18,6 +18,7 @@ namespace Arrowgene.Services.Network.Proxy
 {
     using System;
     using System.Diagnostics;
+    using System.Net;
     using System.Net.Sockets;
     using System.Threading;
 
@@ -71,7 +72,7 @@ namespace Arrowgene.Services.Network.Proxy
             try
             {
                 base.logger.Write("Proxy Server Started");
-                this.serverSocket = AGSocket.CreateBoundServerSocket(this.ProxyConfig.ProxyEndPoint, SocketType.Stream, ProtocolType.Tcp);
+                this.serverSocket = this.CreateBoundServerSocket(this.ProxyConfig.ProxyEndPoint, SocketType.Stream, ProtocolType.Tcp);
 
                 if (this.serverSocket != null)
                 {
@@ -102,6 +103,33 @@ namespace Arrowgene.Services.Network.Proxy
             {
                 Debug.WriteLine(ex.ToString());
             }
+        }
+
+
+        private Socket CreateBoundServerSocket(IPEndPoint localEndPoint, SocketType socketType, ProtocolType protocolType)
+        {
+            Socket socket = null;
+
+            if (localEndPoint.AddressFamily == AddressFamily.InterNetworkV6)
+            {
+                socket = new Socket(AddressFamily.InterNetworkV6, socketType, protocolType);
+                socket.SetSocketOption(SocketOptionLevel.IPv6, IP.USE_IPV6_ONLY, false);
+                localEndPoint = new IPEndPoint(IPAddress.IPv6Any, localEndPoint.Port);
+                Debug.WriteLine("AGSocket::CreateServerSocket: Created Socket (IPv4 and IPv6 Support)...");
+            }
+            else
+            {
+                socket = new Socket(AddressFamily.InterNetwork, socketType, protocolType);
+                Debug.WriteLine("AGSocket::CreateServerSocket: Created Socket (IPv4 Support)...");
+            }
+
+            if (socket != null)
+            {
+                socket.Bind(localEndPoint);
+                Debug.WriteLine(string.Format("Socket bound to {0}", localEndPoint.ToString()));
+            }
+
+            return socket;
         }
 
     }

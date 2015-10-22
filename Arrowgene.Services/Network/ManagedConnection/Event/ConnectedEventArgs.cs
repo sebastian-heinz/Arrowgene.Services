@@ -14,27 +14,21 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Exception
+namespace Arrowgene.Services.Network.ManagedConnection.Event
 {
+    using Server;
     using System;
-    using System.Runtime.Serialization;
 
-    class InvalidParameterException : Exception
+
+    public class ConnectedEventArgs : EventArgs
     {
-        public InvalidParameterException()
+
+        public ConnectedEventArgs(ClientSocket clientSocket)
         {
+            this.ClientSocket = clientSocket;
         }
 
-        public InvalidParameterException(string message) : base(message)
-        {
-        }
 
-        public InvalidParameterException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        protected InvalidParameterException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
+        public ClientSocket ClientSocket { get; set; }
     }
 }

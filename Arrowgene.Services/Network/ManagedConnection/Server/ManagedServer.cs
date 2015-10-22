@@ -1,0 +1,285 @@
+﻿namespace Arrowgene.Services.Network.ManagedConnection.Server
+{
+    using Arrowgene.Services.Network.ManagedConnection.Event;
+    using Serialization;
+    using Logging;
+    using System;
+    using System.Net;
+    using System.Net.Sockets;
+    using System.Threading;
+    using Exceptions;
+    using Packet;
+
+    public class ManagedServer
+    {
+
+        private Thread serverThread;
+        private bool isListening;
+        private ClientManager clientManager;
+        private IPAddress ipAddress;
+        private int port;
+
+        /// <summary>
+        /// Creates a new <see cref="ManagedServer"/> instance with a specified <see cref="ISerializer"/> serializer.
+        /// </summary>
+        /// <param name="ipAddress"></param>
+        /// <param name="port"></param>
+        /// <param name="serializer"></param>
+        public ManagedServer(IPAddress ipAddress, int port, ISerializer serializer)
+        {
+            if (ipAddress == null || port <= 0)
+                throw new InvalidParameterException(string.Format("IPAddress({0}) or Port({1}) invalid", ipAddress, port));
+
+            this.ipAddress = ipAddress;
+            this.port = port;
+            this.Serializer = serializer;
+
+            this.isListening = false;
+            this.clientManager = new ClientManager(this);
+
+            this.LogUnknownPacket = true;
+            this.ManagerCount = 5;
+            this.Backlog = 10;
+            this.ReadTimeout = 20;
+            this.PollTimeout = 10;
+            this.BufferSize = 1024;
+            this.IPv4v6AgnosticSocket = true;
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="ManagedServer"/> instance.
+        /// </summary>
+        /// <param name="ipAddress"></param>
+        /// <param name="port"></param>
+        public ManagedServer(IPAddress ipAddress, int port) : this(ipAddress, port, new BinaryFormatterSerializer())
+        {
+
+        }
+
+        public bool LogUnknownPacket { get; set; }
+
+        public int ManagerCount { get; set; }
+
+        public int Backlog { get; set; }
+
+        public int ReadTimeout { get; set; }
+
+        public int PollTimeout { get; set; }
+
+        public int BufferSize { get; set; }
+
+        /// <summary>
+        /// Enables measures to achieve an IPv4/IPv6 agnostic socket.
+        /// Binds <see cref="System.Net.Sockets.Socket"/> always automatically to <see cref="IPAddress.IPv6Any"/>. 
+        /// Sets the <see cref="SocketOptionLevel"/>(27) "USE_IPV6_ONLY" to false.
+        /// </summary>
+        public bool IPv4v6AgnosticSocket { get; set; }
+
+        /// <summary>
+        /// Current logging instance where logs get written to.
+        /// Set your own instance via <see cref="SetLogger(Logger)"/> if you already have one.
+        /// If no instance is set a new will be created upon server start.
+        /// </summary>
+        public Logger Logger { get; private set; }
+
+        /// <summary>
+        /// Server status.
+        /// </summary>
+        public bool IsListening { get { return this.isListening; } }
+
+        /// <summary>
+        /// Servers <see cref="System.Net.IPAddress"/>.
+        /// </summary>
+        public IPAddress IPAddress { get { return this.ipAddress; } }
+
+        /// <summary>
+        /// Servers port.
+        /// </summary>
+        public int Port { get { return this.port; } }
+
+        public int InTraffic { get; internal set; }
+
+        public int OutTraffic { get; internal set; }
+
+        internal ISerializer Serializer { get; set; }
+
+        internal Socket Socket { get; set; }
+
+        /// <summary>
+        /// Occures when a client disconnected.
+        /// </summary>
+        public event EventHandler<DisconnectedEventArgs> ClientDisconnected;
+
+        /// <summary>
+        /// Occures when a client connected.
+        /// </summary>
+        public event EventHandler<ConnectedEventArgs> ClientConnected;
+
+        /// <summary>
+        /// Occures when a packet is received.
+        /// </summary>
+        public event EventHandler<ReceivedPacketEventArgs> ReceivedPacket;
+
+        /// <summary>
+        /// Set an already existing <see cref="Arrowgene.Services.Logging.Logger"/> instance to use for logging.
+        /// Logger instance can only be set if <see cref="IsListening"/> is false.
+        /// </summary>
+        /// <param name="logger"></param>
+        public void SetLogger(Logger logger)
+        {
+            if (!this.isListening && logger != null)
+            {
+                this.Logger = logger;
+            }
+        }
+
+        /// <summary>
+        /// Start accepting connections,
+        /// Creates a new <see cref="Arrowgene.Services.Logging.Logger"/> instance if none is set.
+        /// </summary>
+        public void Start()
+        {
+            if (!this.isListening)
+            {
+                if (this.Logger == null)
+                {
+                    this.Logger = new Logger("Server");
+                }
+
+                this.Logger.Write("Starting Server...", LogType.SERVER);
+                this.serverThread = new Thread(ServerThread);
+                this.serverThread.Name = "ServerThread";
+                this.serverThread.Start();
+            }
+            else
+            {
+                this.Logger.Write("Server already Online.", LogType.SERVER);
+            }
+        }
+
+        /// <summary>
+        /// Stops the server.
+        /// </summary>
+        public void Stop()
+        {
+            if (this.isListening)
+            {
+                this.Logger.Write("Shutting Server down...", LogType.SERVER);
+                this.isListening = false;
+                this.serverThread.Join();
+                this.Logger.Write("Server Offline.", LogType.SERVER);
+            }
+            else
+            {
+                this.Logger.Write("Server already Offline.", LogType.SERVER);
+            }
+        }
+
+        private void ServerThread()
+        {
+            this.clientManager.Start();
+
+            try
+            {
+                this.Socket = this.CreateSocket();
+
+                if (this.Socket != null)
+                {
+                    this.Socket.Bind(new IPEndPoint(this.ipAddress, this.port));
+                    this.Socket.Listen(this.Backlog);
+                    this.isListening = true;
+                    this.Logger.Write("Listening on port: {0}", this.port, LogType.SERVER);
+                    this.Logger.Write("Server Online.", LogType.SERVER);
+                    while (this.isListening)
+                    {
+                        if (this.Socket.Poll(this.PollTimeout, SelectMode.SelectRead))
+                        {
+                            this.clientManager.AddClient(new ClientSocket(this.Socket.Accept(), this.Serializer));
+                        }
+                    }
+                }
+                else
+                {
+                    this.Logger.Write("Server could not be started.", LogType.SERVER);
+                }
+            }
+            catch (Exception exception)
+            {
+                this.Logger.Write(exception.Message, LogType.ERROR);
+            }
+            finally
+            {
+                if (this.Socket.Connected)
+                {
+                    this.Socket.Shutdown(SocketShutdown.Both);
+                }
+
+                this.clientManager.Stop();
+                this.Socket.Close();
+                this.isListening = false;
+                this.Logger.Write("Server stopped.", LogType.SERVER);
+            }
+        }
+
+        private Socket CreateSocket()
+        {
+            Socket socket = null;
+
+
+            if (this.IPv4v6AgnosticSocket)
+            {
+                socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+                socket.SetSocketOption(SocketOptionLevel.IPv6, IP.USE_IPV6_ONLY, false);
+                this.ipAddress = IPAddress.IPv6Any;
+                this.Logger.Write("Created Socket (IPv4 and IPv6 Support)...", LogType.SERVER);
+            }
+
+            if (socket == null)
+            {
+                if (ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
+                {
+                    socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+                    this.Logger.Write("Created Socket (IPv6 Support)...", LogType.SERVER);
+                }
+                else
+                {
+                    socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    this.Logger.Write("Created Socket (IPv4 Support)...", LogType.CLIENT);
+                }
+            }
+
+            return socket;
+        }
+
+        internal void OnReceivedPacket(int packetId, ClientSocket clientSocket, ManagedPacket packet)
+        {
+            EventHandler<ReceivedPacketEventArgs> receivedPacket = this.ReceivedPacket;
+            if (receivedPacket != null)
+            {
+                ReceivedPacketEventArgs receivedPacketEventArgs = new ReceivedPacketEventArgs(packetId, clientSocket, packet);
+                receivedPacket(this, receivedPacketEventArgs);
+            }
+        }
+
+        internal void OnClientDisconnected(ClientSocket clientSocket)
+        {
+            EventHandler<DisconnectedEventArgs> clientDisconnected = this.ClientDisconnected;
+            if (clientDisconnected != null)
+            {
+                DisconnectedEventArgs clientDisconnectedEventArgs = new DisconnectedEventArgs(clientSocket);
+                clientDisconnected(this, clientDisconnectedEventArgs);
+            }
+        }
+
+        internal void OnClientConnected(ClientSocket clientSocket)
+        {
+            EventHandler<ConnectedEventArgs> clientConnected = this.ClientConnected;
+            if (clientConnected != null)
+            {
+                ConnectedEventArgs clientConnectedEventArgs = new ConnectedEventArgs(clientSocket);
+                clientConnected(this, clientConnectedEventArgs);
+            }
+        }
+
+    }
+}

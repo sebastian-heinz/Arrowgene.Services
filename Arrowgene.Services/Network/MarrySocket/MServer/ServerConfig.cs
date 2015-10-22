@@ -16,9 +16,10 @@
  */
 namespace Arrowgene.Services.Network.MarrySocket.MServer
 {
+    using Exceptions;
     using Arrowgene.Services.Network.MarrySocket.MBase;
     using Arrowgene.Services.Network.MarrySocket.Serialization;
-    using Exception;
+
     using System;
     using System.Net;
     using System.Net.Sockets;

@@ -16,8 +16,9 @@
  */
 namespace Arrowgene.Services.Network.Proxy
 {
+    using Exceptions;
     using Arrowgene.Services.Logging;
-    using Exception;
+
     using System.Net;
 
     public class ProxyConfig

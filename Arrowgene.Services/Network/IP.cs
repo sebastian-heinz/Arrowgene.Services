@@ -22,11 +22,25 @@ namespace Arrowgene.Services.Network
     using System.Net.NetworkInformation;
     using System.Net.Sockets;
 
+
     /// <summary>
     /// Helps with IPAddress
     /// </summary>
     public static class IP
     {
+        /// <summary>
+        ///https://msdn.microsoft.com/en-us/library/system.net.sockets.socketoptionname.aspx
+        /// IPv6Only	
+        /// Indicates if a socket created for the AF_INET6 address family is restricted to IPv6 communications only.
+        /// Sockets created for the AF_INET6 address family may be used for both IPv6 and IPv4 communications.
+        /// Some applications may want to restrict their use of a socket created for the AF_INET6 address family to IPv6 communications only.
+        /// When this value is non-zero (the default on Windows), a socket created for the AF_INET6 address family can be used to send and receive IPv6 packets only.
+        /// When this value is zero, a socket created for the AF_INET6 address family can be used to send and receive packets to and from an IPv6 address or an IPv4 address.
+        /// Note that the ability to interact with an IPv4 address requires the use of IPv4 mapped addresses.
+        /// This socket option is supported on Windows Vista or later.
+        /// </summary>
+        public const SocketOptionName USE_IPV6_ONLY = (SocketOptionName)27;
+
         private static IPEndPoint QueryRoutingInterface(Socket socket, IPEndPoint remoteEndPoint)
         {
             SocketAddress address = remoteEndPoint.Serialize();
@@ -74,7 +88,7 @@ namespace Arrowgene.Services.Network
                 IPInterfaceProperties ipProps = nic.GetIPProperties();
 
                 foreach (UnicastIPAddressInformation ip in ipProps.UnicastAddresses)
-                { 
+                {
                     if (ip.Address.AddressFamily == ipAddress.AddressFamily && ip.Address.GetAddressBytes() == ipAddress.GetAddressBytes())
                     {
                         return nic;
@@ -199,6 +213,54 @@ namespace Arrowgene.Services.Network
 
             return result;
         }
+
+        /// <summary>
+        /// Connects the specified socket.
+        /// </summary>
+        /// <param name="endpoint">The IP endpoint.</param>
+        /// <param name="timeout">The timeout.</param>
+        public static bool ConnectTest(IPEndPoint endpoint, TimeSpan timeout)
+        {
+            Socket socket = null;
+
+            if (endpoint.AddressFamily == AddressFamily.InterNetworkV6)
+            {
+                socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+            }
+            else
+            {
+                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            }
+
+            IAsyncResult result = socket.BeginConnect(endpoint, null, null);
+
+            bool success = result.AsyncWaitHandle.WaitOne(timeout, true);
+
+            if (socket.Connected && success)
+            {
+                socket.EndConnect(result);
+                return true;
+            }
+            else
+            {
+                socket.Close();
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Connects the specified socket.
+        /// </summary>
+        /// <param name="ipAddress">IP endpoint</param>
+        /// <param name="port">Port</param>
+        /// <param name="timeout">timeout</param>
+        public static bool ConnectTest(IPAddress ipAddress, int port, TimeSpan timeout)
+        {
+            return IP.ConnectTest(new IPEndPoint(ipAddress, port), timeout);
+        }
+
+
+
 
     }
 }

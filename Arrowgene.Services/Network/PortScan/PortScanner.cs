@@ -147,7 +147,7 @@ namespace Arrowgene.Services.Network.PortScan
 
             while (processPort > 0)
             {
-                bool isOpen = AGSocket.ConnectTest(this.ipAddress, processPort, this.timeout);
+                bool isOpen = IP.ConnectTest(this.ipAddress, processPort, this.timeout);
 
                 PortScannerResult portScanResult = new PortScannerResult(this.ipAddress, processPort, isOpen);
 
@@ -192,7 +192,7 @@ namespace Arrowgene.Services.Network.PortScan
 
             while (processIPAddress != null)
             {
-                bool isOpen = AGSocket.ConnectTest(processIPAddress, this.port, this.timeout);
+                bool isOpen = IP.ConnectTest(processIPAddress, this.port, this.timeout);
 
                 PortScannerResult portScanResult = new PortScannerResult(processIPAddress, this.port, isOpen);
 

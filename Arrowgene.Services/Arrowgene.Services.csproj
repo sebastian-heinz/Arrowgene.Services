@@ -58,8 +58,19 @@
     <Compile Include="Common\OS.cs" />
     <Compile Include="Common\Search.cs" />
     <Compile Include="Logging\LogType.cs" />
+    <Compile Include="Network\ManagedConnection\Client\ManagedClient.cs" />
+    <Compile Include="Network\ManagedConnection\Event\ReceivedPacketEventArgs.cs" />
+    <Compile Include="Network\ManagedConnection\Packet\ManagedPacket.cs" />
+    <Compile Include="Network\ManagedConnection\Packet\PacketManager.cs" />
+    <Compile Include="Network\ManagedConnection\Server\ClientSocket.cs" />
     <Compile Include="Network\UDP\UDPSocket.cs" />
     <Compile Include="Network\IP.cs" />
+    <Compile Include="Network\ManagedConnection\Event\ConnectedEventArgs.cs" />
+    <Compile Include="Network\ManagedConnection\Event\DisconnectedEventArgs.cs" />
+    <Compile Include="Network\ManagedConnection\Serialization\BinaryFormatterSerializer.cs" />
+    <Compile Include="Network\ManagedConnection\Serialization\ISerializer.cs" />
+    <Compile Include="Network\ManagedConnection\Server\ClientManager.cs" />
+    <Compile Include="Network\ManagedConnection\Server\ManagedServer.cs" />
     <Compile Include="Network\PortScan\PortScannerResult.cs" />
     <Compile Include="Network\PortScan\PortScanner.cs" />
     <Compile Include="Network\PortScan\PortScannerCompletedEventArgs.cs" />
@@ -68,7 +79,7 @@
     <Compile Include="Network\Http\Server\HttpStaticFileServer.cs" />
     <Compile Include="Network\MarrySocket\MBase\BaseSocket.cs" />
     <Compile Include="Network\MarrySocket\MBase\BaseConfig.cs" />
-    <Compile Include="Exception\InvalidParameterException.cs" />
+    <Compile Include="Exceptions\InvalidParameterException.cs" />
     <Compile Include="Network\MarrySocket\MClient\ConnectedEventArgs.cs" />
     <Compile Include="Network\MarrySocket\MClient\DisconnectedEventArgs.cs" />
     <Compile Include="Network\MarrySocket\MClient\ReceivedPacketEventArgs.cs" />
@@ -107,7 +118,6 @@
     <Compile Include="Network\Http\Client\HttpRequest.cs" />
     <Compile Include="Network\Http\Client\HttpRequestAsyncResponse.cs" />
     <Compile Include="Network\Http\Server\HttpHandleEventArgs.cs" />
-    <Compile Include="Network\AGSocket.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Provider\ByteBuffer.cs" />
     <Compile Include="Provider\IniFile.cs" />

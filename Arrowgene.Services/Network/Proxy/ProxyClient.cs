@@ -18,6 +18,7 @@ namespace Arrowgene.Services.Network.Proxy
 {
     using System;
     using System.Diagnostics;
+    using System.Net;
     using System.Net.Sockets;
     using System.Threading;
 
@@ -46,7 +47,7 @@ namespace Arrowgene.Services.Network.Proxy
 
         private void _Connect()
         {
-            base.socket = AGSocket.CreateSocket(base.ProxyConfig.ServerEndPoint, SocketType.Stream, ProtocolType.Tcp);
+            base.socket = this.CreateSocket(base.ProxyConfig.ServerEndPoint, SocketType.Stream, ProtocolType.Tcp);
             try
             {
                 base.socket.Connect(base.ProxyConfig.ServerEndPoint);
@@ -59,6 +60,23 @@ namespace Arrowgene.Services.Network.Proxy
                 Debug.WriteLine(ex.ToString());
                 this.Stop();
             }
+        }
+
+
+        private Socket CreateSocket(IPEndPoint localEndPoint, SocketType socketType, ProtocolType protocolType)
+        {
+            Socket socket = null;
+            if (localEndPoint.AddressFamily == AddressFamily.InterNetworkV6)
+            {
+                socket = new Socket(AddressFamily.InterNetworkV6, socketType, protocolType);
+                Debug.WriteLine("AGSocket::CreateSocket: Created IPv6 Socket...");
+            }
+            else
+            {
+                socket = new Socket(AddressFamily.InterNetwork, socketType, protocolType);
+                Debug.WriteLine("AGSocket::CreateSocket: Created IPv4 Socket...");
+            }
+            return socket;
         }
 
     }
