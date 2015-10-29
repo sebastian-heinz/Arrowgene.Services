@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network.ManagedConnection.Packet
+namespace Arrowgene.Services.Network.ManagedConnection.Packet.Custom
 {
     using System.IO;
 

@@ -14,64 +14,43 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network.ManagedConnection.Packet
+namespace Arrowgene.Services.Network.ManagedConnection.Packet.Custom
 {
-    using System.IO;
+    using Arrowgene.Services.Common;
+    using System;
 
     /// <summary>
     /// TODO SUMMARY
     /// </summary>
-    public abstract class PacketBase
+    public class ReadPacket
     {
-        /// <summary>TODO SUMMARY</summary>
-        protected MemoryStream memoryBuffer;
-
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        protected PacketBase()
+        public ReadPacket(PacketHeader packetHeader, byte[] data)
         {
+            this.PacketHeader = packetHeader;
+
+            string typeName = Conversion.GetString(data, 0, this.PacketHeader.TypeNameSize);
+            this.Type = Type.GetType(typeName);
+
+            this.SerializedClass = new byte[this.PacketHeader.SerializedClassSize];
+            Array.Copy(data, this.PacketHeader.TypeNameSize, this.SerializedClass, 0, this.PacketHeader.SerializedClassSize);
         }
 
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public virtual byte[] Buffer
-        {
-            get
-            {
-                return this.memoryBuffer.GetBuffer();
-            }
-            set
-            {
-            }
-        }
+        public PacketHeader PacketHeader { get; private set; }
 
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public int BufferPosition
-        {
-            get
-            {
-                return (int)this.memoryBuffer.Position;
-            }
-            set
-            {
-                this.memoryBuffer.Position = value;
-            }
-        }
+        public Type Type { get; private set; }
 
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public int BufferSize
-        {
-            get
-            {
-                return (int)this.memoryBuffer.Length;
-            }
-        }
+        public byte[] SerializedClass { get; private set; }
     }
 }
-
