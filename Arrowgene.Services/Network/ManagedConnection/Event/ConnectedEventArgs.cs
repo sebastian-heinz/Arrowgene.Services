@@ -16,18 +16,15 @@
  */
 namespace Arrowgene.Services.Network.ManagedConnection.Event
 {
-    using Server;
+    using Client;
     using System;
-
 
     public class ConnectedEventArgs : EventArgs
     {
-
         public ConnectedEventArgs(ClientSocket clientSocket)
         {
             this.ClientSocket = clientSocket;
         }
-
 
         public ClientSocket ClientSocket { get; set; }
     }

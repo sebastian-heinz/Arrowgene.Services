@@ -16,9 +16,8 @@
  */
 namespace Arrowgene.Services.Network.ManagedConnection.Event
 {
-    using Server;
+    using Client;
     using System;
-
 
     public class DisconnectedEventArgs : EventArgs
     {

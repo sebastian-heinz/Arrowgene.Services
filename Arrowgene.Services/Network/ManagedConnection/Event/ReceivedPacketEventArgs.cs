@@ -16,8 +16,8 @@
  */
 namespace Arrowgene.Services.Network.ManagedConnection.Event
 {
+    using Client;
     using Packet;
-    using Server;
     using System;
 
     public class ReceivedPacketEventArgs : EventArgs

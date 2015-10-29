@@ -62,7 +62,7 @@
     <Compile Include="Network\ManagedConnection\Event\ReceivedPacketEventArgs.cs" />
     <Compile Include="Network\ManagedConnection\Packet\ManagedPacket.cs" />
     <Compile Include="Network\ManagedConnection\Packet\PacketManager.cs" />
-    <Compile Include="Network\ManagedConnection\Server\ClientSocket.cs" />
+    <Compile Include="Network\ManagedConnection\Client\ClientSocket.cs" />
     <Compile Include="Network\UDP\UDPSocket.cs" />
     <Compile Include="Network\IP.cs" />
     <Compile Include="Network\ManagedConnection\Event\ConnectedEventArgs.cs" />

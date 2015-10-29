@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Demo\HttpServerDemo.cs" />
+    <Compile Include="Demo\ManagedConnection.cs" />
     <Compile Include="Demo\PortScanDemo.cs" />
     <Compile Include="Demo\UdpDemoClient.cs" />
     <Compile Include="Demo\UdpDemoServer.cs" />

@@ -1,17 +1,19 @@
 ﻿namespace Arrowgene.Services.Network.ManagedConnection.Server
 {
     using Arrowgene.Services.Network.ManagedConnection.Event;
-    using Serialization;
+    using Client;
+    using Exceptions;
     using Logging;
+    using Packet;
+    using Serialization;
     using System;
     using System.Net;
     using System.Net.Sockets;
     using System.Threading;
-    using Exceptions;
-    using Packet;
 
     public class ManagedServer
     {
+        private const string DEFAULT_LOGGER_NAME = "Managed Server";
 
         private Thread serverThread;
         private bool isListening;
@@ -20,23 +22,32 @@
         private int port;
 
         /// <summary>
-        /// Creates a new <see cref="ManagedServer"/> instance with a specified <see cref="ISerializer"/> serializer.
+        /// Creates a new <see cref="ManagedServer"/> instance with a specified <see cref="ISerializer"/> serializer and <see cref="Logger"/>.
         /// </summary>
         /// <param name="ipAddress"></param>
         /// <param name="port"></param>
         /// <param name="serializer"></param>
-        public ManagedServer(IPAddress ipAddress, int port, ISerializer serializer)
+        /// <param name="logger"></param>
+        public ManagedServer(IPAddress ipAddress, int port, ISerializer serializer, Logger logger)
         {
-            if (ipAddress == null || port <= 0)
-                throw new InvalidParameterException(string.Format("IPAddress({0}) or Port({1}) invalid", ipAddress, port));
+            if (ipAddress == null)
+                throw new InvalidParameterException(String.Format("IPAddress({0}) invalid", ipAddress));
+
+            if (port <= 0 || port > 65535)
+                throw new InvalidParameterException(String.Format("Port({0}) invalid", port));
+
+            if (serializer == null)
+                throw new InvalidParameterException("Serializer is null");
+
+            if (logger == null)
+                throw new InvalidParameterException("Logger is null");
 
             this.ipAddress = ipAddress;
             this.port = port;
             this.Serializer = serializer;
+            this.Logger = logger;
 
             this.isListening = false;
-            this.clientManager = new ClientManager(this);
-
             this.LogUnknownPacket = true;
             this.ManagerCount = 5;
             this.Backlog = 10;
@@ -44,6 +55,8 @@
             this.PollTimeout = 10;
             this.BufferSize = 1024;
             this.IPv4v6AgnosticSocket = true;
+
+            this.clientManager = new ClientManager(this);
         }
 
         /// <summary>
@@ -51,7 +64,29 @@
         /// </summary>
         /// <param name="ipAddress"></param>
         /// <param name="port"></param>
-        public ManagedServer(IPAddress ipAddress, int port) : this(ipAddress, port, new BinaryFormatterSerializer())
+        public ManagedServer(IPAddress ipAddress, int port) : this(ipAddress, port, new BinaryFormatterSerializer(), new Logger(DEFAULT_LOGGER_NAME))
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="ManagedServer"/> instance.
+        /// </summary>
+        /// <param name="ipAddress"></param>
+        /// <param name="port"></param>
+        /// <param name="logger"></param>
+        public ManagedServer(IPAddress ipAddress, int port, Logger logger) : this(ipAddress, port, new BinaryFormatterSerializer(), logger)
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="ManagedServer"/> instance.
+        /// </summary>
+        /// <param name="ipAddress"></param>
+        /// <param name="port"></param>
+        /// <param name="serializer"></param>
+        public ManagedServer(IPAddress ipAddress, int port, ISerializer serializer) : this(ipAddress, port, serializer, new Logger(DEFAULT_LOGGER_NAME))
         {
 
         }
@@ -77,8 +112,6 @@
 
         /// <summary>
         /// Current logging instance where logs get written to.
-        /// Set your own instance via <see cref="SetLogger(Logger)"/> if you already have one.
-        /// If no instance is set a new will be created upon server start.
         /// </summary>
         public Logger Logger { get; private set; }
 
@@ -96,10 +129,6 @@
         /// Servers port.
         /// </summary>
         public int Port { get { return this.port; } }
-
-        public int InTraffic { get; internal set; }
-
-        public int OutTraffic { get; internal set; }
 
         internal ISerializer Serializer { get; set; }
 
@@ -121,19 +150,6 @@
         public event EventHandler<ReceivedPacketEventArgs> ReceivedPacket;
 
         /// <summary>
-        /// Set an already existing <see cref="Arrowgene.Services.Logging.Logger"/> instance to use for logging.
-        /// Logger instance can only be set if <see cref="IsListening"/> is false.
-        /// </summary>
-        /// <param name="logger"></param>
-        public void SetLogger(Logger logger)
-        {
-            if (!this.isListening && logger != null)
-            {
-                this.Logger = logger;
-            }
-        }
-
-        /// <summary>
         /// Start accepting connections,
         /// Creates a new <see cref="Arrowgene.Services.Logging.Logger"/> instance if none is set.
         /// </summary>
@@ -141,11 +157,6 @@
         {
             if (!this.isListening)
             {
-                if (this.Logger == null)
-                {
-                    this.Logger = new Logger("Server");
-                }
-
                 this.Logger.Write("Starting Server...", LogType.SERVER);
                 this.serverThread = new Thread(ServerThread);
                 this.serverThread.Name = "ServerThread";
@@ -194,7 +205,7 @@
                     {
                         if (this.Socket.Poll(this.PollTimeout, SelectMode.SelectRead))
                         {
-                            this.clientManager.AddClient(new ClientSocket(this.Socket.Accept(), this.Serializer));
+                            this.clientManager.AddClient(new ClientSocket(this.Socket.Accept(), this.Serializer, this.Logger));
                         }
                     }
                 }
@@ -224,7 +235,6 @@
         private Socket CreateSocket()
         {
             Socket socket = null;
-
 
             if (this.IPv4v6AgnosticSocket)
             {

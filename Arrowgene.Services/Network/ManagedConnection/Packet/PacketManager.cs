@@ -1,33 +1,36 @@
 ﻿namespace Arrowgene.Services.Network.ManagedConnection.Packet
 {
+    using Client;
     using Logging;
-    using Arrowgene.Services.Network.ManagedConnection.Server;
+    using Serialization;
 
     internal class PacketManager
     {
-        private ManagedServer server;
-        internal PacketManager(ManagedServer server)
+        private ISerializer serializer;
+        private Logger logger;
+        internal PacketManager(ISerializer serializer, Logger logger)
         {
-            this.server = server;
+            this.serializer = serializer;
+            this.logger = logger;
         }
 
         internal void Handle(ClientSocket clientSocket, ManagedPacket packet)
         {
-
-            object myClass = this.server.Serializer.Deserialize(packet.RawPacket, this.server.Logger);
+            object myClass = this.serializer.Deserialize(packet.Payload, this.logger);
             if (myClass != null)
             {
-                this.server.InTraffic += packet.Size;
-                this.server.OnReceivedPacket(packet.Id, clientSocket , packet);
-                this.server.Logger.Write("Handled Packet: {0}", packet.Id, LogType.PACKET);
+                this.logger.Write("Handled Packet: {0}", packet.Id, LogType.PACKET);
             }
             else
             {
-                this.server.Logger.Write("Could not handled packet: {0}", packet.Id, LogType.PACKET);
+                this.logger.Write("Could not handled packet: {0}", packet.Id, LogType.PACKET);
             }
-
-
-
         }
+
+        internal bool CheckPacketId(int packetId)
+        {
+            return true;
+        }
+
     }
 }

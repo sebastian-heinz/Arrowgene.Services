@@ -11,7 +11,7 @@ namespace Arrowgene.Services.Playground
             // new ProxyDemo();
             // new UdpDemoServer();
             // new UdpDemoClient();
-
+            new ManagedConnection();
         }
     }
 }
