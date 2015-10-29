@@ -16,10 +16,10 @@
  */
 namespace Arrowgene.Services.Network.ManagedConnection.Client
 {
-    using Logging;
     using Arrowgene.Services.Network.ManagedConnection.Serialization;
     using Event;
     using Exceptions;
+    using Logging;
     using Packet;
     using System;
     using System.Net;
@@ -132,14 +132,22 @@ namespace Arrowgene.Services.Network.ManagedConnection.Client
             if (readThread != null)
             {
                 this.Logger.Write("Shutting reading thread down...", LogType.CLIENT);
-                if (this.readThread.Join(THREAD_JOIN_TIMEOUT))
+
+                if (Thread.CurrentThread != this.readThread)
                 {
-                    this.Logger.Write("Reading thread down.", THREAD_JOIN_TIMEOUT, LogType.CLIENT);
+                    if (this.readThread.Join(THREAD_JOIN_TIMEOUT))
+                    {
+                        this.Logger.Write("Reading thread ended clean.", LogType.CLIENT);
+                    }
+                    else
+                    {
+                        this.Logger.Write("Exceeded thread join timeout of {0}ms, aborting thread...", THREAD_JOIN_TIMEOUT, LogType.CLIENT);
+                        this.readThread.Abort();
+                    }
                 }
                 else
                 {
-                    this.Logger.Write("Exceeded thread join timeout of {0}ms, aborting thread...", THREAD_JOIN_TIMEOUT, LogType.CLIENT);
-                    this.readThread.Abort();
+                    this.Logger.Write("Tried to join thread from within thread, letting thread run out..", LogType.CLIENT);
                 }
             }
 
@@ -178,6 +186,8 @@ namespace Arrowgene.Services.Network.ManagedConnection.Client
         {
             byte[] headerBuffer = new byte[ManagedPacket.HEADER_SIZE];
             byte[] payload;
+
+            this.Logger.Write("Reading thread started.", LogType.CLIENT);
 
             while (this.IsConnected)
             {
@@ -240,11 +250,11 @@ namespace Arrowgene.Services.Network.ManagedConnection.Client
                             // packet could not be handled
                         }
 
-
                     }
                 }
             }
 
+            this.Logger.Write("Reading thread ended.", THREAD_JOIN_TIMEOUT, LogType.CLIENT);
         }
 
         internal void OnReceivedPacket(int packetId, ManagedPacket packet)

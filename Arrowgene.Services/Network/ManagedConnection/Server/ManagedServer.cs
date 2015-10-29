@@ -191,7 +191,29 @@ namespace Arrowgene.Services.Network.ManagedConnection.Server
             {
                 this.Logger.Write("Shutting server down...", LogType.SERVER);
                 this.IsListening = false;
-                this.serverThread.Join();
+
+                if (this.serverThread != null)
+                {
+                    if (Thread.CurrentThread != this.serverThread)
+                    {
+                        int waitTimeout = 1000;
+
+                        if (this.serverThread.Join(waitTimeout))
+                        {
+                            this.Logger.Write("Server thread ended clean.", LogType.CLIENT);
+                        }
+                        else
+                        {
+                            this.Logger.Write("Exceeded maximum timeout of {0} ms, aborting server thread...", waitTimeout, LogType.SERVER);
+                            this.serverThread.Abort();
+                        }
+                    }
+                    else
+                    {
+                        this.Logger.Write("Tried to join server thread from within server thread, letting server thread run out..", LogType.CLIENT);
+                    }
+                }
+
                 this.Logger.Write("Server offline.", LogType.SERVER);
             }
             else
@@ -202,6 +224,8 @@ namespace Arrowgene.Services.Network.ManagedConnection.Server
 
         private void ServerThread()
         {
+            this.Logger.Write("Server thread started.", LogType.SERVER);
+
             this.clientManager.Start();
 
             try
@@ -213,7 +237,7 @@ namespace Arrowgene.Services.Network.ManagedConnection.Server
                     this.Socket.Bind(new IPEndPoint(this.IPAddress, this.Port));
                     this.Socket.Listen(this.Backlog);
                     this.IsListening = true;
-                    this.Logger.Write("Listening on port: {0}", this.Port, LogType.SERVER);
+                    this.Logger.Write("Listening on port: {0}.", this.Port, LogType.SERVER);
                     this.Logger.Write("Server online.", LogType.SERVER);
                     while (this.IsListening)
                     {
@@ -242,7 +266,7 @@ namespace Arrowgene.Services.Network.ManagedConnection.Server
                 this.clientManager.Stop();
                 this.Socket.Close();
                 this.IsListening = false;
-                this.Logger.Write("Server stopped.", LogType.SERVER);
+                this.Logger.Write("Server thread stopped.", LogType.SERVER);
             }
         }
 
@@ -250,15 +274,15 @@ namespace Arrowgene.Services.Network.ManagedConnection.Server
         {
             Socket socket = null;
 
-            this.Logger.Write("Creating socket", LogType.SERVER);
+            this.Logger.Write("Creating socket...", LogType.SERVER);
 
             if (this.IPv4v6AgnosticSocket)
             {
                 socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
                 socket.SetSocketOption(SocketOptionLevel.IPv6, IP.USE_IPV6_ONLY, false);
                 this.IPAddress = IPAddress.IPv6Any;
-                this.Logger.Write("Changed server ip to IPAddress.IPv6Any ({0})", this.IPAddress, LogType.SERVER);
-                this.Logger.Write("Created socket (IPv4 and IPv6 support)", LogType.SERVER);
+                this.Logger.Write("Changed server ip to IPAddress.IPv6Any ({0}).", this.IPAddress, LogType.SERVER);
+                this.Logger.Write("Created socket (IPv4 and IPv6 support).", LogType.SERVER);
             }
 
             if (socket == null)
@@ -266,12 +290,12 @@ namespace Arrowgene.Services.Network.ManagedConnection.Server
                 if (this.IPAddress.AddressFamily == AddressFamily.InterNetworkV6)
                 {
                     socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
-                    this.Logger.Write("Created socket (IPv6 support)", LogType.SERVER);
+                    this.Logger.Write("Created socket (IPv6 support).", LogType.SERVER);
                 }
                 else
                 {
                     socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                    this.Logger.Write("Created socket (IPv4 support)", LogType.SERVER);
+                    this.Logger.Write("Created socket (IPv4 support).", LogType.SERVER);
                 }
             }
 

@@ -22,6 +22,7 @@ namespace Arrowgene.Services.Network.ManagedConnection.Client
     using System;
     using System.Net.Sockets;
     using Common;
+    using System.Net;
 
     public class ClientSocket
     {
@@ -35,6 +36,23 @@ namespace Arrowgene.Services.Network.ManagedConnection.Client
         public bool IsAlive { get; internal set; }
         public int InTraffic { get; internal set; }
         public int OutTraffic { get; internal set; }
+
+        public IPEndPoint RemoteIpEndPoint { get { return this.Socket.RemoteEndPoint as IPEndPoint; } }
+
+        public IPAddress RemoteIPAddress
+        {
+            get
+            {
+                IPAddress ipAddress = null;
+
+                if (this.RemoteIpEndPoint != null)
+                {
+                    ipAddress = this.RemoteIpEndPoint.Address;
+                }
+
+                return ipAddress;
+            }
+        }
 
         public ClientSocket(Socket socket, ISerializer serializer, Logger logger)
         {
@@ -56,6 +74,7 @@ namespace Arrowgene.Services.Network.ManagedConnection.Client
             {
                 ManagedPacket packet = ManagedPacket.CreatePacket(packetId, serialized);
                 this.Socket.Send(packet.GetBytes());
+                this.OutTraffic += packet.PacketSize;
             }
         }
 

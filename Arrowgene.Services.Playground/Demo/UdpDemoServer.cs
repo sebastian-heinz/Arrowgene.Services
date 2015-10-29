@@ -22,7 +22,7 @@
             while (!this.received)
                 Thread.Sleep(10);
 
-            echoServer.Close();
+            echoServer.StopReceive();
         }
 
         private void EchoServer_ReceivedPacket(object sender, ReceivedUDPPacketEventArgs e)

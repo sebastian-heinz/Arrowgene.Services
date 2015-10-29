@@ -23,6 +23,11 @@ namespace Arrowgene.Services.Network.UDP
     using System.Net.Sockets;
     using System.Threading;
 
+    /// <summary>
+    /// Class for handling udp sending and receiving of packets.
+    /// Call <see cref="StartReceive"/> before sending any data, to be able to receive a response.
+    /// If you act as a server with <see cref="StartListen(IPEndPoint)"/>, there is no need to call <see cref="StartReceive"/>
+    /// </summary>
     public class UDPSocket
     {
         /// <summary>
@@ -36,7 +41,9 @@ namespace Arrowgene.Services.Network.UDP
         private Thread udpThread;
         private bool receive;
 
-
+        /// <summary>
+        /// Creates a new instance of <see cref="UDPSocket"/>
+        /// </summary>
         public UDPSocket()
         {
             this.receive = false;
@@ -50,7 +57,7 @@ namespace Arrowgene.Services.Network.UDP
         public event EventHandler<ReceivedUDPPacketEventArgs> ReceivedPacket;
 
         /// <summary>
-        /// Listen for incomming data
+        /// Listen for incomming data and start receiving
         /// </summary>
         /// <param name="remoteEP"></param>
         public void StartListen(IPEndPoint remoteEP)
@@ -67,43 +74,66 @@ namespace Arrowgene.Services.Network.UDP
         public void Send(byte[] buffer, EndPoint remoteEP)
         {
             this.SendTo(buffer, remoteEP);
-            this.StartReceive();
         }
 
         /// <summary>
         /// Send data as broadcast.
-        /// 
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="port"></param>
         public void SendBroadcast(byte[] buffer, int port)
         {
             this.SendToBroadcast(buffer, port);
-            this.StartReceive();
+        }
+
+        /// <summary>
+        /// Starts receiving data
+        /// </summary>
+        public void StartReceive()
+        {
+            this.StartReceiveThread();
         }
 
         /// <summary>
         /// Stops receiving any data
         /// </summary>
-        public void Close()
+        public void StopReceive()
         {
             this.receive = false;
 
             if (this.udpThread != null)
             {
-                int waitTimeout = 1000;
-
-                if (!this.udpThread.Join(waitTimeout))
+                if (Thread.CurrentThread != this.udpThread)
                 {
-                    Debug.WriteLine(string.Format("UDPBase::Stop: Exceeded maximum timeout of {0} ms, aborting thread...", waitTimeout));
-                    this.udpThread.Abort();
+                    int waitTimeout = 1000;
+
+                    if (this.udpThread.Join(waitTimeout))
+                    {
+                        Debug.WriteLine(string.Format("UDPBase::Stop: Udp thread ended clean.", waitTimeout));
+                    }
+                    else
+                    {
+                        Debug.WriteLine(string.Format("UDPBase::Stop: Exceeded maximum timeout of {0} ms, aborting thread...", waitTimeout));
+                        this.udpThread.Abort();
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("UDPBase::Stop: Tried to join udp thread from within udp thread, letting udp thread run out..");
                 }
             }
+        }
 
+        /// <summary>
+        /// Releases all ressources
+        /// </summary>
+        public void Dispose()
+        {
+            this.StopReceive();
             this.socket.Close();
         }
 
-        private void StartReceive()
+        private void StartReceiveThread()
         {
             if (!this.receive)
             {

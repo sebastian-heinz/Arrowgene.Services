@@ -25,7 +25,7 @@
             while (!this.received)
                 Thread.Sleep(10);
 
-            client.Close();
+            client.StopReceive();
         }
 
         private void Client_ReceivedPacket(object sender, ReceivedUDPPacketEventArgs e)

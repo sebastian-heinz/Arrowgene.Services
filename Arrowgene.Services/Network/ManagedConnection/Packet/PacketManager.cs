@@ -34,6 +34,8 @@ namespace Arrowgene.Services.Network.ManagedConnection.Packet
         {
             bool success = false;
 
+            clientSocket.InTraffic += packet.PacketSize;
+
             object myClass = this.serializer.Deserialize(packet.Payload, this.logger);
             if (myClass != null)
             {
@@ -45,6 +47,7 @@ namespace Arrowgene.Services.Network.ManagedConnection.Packet
             {
                 this.logger.Write("Could not handled packet: {0}", packet.Id, LogType.PACKET);
             }
+
 
             return success;
         }
