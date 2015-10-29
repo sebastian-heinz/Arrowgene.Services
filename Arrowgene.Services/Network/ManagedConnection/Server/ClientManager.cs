@@ -29,14 +29,14 @@
         internal void Start()
         {
             this.clients.Clear();
-            this.server.Logger.Write("Starting Client Managers...", LogType.SERVER);
+            this.server.Logger.Write("Starting clientmanagers...", LogType.SERVER);
 
             this.clientManager = new Thread[this.server.ManagerCount];
             try
             {
                 for (int i = 0; i < this.server.ManagerCount; i++)
                 {
-                    this.server.Logger.Write("Starting ClientManager: {0}", i, LogType.SERVER);
+                    this.server.Logger.Write("Starting clientmanager number: {0}", i, LogType.SERVER);
                     this.clientManager[i] = new Thread(this.ManagerProcess);
                     this.clientManager[i].Name = "ClientManager[" + i + "]";
                     this.clientManager[i].Start();
@@ -46,35 +46,36 @@
             }
             catch (Exception e)
             {
-                this.server.Logger.Write("Could not start one or more client managers: {0}", e.Message, LogType.SERVER);
+                this.server.Logger.Write("Could not start one or more clientmanagers: {0}", e.Message, LogType.SERVER);
                 this.Stop();
             }
 
-            this.server.Logger.Write("Initialized Client Managers: {0}", this.clientManager.Length, LogType.SERVER);
+            this.server.Logger.Write("Initialized clientmanagers: {0}", this.clientManager.Length, LogType.SERVER);
         }
 
         internal void Stop()
         {
             this.isRunning = false;
 
-            this.server.Logger.Write("Shutting Client Manager down...", LogType.SERVER);
+            this.server.Logger.Write("Shutting clientmanager down...", LogType.SERVER);
 
             lock (this.myLock)
             {
                 for (int i = 0; i < this.clients.Count; i++)
                 {
-                    this.server.Logger.Write("Disconnecting Client: {0}", this.clients[i].Id, LogType.SERVER);
+                    this.server.Logger.Write("Disconnecting client: {0}", this.clients[i].Id, LogType.SERVER);
                     this.clients[i].Close();
                 }
             }
 
             for (int i = 0; i < this.server.ManagerCount; i++)
             {
-                this.server.Logger.Write("Joining Thread: {0}", this.clientManager[i].Name, LogType.SERVER);
+                this.server.Logger.Write("Shutting clientmanager number: {0} down...", this.clientManager[i].Name, LogType.SERVER);
                 this.clientManager[i].Join();
+                this.server.Logger.Write("clientmanager number: {0} down", this.clientManager[i].Name, LogType.SERVER);
             }
 
-            this.server.Logger.Write("All Client Managers down.", LogType.SERVER);
+            this.server.Logger.Write("All clientmanagers down.", LogType.SERVER);
         }
 
         internal void AddClient(ClientSocket clientSocket)
@@ -131,7 +132,7 @@
                 {
                     if (!readyclients[0].IsAlive)
                     {
-                        DisposeClient(readyclients[0], "Disconnected by Server");
+                        DisposeClient(readyclients[0], "Disconnected by server");
                         readyclients.RemoveAt(0);
                         continue;
                     }
@@ -142,7 +143,7 @@
                     {
                         if (readyclients[0].Socket.Receive(headerBuffer, 0, ManagedPacket.HEADER_SIZE, SocketFlags.None) < 1)
                         {
-                            DisposeClient(readyclients[0], "Invalid Header");
+                            DisposeClient(readyclients[0], "Invalid header");
                             readyclients.RemoveAt(0);
                             continue;
                         }
@@ -151,7 +152,7 @@
                     {
                         if (!readyclients[0].Socket.Connected)
                         {
-                            DisposeClient(readyclients[0], String.Format("Client Error: {0}", e.Message));
+                            DisposeClient(readyclients[0], String.Format("Client error: {0}", e.Message));
                         }
                         else
                         {
@@ -162,13 +163,13 @@
                     }
 
 
-                    Int32 packetId = BitConverter.ToInt32(headerBuffer, ManagedPacket.HEADER_PACKET_SIZE);
+                    Int32 packetId = BitConverter.ToInt32(headerBuffer, ManagedPacket.HEADER_PAYLOAD_SIZE);
 
                     if (this.packetManager.CheckPacketId(packetId))
                     {
-                        Int32 packetSize = BitConverter.ToInt32(headerBuffer, 0);
+                        Int32 payloadSize = BitConverter.ToInt32(headerBuffer, 0);
 
-                        if (packetSize <= 0)
+                        if (payloadSize <= 0)
                         {
                             DisposeClient(readyclients[0], "Message length is zero or less.");
                             readyclients.RemoveAt(0);
@@ -176,24 +177,32 @@
                         }
 
                         // TODO MaxPacketSize ? keep reading with new buffer..
-                        if (packetSize > this.server.BufferSize)
+                        if (payloadSize > this.server.BufferSize)
                         {
-                            DisposeClient(readyclients[0], String.Format("Message length {0} is larger than maximum message size {1}", packetSize, this.server.BufferSize));
+                            DisposeClient(readyclients[0], String.Format("Message length {0} is larger than maximum message size {1}", payloadSize, this.server.BufferSize));
                             readyclients.RemoveAt(0);
                             continue;
                         }
 
-                        byte[] dataBuffer = new byte[packetSize];
+                        byte[] payload = new byte[payloadSize];
                         int bytesReceived = 0;
 
-                        while (bytesReceived < packetSize)
+                        while (bytesReceived < payloadSize)
                         {
                             if (readyclients[0].Socket.Poll(this.server.PollTimeout, SelectMode.SelectRead))
-                                bytesReceived += readyclients[0].Socket.Receive(dataBuffer, bytesReceived, packetSize - bytesReceived, SocketFlags.None);
+                                bytesReceived += readyclients[0].Socket.Receive(payload, bytesReceived, payloadSize - bytesReceived, SocketFlags.None);
                         }
 
-                        ManagedPacket managedPacket = new ManagedPacket(packetSize, packetId, headerBuffer, dataBuffer);
-                        this.packetManager.Handle(readyclients[0], managedPacket);
+                        ManagedPacket managedPacket = new ManagedPacket(packetId, headerBuffer, payload);
+
+                        if (this.packetManager.Handle(readyclients[0], managedPacket))
+                        {
+                            this.server.OnReceivedPacket(packetId, readyclients[0], managedPacket);
+                        }
+                        else
+                        {
+                           // Packet could not be handled
+                        }
                     }
                     else
                     {
@@ -211,8 +220,6 @@
                 Thread.Sleep(this.server.ReadTimeout);
             }
         }
-
-
 
     }
 }

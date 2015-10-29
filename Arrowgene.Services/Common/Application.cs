@@ -23,6 +23,7 @@ namespace Arrowgene.Services.Common
 
     public static class Application
     {
+        public static Random Random = new Random();
 
         public static string DirectoryPath
         {

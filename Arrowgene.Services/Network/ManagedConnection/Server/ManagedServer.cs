@@ -13,13 +13,10 @@
 
     public class ManagedServer
     {
-        private const string DEFAULT_LOGGER_NAME = "Managed Server";
+        private const string DEFAULT_NAME = "Managed Server";
 
         private Thread serverThread;
-        private bool isListening;
         private ClientManager clientManager;
-        private IPAddress ipAddress;
-        private int port;
 
         /// <summary>
         /// Creates a new <see cref="ManagedServer"/> instance with a specified <see cref="ISerializer"/> serializer and <see cref="Logger"/>.
@@ -42,12 +39,12 @@
             if (logger == null)
                 throw new InvalidParameterException("Logger is null");
 
-            this.ipAddress = ipAddress;
-            this.port = port;
+            this.IPAddress = ipAddress;
+            this.Port = port;
             this.Serializer = serializer;
             this.Logger = logger;
 
-            this.isListening = false;
+            this.IsListening = false;
             this.LogUnknownPacket = true;
             this.ManagerCount = 5;
             this.Backlog = 10;
@@ -64,7 +61,7 @@
         /// </summary>
         /// <param name="ipAddress"></param>
         /// <param name="port"></param>
-        public ManagedServer(IPAddress ipAddress, int port) : this(ipAddress, port, new BinaryFormatterSerializer(), new Logger(DEFAULT_LOGGER_NAME))
+        public ManagedServer(IPAddress ipAddress, int port) : this(ipAddress, port, new BinaryFormatterSerializer(), new Logger(DEFAULT_NAME))
         {
 
         }
@@ -86,7 +83,7 @@
         /// <param name="ipAddress"></param>
         /// <param name="port"></param>
         /// <param name="serializer"></param>
-        public ManagedServer(IPAddress ipAddress, int port, ISerializer serializer) : this(ipAddress, port, serializer, new Logger(DEFAULT_LOGGER_NAME))
+        public ManagedServer(IPAddress ipAddress, int port, ISerializer serializer) : this(ipAddress, port, serializer, new Logger(DEFAULT_NAME))
         {
 
         }
@@ -118,17 +115,17 @@
         /// <summary>
         /// Server status.
         /// </summary>
-        public bool IsListening { get { return this.isListening; } }
+        public bool IsListening { get; private set; }
 
         /// <summary>
         /// Servers <see cref="System.Net.IPAddress"/>.
         /// </summary>
-        public IPAddress IPAddress { get { return this.ipAddress; } }
+        public IPAddress IPAddress { get; private set; }
 
         /// <summary>
         /// Servers port.
         /// </summary>
-        public int Port { get { return this.port; } }
+        public int Port { get; private set; }
 
         internal ISerializer Serializer { get; set; }
 
@@ -155,16 +152,16 @@
         /// </summary>
         public void Start()
         {
-            if (!this.isListening)
+            if (!this.IsListening)
             {
-                this.Logger.Write("Starting Server...", LogType.SERVER);
+                this.Logger.Write("Starting server...", LogType.SERVER);
                 this.serverThread = new Thread(ServerThread);
-                this.serverThread.Name = "ServerThread";
+                this.serverThread.Name = DEFAULT_NAME;
                 this.serverThread.Start();
             }
             else
             {
-                this.Logger.Write("Server already Online.", LogType.SERVER);
+                this.Logger.Write("Server already online.", LogType.SERVER);
             }
         }
 
@@ -173,16 +170,16 @@
         /// </summary>
         public void Stop()
         {
-            if (this.isListening)
+            if (this.IsListening)
             {
-                this.Logger.Write("Shutting Server down...", LogType.SERVER);
-                this.isListening = false;
+                this.Logger.Write("Shutting server down...", LogType.SERVER);
+                this.IsListening = false;
                 this.serverThread.Join();
-                this.Logger.Write("Server Offline.", LogType.SERVER);
+                this.Logger.Write("Server offline.", LogType.SERVER);
             }
             else
             {
-                this.Logger.Write("Server already Offline.", LogType.SERVER);
+                this.Logger.Write("Server already offline.", LogType.SERVER);
             }
         }
 
@@ -196,12 +193,12 @@
 
                 if (this.Socket != null)
                 {
-                    this.Socket.Bind(new IPEndPoint(this.ipAddress, this.port));
+                    this.Socket.Bind(new IPEndPoint(this.IPAddress, this.Port));
                     this.Socket.Listen(this.Backlog);
-                    this.isListening = true;
-                    this.Logger.Write("Listening on port: {0}", this.port, LogType.SERVER);
-                    this.Logger.Write("Server Online.", LogType.SERVER);
-                    while (this.isListening)
+                    this.IsListening = true;
+                    this.Logger.Write("Listening on port: {0}", this.Port, LogType.SERVER);
+                    this.Logger.Write("Server online.", LogType.SERVER);
+                    while (this.IsListening)
                     {
                         if (this.Socket.Poll(this.PollTimeout, SelectMode.SelectRead))
                         {
@@ -227,7 +224,7 @@
 
                 this.clientManager.Stop();
                 this.Socket.Close();
-                this.isListening = false;
+                this.IsListening = false;
                 this.Logger.Write("Server stopped.", LogType.SERVER);
             }
         }
@@ -236,25 +233,28 @@
         {
             Socket socket = null;
 
+            this.Logger.Write("Creating socket", LogType.SERVER);
+
             if (this.IPv4v6AgnosticSocket)
             {
                 socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
                 socket.SetSocketOption(SocketOptionLevel.IPv6, IP.USE_IPV6_ONLY, false);
-                this.ipAddress = IPAddress.IPv6Any;
-                this.Logger.Write("Created Socket (IPv4 and IPv6 Support)...", LogType.SERVER);
+                this.IPAddress = IPAddress.IPv6Any;
+                this.Logger.Write("Changed server ip to IPAddress.IPv6Any ({0})", this.IPAddress, LogType.SERVER);
+                this.Logger.Write("Created socket (IPv4 and IPv6 support)", LogType.SERVER);
             }
 
             if (socket == null)
             {
-                if (ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
+                if (this.IPAddress.AddressFamily == AddressFamily.InterNetworkV6)
                 {
                     socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
-                    this.Logger.Write("Created Socket (IPv6 Support)...", LogType.SERVER);
+                    this.Logger.Write("Created socket (IPv6 support)", LogType.SERVER);
                 }
                 else
                 {
                     socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                    this.Logger.Write("Created Socket (IPv4 Support)...", LogType.CLIENT);
+                    this.Logger.Write("Created socket (IPv4 support)", LogType.SERVER);
                 }
             }
 

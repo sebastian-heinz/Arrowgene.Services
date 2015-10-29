@@ -14,17 +14,23 @@
             this.logger = logger;
         }
 
-        internal void Handle(ClientSocket clientSocket, ManagedPacket packet)
+        internal bool Handle(ClientSocket clientSocket, ManagedPacket packet)
         {
+            bool success = false;
+
             object myClass = this.serializer.Deserialize(packet.Payload, this.logger);
             if (myClass != null)
             {
+                packet.Object = myClass;
                 this.logger.Write("Handled Packet: {0}", packet.Id, LogType.PACKET);
+                success = true;
             }
             else
             {
                 this.logger.Write("Could not handled packet: {0}", packet.Id, LogType.PACKET);
             }
+
+            return success;
         }
 
         internal bool CheckPacketId(int packetId)

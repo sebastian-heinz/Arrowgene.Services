@@ -2,47 +2,109 @@
 {
     using System;
 
+    /// <summary>
+    /// Class to manage packet content
+    /// </summary>
     public class ManagedPacket
     {
+        /// <summary>
+        /// Size of header
+        /// </summary>
         public const Int32 HEADER_SIZE = 16;
-        public const Int32 HEADER_PACKET_SIZE = 4;
+
+        /// <summary>
+        /// Size of payload header part
+        /// </summary>
+        public const Int32 HEADER_PAYLOAD_SIZE = 4;
+
+        /// <summary>
+        /// size of id header part
+        /// </summary>
         public const Int32 HEADER_ID_SIZE = 4;
 
-        public static byte[] CreatePacketbytes(int packetId, byte[] payload)
+        /// <summary>
+        /// Creates a new <see cref="ManagedPacket"/> from packetId and payload
+        /// </summary>
+        /// <param name="packetId"></param>
+        /// <param name="payload"></param>
+        /// <returns></returns>
+        public static ManagedPacket CreatePacket(Int32 packetId, byte[] payload)
         {
-            int packetSize = HEADER_SIZE + payload.Length;
+            Int32 payloadSize = payload.Length;
 
-            byte[] packetSizeBytes = BitConverter.GetBytes(packetSize);
+            byte[] payloadSizeBytes = BitConverter.GetBytes(payloadSize);
             byte[] packetIdBytes = BitConverter.GetBytes(packetId);
             byte[] header = new byte[HEADER_SIZE];
 
-            Buffer.BlockCopy(packetSizeBytes, 0, header, 0, packetSizeBytes.Length);
-            Buffer.BlockCopy(packetIdBytes, 0, header, packetSizeBytes.Length, packetIdBytes.Length);
+            Buffer.BlockCopy(payloadSizeBytes, 0, header, 0, payloadSizeBytes.Length);
+            Buffer.BlockCopy(packetIdBytes, 0, header, payloadSizeBytes.Length, packetIdBytes.Length);
 
-            byte[] data = new byte[packetSize];
-
-            Buffer.BlockCopy(header, 0, data, 0, header.Length);
-            Buffer.BlockCopy(payload, 0, data, header.Length, payload.Length);
-
-            return data;
+            ManagedPacket managedPacket = new ManagedPacket(packetId, header, payload);
+            return managedPacket;
         }
 
-        private int size;
-        private int id;
-
-        public ManagedPacket(int size, int id, byte[] headerBuffer, byte[] payload)
+        /// <summary>
+        /// Creates a new packet
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="header"></param>
+        /// <param name="payload"></param>
+        public ManagedPacket(int id, byte[] header, byte[] payload)
         {
-            this.size = size;
-            this.id = id;
-            this.Header = headerBuffer;
+            this.Id = id;
+            this.Header = header;
             this.Payload = payload;
+            this.Object = null;
         }
 
+        /// <summary>
+        /// Header
+        /// </summary>
         public byte[] Header { get; set; }
+
+        /// <summary>
+        /// Payload
+        /// </summary>
         public byte[] Payload { get; set; }
-        public int Size { get { return this.size; } }
-        public int Id { get { return this.id; } }
 
+        /// <summary>
+        /// Size of the total bytes header + payload
+        /// </summary>
+        public int PacketSize { get { return this.Payload.Length + HEADER_SIZE; } }
 
+        /// <summary>
+        /// Id to identify the packet
+        /// </summary>
+        public int Id { get; private set; }
+
+        /// <summary>
+        /// Transfered Object
+        /// </summary>
+        public object Object { get; internal set; }
+
+        /// <summary>
+        /// Returns concrete class or value
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T GetObject<T>()
+        {
+            T myObject = (T)this.Object;
+            return myObject;
+        }
+
+        /// <summary>
+        /// Returns the packet as byte array
+        /// </summary>
+        /// <returns></returns>
+        public byte[] GetBytes()
+        {
+            byte[] bytes = new byte[this.PacketSize];
+
+            Buffer.BlockCopy(this.Header, 0, bytes, 0, HEADER_SIZE);
+            Buffer.BlockCopy(this.Payload, 0, bytes, HEADER_SIZE, this.Payload.Length);
+
+            return bytes;
+        }
     }
 }

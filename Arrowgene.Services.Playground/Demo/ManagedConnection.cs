@@ -1,6 +1,4 @@
-﻿
-
-namespace Arrowgene.Services.Playground.Demo
+﻿namespace Arrowgene.Services.Playground.Demo
 {
     using Network.ManagedConnection.Client;
     using Network.ManagedConnection.Server;
@@ -12,31 +10,53 @@ namespace Arrowgene.Services.Playground.Demo
 
         public ManagedConnection()
         {
-
             ManagedServer svr = new ManagedServer(IPAddress.Any, 2345);
+            svr.Logger.LogWrite += Logger_LogWrite;
             svr.ClientConnected += Svr_ClientConnected;
             svr.ClientDisconnected += Svr_ClientDisconnected;
             svr.ReceivedPacket += Svr_ReceivedPacket;
             svr.Start();
 
-            ManagedClient cli = new ManagedClient(IPAddress.Parse("192.168.10.39"), 2345);
+            ManagedClient cli = new ManagedClient(IPAddress.Parse("192.168.178.20"), 2345);
+            cli.Logger.LogWrite += Logger_LogWrite1;
             cli.Connected += Cli_Connected;
             cli.Disconnected += Cli_Disconnected;
             cli.ReceivedPacket += Cli_ReceivedPacket;
             cli.Connect();
 
-           
+            cli.SendObject(1, "hello server");
 
-            Console.WriteLine("Press any key to exit.");
-
+            Console.WriteLine("Press any key to disconnect.");
             Console.ReadKey();
+
             cli.Disconnect();
             svr.Stop();
+
+            Console.WriteLine("Press any key to exit.");
+            Console.ReadKey();
+        }
+
+        private void Logger_LogWrite1(object sender, Logging.LogWriteEventArgs e)
+        {
+            Console.WriteLine(string.Format("Client Log: {0}", e.Log.Text));
+        }
+
+        private void Logger_LogWrite(object sender, Logging.LogWriteEventArgs e)
+        {
+            Console.WriteLine(string.Format("Server Log: {0}", e.Log.Text));
         }
 
         private void Cli_ReceivedPacket(object sender, Network.ManagedConnection.Event.ReceivedPacketEventArgs e)
         {
-            Console.WriteLine(string.Format("Client: received packet {0} from {1}", e.Packet.Id, e.ClientSocket.Id));
+            string message = e.Packet.GetObject<string>();
+            Console.WriteLine(string.Format("Client: received packetID: {0} with message: {1}", e.Packet.Id, message));
+
+            string answer = string.Empty;
+            switch (e.PacketId)
+            {
+                case 2: e.ClientSocket.SendObject(3, "i want to know how you are today"); break;
+                case 4: e.ClientSocket.SendObject(5, "good to know bye!"); break;
+            }
         }
 
         private void Cli_Disconnected(object sender, Network.ManagedConnection.Event.DisconnectedEventArgs e)
@@ -51,7 +71,15 @@ namespace Arrowgene.Services.Playground.Demo
 
         private void Svr_ReceivedPacket(object sender, Network.ManagedConnection.Event.ReceivedPacketEventArgs e)
         {
-            Console.WriteLine(string.Format("Server: received packet {0} from {1}", e.Packet.Id, e.ClientSocket.Id));
+            string message = e.Packet.GetObject<string>();
+            Console.WriteLine(string.Format("Server: received packetID: {0} from clientID: {1} with message: {2}", e.Packet.Id, e.ClientSocket.Id, message));
+
+            string answer = string.Empty;
+            switch (e.PacketId)
+            {
+                case 1: e.ClientSocket.SendObject(2, "hello client how can i help you?"); break;
+                case 3: e.ClientSocket.SendObject(4, "thanks for asking i am fine"); break;
+            }
         }
 
         private void Svr_ClientDisconnected(object sender, Network.ManagedConnection.Event.DisconnectedEventArgs e)
