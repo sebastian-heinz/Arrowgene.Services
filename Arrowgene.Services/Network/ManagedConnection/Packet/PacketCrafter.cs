@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network.MarrySocket.Packet
+namespace Arrowgene.Services.Network.ManagedConnection.Packet
 {
     using System.IO;
 

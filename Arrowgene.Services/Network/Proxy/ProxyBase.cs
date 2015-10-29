@@ -16,8 +16,8 @@
  */
 namespace Arrowgene.Services.Network.Proxy
 {
+    using Common;
     using Arrowgene.Services.Logging;
-    using Arrowgene.Services.Provider;
     using System;
     using System.Diagnostics;
     using System.Net.Sockets;

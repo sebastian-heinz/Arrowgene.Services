@@ -52,7 +52,6 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Network\Http\Server\HttpServer.cs" />
-    <Compile Include="Network\MarrySocket\MarrySocketConnection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

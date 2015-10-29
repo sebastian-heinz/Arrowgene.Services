@@ -14,38 +14,43 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network.MarrySocket.MClient
+namespace Arrowgene.Services.Network.ManagedConnection.Packet
 {
+    using Arrowgene.Services.Common;
     using System;
 
     /// <summary>
     /// TODO SUMMARY
     /// </summary>
-    public class ReceivedPacketEventArgs : EventArgs
+    public class ReadPacket
     {
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public ReceivedPacketEventArgs(int packetId, ServerSocket serverSocket, object myObject)
+        public ReadPacket(PacketHeader packetHeader, byte[] data)
         {
-            this.ServerSocket = serverSocket;
-            this.PacketId = packetId;
-            this.MyObject = myObject;
+            this.PacketHeader = packetHeader;
+
+            string typeName = Conversion.GetString(data, 0, this.PacketHeader.TypeNameSize);
+            this.Type = Type.GetType(typeName);
+
+            this.SerializedClass = new byte[this.PacketHeader.SerializedClassSize];
+            Array.Copy(data, this.PacketHeader.TypeNameSize, this.SerializedClass, 0, this.PacketHeader.SerializedClassSize);
         }
 
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public int PacketId { get; private set; }
+        public PacketHeader PacketHeader { get; private set; }
 
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public ServerSocket ServerSocket { get; private set; }
+        public Type Type { get; private set; }
 
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public object MyObject { get; private set; }
+        public byte[] SerializedClass { get; private set; }
     }
 }

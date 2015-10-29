@@ -16,6 +16,7 @@
  */
 namespace Arrowgene.Services.Network.Proxy
 {
+    using Common;
     using System;
     using System.Diagnostics;
     using System.Net;

@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Provider
+namespace Arrowgene.Services.Common
 {
     using System;
     using System.IO;

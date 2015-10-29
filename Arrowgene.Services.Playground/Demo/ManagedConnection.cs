@@ -11,14 +11,14 @@
         public ManagedConnection()
         {
             ManagedServer svr = new ManagedServer(IPAddress.Any, 2345);
-            svr.Logger.LogWrite += Logger_LogWrite;
+            svr.Logger.LogWrite += Logger_LogWrite_Server;
             svr.ClientConnected += Svr_ClientConnected;
             svr.ClientDisconnected += Svr_ClientDisconnected;
             svr.ReceivedPacket += Svr_ReceivedPacket;
             svr.Start();
 
             ManagedClient cli = new ManagedClient(IPAddress.Parse("192.168.178.20"), 2345);
-            cli.Logger.LogWrite += Logger_LogWrite1;
+            cli.Logger.LogWrite += Logger_LogWrite_Client;
             cli.Connected += Cli_Connected;
             cli.Disconnected += Cli_Disconnected;
             cli.ReceivedPacket += Cli_ReceivedPacket;
@@ -36,12 +36,12 @@
             Console.ReadKey();
         }
 
-        private void Logger_LogWrite1(object sender, Logging.LogWriteEventArgs e)
+        private void Logger_LogWrite_Client(object sender, Logging.LogWriteEventArgs e)
         {
             Console.WriteLine(string.Format("Client Log: {0}", e.Log.Text));
         }
 
-        private void Logger_LogWrite(object sender, Logging.LogWriteEventArgs e)
+        private void Logger_LogWrite_Server(object sender, Logging.LogWriteEventArgs e)
         {
             Console.WriteLine(string.Format("Server Log: {0}", e.Log.Text));
         }

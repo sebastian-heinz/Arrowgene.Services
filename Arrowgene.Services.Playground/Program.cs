@@ -1,7 +1,7 @@
-﻿using Arrowgene.Services.Playground.Demo;
-
-namespace Arrowgene.Services.Playground
+﻿namespace Arrowgene.Services.Playground
 {
+    using Arrowgene.Services.Playground.Demo;
+
     public class Program
     {
         public static void Main(string[] args)

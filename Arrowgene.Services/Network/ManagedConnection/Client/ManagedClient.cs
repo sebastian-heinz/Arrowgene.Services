@@ -1,4 +1,20 @@
-﻿namespace Arrowgene.Services.Network.ManagedConnection.Client
+﻿/*
+ *  Copyright 2015 Sebastian Heinz <sebastian.heinz.gt@googlemail.com>
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
+namespace Arrowgene.Services.Network.ManagedConnection.Client
 {
     using Logging;
     using Arrowgene.Services.Network.ManagedConnection.Serialization;
@@ -17,8 +33,6 @@
 
         private ClientSocket clientSocket;
         private Thread readThread;
-        private object myLock;
-        private bool isConnected;
         private PacketManager packetManager;
         private ISerializer serializer;
 
@@ -32,8 +46,7 @@
             this.ServerPort = serverPort;
             this.Logger = logger;
 
-            this.isConnected = false;
-            this.myLock = new object();
+            this.IsConnected = false;
             this.PollTimeout = 10;
             this.BufferSize = 1024;
 
@@ -63,6 +76,8 @@
         public int PollTimeout { get; set; }
 
         public int BufferSize { get; set; }
+
+        public bool IsConnected { get; private set; }
 
         /// <summary>
         /// Occures when a client disconnected.
@@ -94,7 +109,7 @@
                     this.readThread.Name = DEFAULT_NAME;
                     this.readThread.Start();
 
-                    this.isConnected = true;
+                    this.IsConnected = true;
 
                     this.Logger.Write("Client connected", LogType.CLIENT);
                     this.OnConnected();
@@ -112,7 +127,7 @@
 
         public void Disconnect()
         {
-            this.isConnected = false;
+            this.IsConnected = false;
 
             if (readThread != null)
             {
@@ -164,7 +179,7 @@
             byte[] headerBuffer = new byte[ManagedPacket.HEADER_SIZE];
             byte[] payload;
 
-            while (this.isConnected)
+            while (this.IsConnected)
             {
                 if (this.clientSocket.Socket.Poll(this.PollTimeout, SelectMode.SelectRead))
                 {

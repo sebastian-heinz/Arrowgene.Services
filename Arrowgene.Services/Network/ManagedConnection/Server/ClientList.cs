@@ -14,9 +14,9 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network.MarrySocket.MServer
+namespace Arrowgene.Services.Network.ManagedConnection.Server
 {
-
+    using Client;
     using System.Collections.Generic;
 
     /// <summary>

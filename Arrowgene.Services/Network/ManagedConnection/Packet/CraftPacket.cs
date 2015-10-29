@@ -14,26 +14,32 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network.MarrySocket.MClient
+namespace Arrowgene.Services.Network.ManagedConnection.Packet
 {
+    using Arrowgene.Services.Common;
     using System;
 
     /// <summary>
     /// TODO SUMMARY
     /// </summary>
-    public class ConnectedEventArgs : EventArgs
+    public class CraftPacket : PacketCrafter
     {
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public ConnectedEventArgs(ServerSocket serverSocket)
+        public CraftPacket(Int32 packetId, Type type, byte[] serializedClass)
         {
-            this.ServerSocket = serverSocket;
+            byte[] typeName = Conversion.GetBytes(type.AssemblyQualifiedName);
+            Int32 packetSize = typeName.Length + serializedClass.Length + PacketHeader.HEADER_SIZE;
+
+            this.Addint32(packetSize);
+            this.Addint32(packetId);
+            this.Addint32(typeName.Length);
+            this.Addint32(serializedClass.Length);
+            this.Addbytes(typeName);
+            this.Addbytes(serializedClass);
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
-        public ServerSocket ServerSocket { get; set; }
+
     }
 }

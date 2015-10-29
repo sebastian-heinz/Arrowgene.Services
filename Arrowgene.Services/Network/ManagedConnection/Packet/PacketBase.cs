@@ -14,38 +14,64 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network.MarrySocket.MServer
+namespace Arrowgene.Services.Network.ManagedConnection.Packet
 {
-    using System;
+    using System.IO;
 
     /// <summary>
     /// TODO SUMMARY
     /// </summary>
-    public class ReceivedPacketEventArgs : EventArgs
+    public abstract class PacketBase
     {
+        /// <summary>TODO SUMMARY</summary>
+        protected MemoryStream memoryBuffer;
+
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public ReceivedPacketEventArgs(int packetId, ClientSocket clientSocket, object myObject)
+        protected PacketBase()
         {
-            this.ClientSocket = clientSocket;
-            this.PacketId = packetId;
-            this.MyObject = myObject;
         }
 
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public int PacketId { get; private set; }
+        public virtual byte[] Buffer
+        {
+            get
+            {
+                return this.memoryBuffer.GetBuffer();
+            }
+            set
+            {
+            }
+        }
 
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public ClientSocket ClientSocket { get; private set; }
+        public int BufferPosition
+        {
+            get
+            {
+                return (int)this.memoryBuffer.Position;
+            }
+            set
+            {
+                this.memoryBuffer.Position = value;
+            }
+        }
 
         /// <summary>
         /// TODO SUMMARY
         /// </summary>
-        public object MyObject { get; private set; }
+        public int BufferSize
+        {
+            get
+            {
+                return (int)this.memoryBuffer.Length;
+            }
+        }
     }
 }
+

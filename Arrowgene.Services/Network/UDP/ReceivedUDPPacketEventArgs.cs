@@ -16,7 +16,7 @@
  */
 namespace Arrowgene.Services.Network.UDP
 {
-    using Arrowgene.Services.Provider;
+    using Common;
     using System;
     using System.Net;
 

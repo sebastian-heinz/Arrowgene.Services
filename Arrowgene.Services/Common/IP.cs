@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network
+namespace Arrowgene.Services.Common
 {
     using System;
     using System.Diagnostics;
@@ -61,7 +61,6 @@ namespace Arrowgene.Services.Network
             EndPoint ep = remoteEndPoint.Create(address);
             return (IPEndPoint)ep;
         }
-
 
         /// <summary>
         /// Determines most possible local <see cref="IPEndPoint"/> for connecting to the specified <see cref="IPAddress"/>.

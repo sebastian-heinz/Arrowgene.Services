@@ -16,7 +16,7 @@
  */
 namespace Arrowgene.Services.Network.Proxy
 {
-    using Arrowgene.Services.Provider;
+    using Common;
     public class ProxyPacket 
     {
         public enum TrafficType { CLIENT, SERVER };
