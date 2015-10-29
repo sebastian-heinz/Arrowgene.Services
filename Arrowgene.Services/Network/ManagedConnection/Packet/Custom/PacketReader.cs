@@ -18,73 +18,55 @@ namespace Arrowgene.Services.Network.ManagedConnection.Packet.Custom
 {
     using System.IO;
 
-    /// <summary>
-    /// TODO SUMMARY
-    /// </summary>
+
     public class PacketReader : PacketBase
     {
         private BinaryReader memoryReader;
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public PacketReader(int bufferSize)
         {
             base.memoryBuffer = new MemoryStream(bufferSize);
             this.memoryReader = new BinaryReader(base.memoryBuffer);
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public bool Readbool()
         {
             return this.memoryReader.ReadBoolean();
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public byte Readbyte()
         {
             return this.memoryReader.ReadByte();
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public float Readfloat()
         {
             return this.memoryReader.ReadSingle();
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public short Readint16()
         {
             return this.memoryReader.ReadInt16();
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public int Readint32()
         {
             return this.memoryReader.ReadInt32();
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public long Readint64()
         {
             return this.memoryReader.ReadInt64();
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public string Readstring(int dwLength)
         {
             byte[] buffer = this.memoryReader.ReadBytes(dwLength);
@@ -96,9 +78,7 @@ namespace Arrowgene.Services.Network.ManagedConnection.Packet.Custom
             return str;
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public string ReadZeroString()
         {
             string str = "";
@@ -110,9 +90,7 @@ namespace Arrowgene.Services.Network.ManagedConnection.Packet.Custom
             return str;
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public override byte[] Buffer
         {
             get

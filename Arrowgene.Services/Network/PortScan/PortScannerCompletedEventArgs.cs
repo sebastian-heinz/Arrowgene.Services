@@ -19,22 +19,16 @@ namespace Arrowgene.Services.Network.PortScan
     using System;
     using System.Collections.Generic;
 
-    /// <summary>
-    /// TODO SUMMARY
-    /// </summary>
+
     public class PortScannerCompletedEventArgs : EventArgs
     {
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public PortScannerCompletedEventArgs(List<PortScannerResult> portScanResults)
         {
             this.PortScanResults = portScanResults;
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public List<PortScannerResult> PortScanResults { get; private set; }
     }
 

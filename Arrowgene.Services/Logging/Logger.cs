@@ -36,9 +36,7 @@ namespace Arrowgene.Services.Logging
         private Dictionary<int, Log> logs;
         private volatile int currentId;
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public Logger(string name)
         {
             this.Name = name;
@@ -77,9 +75,6 @@ namespace Arrowgene.Services.Logging
             }
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
         public void Remove(int id)
         {
             lock (this.myLock)

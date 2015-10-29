@@ -18,14 +18,10 @@ namespace Arrowgene.Services.Logging
 {
     using System;
 
-    /// <summary>
-    /// TODO SUMMARY
-    /// </summary>
+
     public class Log
     {
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public Log(string text)
         {
             this.Text = text;
@@ -34,21 +30,19 @@ namespace Arrowgene.Services.Logging
             this.Id = -1;
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public Log(string text, LogType logType) : this(text)
         {
             this.LogType = logType;
         }
 
-        /// <summary>TODO SUMMARY</summary>
+
         public int Id { get; set; }
-        /// <summary>TODO SUMMARY</summary>
+
         public string Text { get; private set; }
-        /// <summary>TODO SUMMARY</summary>
+
         public LogType LogType { get; private set; }
-        /// <summary>TODO SUMMARY</summary>
+
         public DateTime DateTime { get; private set; }
 
     }

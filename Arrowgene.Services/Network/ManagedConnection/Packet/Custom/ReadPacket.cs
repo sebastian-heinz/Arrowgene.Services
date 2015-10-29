@@ -19,14 +19,10 @@ namespace Arrowgene.Services.Network.ManagedConnection.Packet.Custom
     using Arrowgene.Services.Common;
     using System;
 
-    /// <summary>
-    /// TODO SUMMARY
-    /// </summary>
+
     public class ReadPacket
     {
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public ReadPacket(PacketHeader packetHeader, byte[] data)
         {
             this.PacketHeader = packetHeader;
@@ -38,19 +34,13 @@ namespace Arrowgene.Services.Network.ManagedConnection.Packet.Custom
             Array.Copy(data, this.PacketHeader.TypeNameSize, this.SerializedClass, 0, this.PacketHeader.SerializedClassSize);
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public PacketHeader PacketHeader { get; private set; }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public Type Type { get; private set; }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public byte[] SerializedClass { get; private set; }
     }
 }

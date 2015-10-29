@@ -23,9 +23,7 @@ namespace Arrowgene.Services.Common
     /// </summary>
     public static class OS
     {
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public enum OsVersion
         {
             /// <summary>UNKNOWN</summary>

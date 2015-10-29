@@ -18,24 +18,18 @@ namespace Arrowgene.Services.Network.ManagedConnection.Packet.Custom
 {
     using System.IO;
 
-    /// <summary>
-    /// TODO SUMMARY
-    /// </summary>
+
     public abstract class PacketBase
     {
-        /// <summary>TODO SUMMARY</summary>
+
         protected MemoryStream memoryBuffer;
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         protected PacketBase()
         {
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public virtual byte[] Buffer
         {
             get
@@ -47,9 +41,7 @@ namespace Arrowgene.Services.Network.ManagedConnection.Packet.Custom
             }
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public int BufferPosition
         {
             get
@@ -62,9 +54,7 @@ namespace Arrowgene.Services.Network.ManagedConnection.Packet.Custom
             }
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public int BufferSize
         {
             get

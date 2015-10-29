@@ -19,25 +19,19 @@ namespace Arrowgene.Services.Network.ManagedConnection.Server
     using Client;
     using System.Collections.Generic;
 
-    /// <summary>
-    /// TODO SUMMARY
-    /// </summary>
+
     public class ClientList
     {
         private Dictionary<int, ClientSocket> marryClients { get; set; }
         private object myLock = new object();
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public ClientList()
         {
             this.marryClients = new Dictionary<int, ClientSocket>();
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public List<ClientSocket> GetAllClients()
         {
             List<ClientSocket> clientSockets = null;
@@ -48,9 +42,7 @@ namespace Arrowgene.Services.Network.ManagedConnection.Server
             return clientSockets;
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public void AddClient(ClientSocket marryClient)
         {
             lock (myLock)
@@ -60,9 +52,7 @@ namespace Arrowgene.Services.Network.ManagedConnection.Server
             }
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public void RemoveClient(int id)
         {
             lock (myLock)
@@ -72,9 +62,7 @@ namespace Arrowgene.Services.Network.ManagedConnection.Server
             }
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public ClientSocket GetClient(int id)
         {
             ClientSocket marryClient = null;
@@ -88,9 +76,7 @@ namespace Arrowgene.Services.Network.ManagedConnection.Server
             return marryClient;
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public bool Contains(int id)
         {
             bool contains = false;
@@ -106,9 +92,7 @@ namespace Arrowgene.Services.Network.ManagedConnection.Server
             return contains;
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public int Count()
         {
             int count = -1;

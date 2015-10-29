@@ -18,22 +18,16 @@ namespace Arrowgene.Services.Network.Proxy
 {
     using System;
 
-    /// <summary>
-    /// TODO SUMMARY
-    /// </summary>
+
     public class ReceivedProxyPacketEventArgs : EventArgs
     {
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public ReceivedProxyPacketEventArgs(ProxyPacket proxyPacket)
         {
             this.ProxyPacket = proxyPacket;
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public ProxyPacket ProxyPacket { get; set; }
     }
 }

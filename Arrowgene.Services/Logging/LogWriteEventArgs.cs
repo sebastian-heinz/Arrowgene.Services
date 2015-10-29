@@ -18,22 +18,16 @@ namespace Arrowgene.Services.Logging
 {
     using System;
 
-    /// <summary>
-    /// TODO SUMMARY
-    /// </summary>
+
     public class LogWriteEventArgs : EventArgs
     {
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public LogWriteEventArgs(Log log)
         {
             this.Log = log;
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public Log Log { get; set; }
     }
 }

@@ -20,16 +20,12 @@ namespace Arrowgene.Services.Network.UDP
     using System;
     using System.Net;
 
-    /// <summary>
-    /// TODO SUMMARY
-    /// </summary>
+
     public class ReceivedUDPPacketEventArgs : EventArgs
     {
         private ByteBuffer readableBuffer;
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public ReceivedUDPPacketEventArgs(int size, byte[] received, IPEndPoint remoteIPEndPoint)
         {
             this.Size = size;
@@ -37,24 +33,16 @@ namespace Arrowgene.Services.Network.UDP
             this.RemoteIPEndPoint = remoteIPEndPoint;
         }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public ByteBuffer ReadableBuffer { get { return this.GetReadableBuffer(); } }
 
-        /// <summary>
-        /// TODO SUMMARY
-        /// </summary>
+
         public IPEndPoint RemoteIPEndPoint { get; private set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
+
         public byte[] Received { get; private set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
+
         public int Size { get; private set; }
 
         private ByteBuffer GetReadableBuffer()
