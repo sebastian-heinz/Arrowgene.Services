@@ -67,7 +67,7 @@ namespace Arrowgene.Services.Network.UDP
             if (!this.isBound)
             {
                 this.socket.Bind(remoteEP);
-                this.isBound = false;
+                this.isBound = true;
             }
             this.StartReceive();
         }
