@@ -40,12 +40,14 @@ namespace Arrowgene.Services.Network.UDP
         private byte[] buffer;
         private Thread udpThread;
         private bool receive;
+        private bool isBound;
 
         /// <summary>
         /// Creates a new instance of <see cref="UDPSocket"/>
         /// </summary>
         public UDPSocket()
         {
+            this.isBound = false;
             this.receive = false;
             this.buffer = new byte[MAX_PAYLOAD_SIZE_BYTES];
             this.socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
@@ -62,7 +64,10 @@ namespace Arrowgene.Services.Network.UDP
         /// <param name="remoteEP"></param>
         public void StartListen(IPEndPoint remoteEP)
         {
-            this.socket.Bind(remoteEP);
+            if (!this.isBound)
+            {
+                this.socket.Bind(remoteEP);
+            }
             this.StartReceive();
         }
 
