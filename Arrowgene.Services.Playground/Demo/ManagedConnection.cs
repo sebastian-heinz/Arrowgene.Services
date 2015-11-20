@@ -17,12 +17,12 @@
             svr.ReceivedPacket += Svr_ReceivedPacket;
             svr.Start();
 
-            ManagedClient cli = new ManagedClient(IPAddress.Parse("192.168.178.20"), 2345);
+            ManagedClient cli = new ManagedClient();
             cli.Logger.LogWrite += Logger_LogWrite_Client;
             cli.Connected += Cli_Connected;
             cli.Disconnected += Cli_Disconnected;
             cli.ReceivedPacket += Cli_ReceivedPacket;
-            cli.Connect();
+            cli.Connect(IPAddress.Parse("192.168.178.20"), 2345);
 
             cli.SendObject(1, "hello server");
 

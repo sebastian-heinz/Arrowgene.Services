@@ -36,14 +36,9 @@ namespace Arrowgene.Services.Network.ManagedConnection.Client
         private PacketManager packetManager;
         private ISerializer serializer;
 
-        public ManagedClient(IPAddress serverIPAddress, int serverPort, ISerializer serializer, Logger logger)
+        public ManagedClient(ISerializer serializer, Logger logger)
         {
-            if (serverIPAddress == null || serverPort <= 0)
-                throw new InvalidParameterException(String.Format("IPAddress({0}) or Port({1}) invalid", serverIPAddress, serverPort));
-
             this.serializer = serializer;
-            this.ServerIPAddress = serverIPAddress;
-            this.ServerPort = serverPort;
             this.Logger = logger;
 
             this.IsConnected = false;
@@ -53,7 +48,7 @@ namespace Arrowgene.Services.Network.ManagedConnection.Client
             this.packetManager = new PacketManager(this.serializer, this.Logger);
         }
 
-        public ManagedClient(IPAddress serverIPAddress, int serverPort) : this(serverIPAddress, serverPort, new BinaryFormatterSerializer(), new Logger(DEFAULT_NAME))
+        public ManagedClient() : this(new BinaryFormatterSerializer(), new Logger(DEFAULT_NAME))
         {
 
         }
@@ -94,34 +89,47 @@ namespace Arrowgene.Services.Network.ManagedConnection.Client
         /// </summary>
         public event EventHandler<ReceivedPacketEventArgs> ReceivedPacket;
 
-        public void Connect()
+        public void Connect(IPAddress serverIPAddress, int serverPort)
         {
-            try
+            if (!this.IsConnected)
             {
-                Socket socket = this.CreateSocket();
+                if (serverIPAddress == null || serverPort <= 0)
+                    throw new InvalidParameterException(String.Format("IPAddress({0}) or Port({1}) invalid", serverIPAddress, serverPort));
 
-                if (socket != null)
+                this.ServerIPAddress = serverIPAddress;
+                this.ServerPort = serverPort;
+
+                try
                 {
-                    this.clientSocket = new ClientSocket(socket, this.serializer, this.Logger);
-                    this.clientSocket.Socket.Connect(this.ServerIPAddress, this.ServerPort);
+                    Socket socket = this.CreateSocket();
 
-                    this.readThread = new Thread(ReadProcess);
-                    this.readThread.Name = DEFAULT_NAME;
-                    this.readThread.Start();
+                    if (socket != null)
+                    {
+                        this.clientSocket = new ClientSocket(socket, this.serializer, this.Logger);
+                        this.clientSocket.Socket.Connect(this.ServerIPAddress, this.ServerPort);
 
-                    this.IsConnected = true;
+                        this.readThread = new Thread(ReadProcess);
+                        this.readThread.Name = DEFAULT_NAME;
+                        this.readThread.Start();
 
-                    this.Logger.Write("Client connected", LogType.CLIENT);
-                    this.OnConnected();
+                        this.IsConnected = true;
+
+                        this.Logger.Write("Client connected", LogType.CLIENT);
+                        this.OnConnected();
+                    }
+                    else
+                    {
+                        this.Logger.Write("Client could not connect.", LogType.SERVER);
+                    }
                 }
-                else
+                catch (Exception exception)
                 {
-                    this.Logger.Write("Client could notconnect.", LogType.SERVER);
+                    this.Logger.Write(exception.Message, LogType.ERROR);
                 }
             }
-            catch (Exception exception)
+            else
             {
-                this.Logger.Write(exception.Message, LogType.ERROR);
+                this.Logger.Write("Client is already connected.", LogType.SERVER);
             }
         }
 

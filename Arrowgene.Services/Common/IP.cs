@@ -17,6 +17,7 @@
 namespace Arrowgene.Services.Common
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Net;
     using System.Net.NetworkInformation;
@@ -95,6 +96,70 @@ namespace Arrowgene.Services.Common
                 }
             }
             return null;
+        }
+
+        /// <summary>
+        /// Try to get mac for ip, if not possible get the next best mac.
+        /// </summary>
+        /// <param name="ipAddress"></param>
+        /// <returns></returns>
+        public static string GetMacAddress(IPAddress ipAddress)
+        {
+            string mac = null;
+
+            if (ipAddress != null)
+            {
+                NetworkInterface nic = FindNetworkInterface(ipAddress);
+
+                if (nic != null)
+                {
+                    mac = nic.GetPhysicalAddress().ToString();
+                }
+            }
+
+            if (mac == null)
+            {
+                mac = GetMacAddress();
+            }
+
+            return mac;
+        }
+
+        /// <summary>
+        /// Try to get the next best mac
+        /// </summary>
+        /// <returns></returns>
+        public static string GetMacAddress()
+        {
+            List<NetworkInterfaceType> acceptedNetInterfaceTypes = new List<NetworkInterfaceType>
+             {
+                NetworkInterfaceType.Ethernet,
+                NetworkInterfaceType.Ethernet3Megabit,
+                NetworkInterfaceType.FastEthernetFx,
+                NetworkInterfaceType.FastEthernetT,
+                NetworkInterfaceType.GigabitEthernet,
+                NetworkInterfaceType.Wireless80211
+             };
+
+            string mac = null;
+
+            List<NetworkInterface> nics = new List<NetworkInterface>();
+            foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (nic.OperationalStatus == OperationalStatus.Up && acceptedNetInterfaceTypes.Contains(nic.NetworkInterfaceType))
+                {
+                    nics.Add(nic);
+                }
+            }
+
+            if (nics.Count > 0)
+            {
+                nics.Sort((x, y) => y.Speed.CompareTo(x.Speed));
+                NetworkInterface nic = nics[0];
+                mac = nic.GetPhysicalAddress().ToString();
+            }
+
+            return mac;
         }
 
         /// <summary>

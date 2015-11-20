@@ -23,11 +23,14 @@ namespace Arrowgene.Services.Network.ManagedConnection.Client
     using System.Net.Sockets;
     using Common;
     using System.Net;
+    
 
     public class ClientSocket
     {
         private ISerializer serializer;
         private Logger logger;
+
+   
 
         internal Socket Socket { get; private set; }
 

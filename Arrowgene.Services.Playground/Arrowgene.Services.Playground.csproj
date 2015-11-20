@@ -42,6 +42,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Demo\GetMacAddress.cs" />
     <Compile Include="Demo\HttpServerDemo.cs" />
     <Compile Include="Demo\ManagedConnection.cs" />
     <Compile Include="Demo\PortScanDemo.cs" />

@@ -50,7 +50,7 @@
             server.ReceivedPacket += Server_ReceivedPacket;
 
 
-            client = new ManagedClient(IPAddress.Parse("192.168.178.20"), 2345);
+            client = new ManagedClient();
             client.ReceivedPacket += Client_ReceivedPacket;
 
             ProxyConfig proxyConfig = new ProxyConfig(IPAddress.IPv6Any, 2349, IP.AddressLocalhost(AddressFamily.InterNetworkV6), 2345);
@@ -68,7 +68,7 @@
             while (!proxyServer.IsListening)
                 Thread.Sleep(100);
 
-            client.Connect();
+            client.Connect(IPAddress.Parse("192.168.178.20"), 2345);
 
             if (client.IsConnected)
             {
