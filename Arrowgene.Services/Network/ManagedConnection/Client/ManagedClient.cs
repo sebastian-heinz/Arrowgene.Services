@@ -263,6 +263,10 @@ namespace Arrowgene.Services.Network.ManagedConnection.Client
             }
 
             this.Logger.Write("Reading thread ended.", THREAD_JOIN_TIMEOUT, LogType.CLIENT);
+
+            // TODO verify
+            this.OnDisconnected();
+
         }
 
         internal void OnReceivedPacket(int packetId, ManagedPacket packet)
