@@ -5,12 +5,12 @@
     using System.Net;
     using System.Threading;
 
-    public class UdpDemoServer
+    public class UdpServerDemo
     {
         private const int PORT = 15000;
         private bool received = false;
 
-        public UdpDemoServer()
+        public UdpServerDemo()
         {
             UDPSocket echoServer = new UDPSocket();
             echoServer.ReceivedPacket += EchoServer_ReceivedPacket;
