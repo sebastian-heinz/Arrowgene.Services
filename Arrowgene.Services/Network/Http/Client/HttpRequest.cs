@@ -19,133 +19,299 @@ namespace Arrowgene.Services.Network.Http.Client
     using System;
     using System.Diagnostics;
     using System.IO;
+    using System.IO.Compression;
     using System.Net;
+    using System.Net.Security;
+    using System.Text;
     using System.Threading;
 
+    /// <summary>
+    /// Creates a <see cref="HttpWebRequest"/> with configureable default values.
+    /// </summary>
     public class HttpRequest
     {
-        private Thread thread;
-        private string requestUrl;
+        private Thread asyncHttpResponseThread;
+        public event EventHandler<AsyncHttpResponseEventArgs> AsyncHttpResponse;
 
-        public HttpRequest(string url)
+        public const HttpStatusCode NO_HTTP_STATUS_CODE_AVAILABLE = (HttpStatusCode)0;
+
+        public const string GET_METHOD = "GET";
+        public const string HEAD_METHOD = "HEAD";
+        public const string POST_METHOD = "POST";
+        public const string PUT_METHOD = "PUT";
+        public const string DELETE_METHOD = "DELETE";
+        public const string TRACE_METHOD = "TRACE";
+        public const string OPTIONS_METHOD = "OPTIONS";
+
+        private string responseCharacterSet;
+
+        public HttpRequest()
         {
-            this.requestUrl = url;
-            this.Timeout = 1000;
-            this.AcceptLanguage = "en-US";
-            this.UserAgent = "QuickHttp";
-            this.ContentType = "text/html";
+            this.Reset();
+            this.ResetReturnProperties();
         }
 
-        public event EventHandler<HttpRequestAsyncResponse> AsyncResponse;
+        public bool AllowAutoRedirect { get; set; }
+        public bool PreAuthenticate { get; set; }
+        public bool KeepAlive { get; set; }
 
+        public byte[] PostPayload { get; set; }
+
+        /// <summary>
+        /// Size of read buffer.
+        /// Bigger size results in fewer copy actions,
+        /// but increases memory allocation.
+        /// </summary>
+        public uint BufferSize { get; set; }
+
+        /// <summary>
+        /// Timeout in ms to wait till a http response arrives.
+        /// </summary>
         public int Timeout { get; set; }
+        public int ReadWriteTimeout { get; set; }
         public string UserAgent { get; set; }
-        public string AcceptLanguage { get; set; }
-        public string ContentType { get; set; }
 
         /// <summary>
-        /// Starts a Blocking WebRequest
+        /// Exception message of the last request.
         /// </summary>
-        /// <returns></returns>
-        public string Request()
-        {
-            HttpWebRequest request = this.CreateWebRequest(this.requestUrl);
-            return this.ReadResponse(request);
-        }
+        public string ExceptionMessage { get; set; }
 
         /// <summary>
-        /// Starts a new Thread to receive the response.
-        /// Subscripe to AsyncResponse in order to get the result.
+        /// URL of the last request.
+        /// Available after a request.
         /// </summary>
-        /// <param name="url"></param>
-        public void RequestAsync()
+        public string RequestUrl { get; private set; }
+        public string Method { get; set; }
+        public string Accept { get; set; }
+        public IWebProxy Proxy { get; set; }
+        public AuthenticationLevel AuthenticationLevel { get; set; }
+        public HttpStatusCode StatusCode { get; private set; }
+        public WebExceptionStatus Status { get; private set; }
+        public NetworkCredential NetworkCredential { get; set; }
+        public BindIPEndPoint BindIpEndPointDelegate { get; set; }
+        public WebHeaderCollection RequestHeaders { get; set; }
+
+        /// <summary>
+        /// Headers of the last response.
+        /// Available after a request.
+        /// </summary>
+        public WebHeaderCollection ResponseHeaders { get; private set; }
+
+        public override string ToString()
         {
-            this.thread = new Thread(ReadResponseAsync);
-            this.thread.Name = "WebRequest (" + this.requestUrl + ")";
-            this.thread.Start();
+            string headers = string.Empty;
+
+            foreach (string key in this.RequestHeaders.AllKeys)
+            {
+                headers += key + " " + this.RequestHeaders.Get(key) + "; ";
+            }
+
+            return string.Format("URL:{0}\r\n Method:{1}\r\n StatusCode:{2}\r\n Timeout:{3}\r\n ReadWriteTimeout:{4}\r\n Headers:{5}", this.RequestUrl, this.Method, this.StatusCode, this.Timeout, this.ReadWriteTimeout, headers);
         }
 
-        private HttpWebRequest CreateWebRequest(string url)
+        public void SetCredential(string userName, string password)
         {
-            HttpWebRequest request;
+            this.NetworkCredential = new NetworkCredential(userName, password);
+        }
+
+        public void SetBasicAuthenticationHeader(string userName, string password)
+        {
+            string authentication = "Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(userName + ":" + password));
+            this.RequestHeaders.Add("Authorization", authentication);
+        }
+
+        public void AddHeader(string name, string value)
+        {
+            this.RequestHeaders.Add(name, value);
+        }
+
+        public string RequestContent(string url)
+        {
+            string page = string.Empty;
+
+            byte[] response = this.Request(url);
+
+            if (response != null)
+            {
+                if (string.IsNullOrEmpty(this.responseCharacterSet))
+                {
+                    page = Encoding.UTF8.GetString(response);
+                }
+                else
+                {
+                    page = Encoding.GetEncoding(this.responseCharacterSet).GetString(response);
+                }
+            }
+
+            return page;
+        }
+
+        public void RequestAsync(string url)
+        {
+            this.RequestUrl = url;
+
+            this.asyncHttpResponseThread = new Thread(this.RequestAsync);
+            this.asyncHttpResponseThread.Name = "AsyncHttpRequest (" + this.RequestUrl + ")";
+            this.asyncHttpResponseThread.Start();
+        }
+
+        public byte[] Request(string url)
+        {
+            byte[] response = null;
+            this.RequestUrl = url;
+
             try
             {
-                request = (HttpWebRequest)HttpWebRequest.Create(url);
+                HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create(url);
+                httpRequest.Proxy = this.Proxy;
+                httpRequest.Timeout = this.Timeout;
+                httpRequest.ReadWriteTimeout = this.ReadWriteTimeout;
+                httpRequest.ServicePoint.BindIPEndPointDelegate = this.BindIpEndPointDelegate;
+                httpRequest.UserAgent = this.UserAgent;
+                httpRequest.Headers = this.RequestHeaders;
+                httpRequest.AllowAutoRedirect = this.AllowAutoRedirect;
+                httpRequest.PreAuthenticate = this.PreAuthenticate;
+                httpRequest.AuthenticationLevel = this.AuthenticationLevel;
+                httpRequest.KeepAlive = this.KeepAlive;
+                httpRequest.Method = this.Method;
+                httpRequest.Accept = this.Accept;
 
-                request.Headers.Set("Method", "GET");
-                request.Method = "GET";
-                request.Headers.Set("Accept-Language", this.AcceptLanguage);
-                request.ContentType = this.ContentType;
-                request.UserAgent = this.UserAgent;
-                request.Timeout = this.Timeout;
-                request.ReadWriteTimeout = this.Timeout;
-                request.Proxy = null;
+                if (this.NetworkCredential != null)
+                {
+                    httpRequest.Credentials = this.NetworkCredential;
+                }
+
+                if (this.PostPayload != null)
+                {
+                    this.WritePostPayload(httpRequest);
+                }
+
+                this.ResetReturnProperties();
+
+                HttpWebResponse httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+
+                this.StatusCode = httpResponse.StatusCode;
+                this.responseCharacterSet = httpResponse.CharacterSet;
+
+                response = this.ReadResponse(httpResponse);
+            }
+            catch (WebException webException)
+            {
+                this.ExceptionMessage = webException.Message;
+                this.Status = webException.Status;
+
+                if (webException.Status == WebExceptionStatus.ProtocolError && webException.Response != null)
+                {
+                    HttpWebResponse webResponse = (HttpWebResponse)webException.Response;
+                    response = this.ReadResponse(webResponse);
+                    this.StatusCode = webResponse.StatusCode;
+                }
+                else
+                {
+                    Debug.WriteLine(string.Format("HttpRequest::Request: {0} \r\n Error:{1}", this.ToString(), webException.ToString()));
+                }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("QHttpRequest::CreateWebRequest:" + ex.ToString());
-                request = null;
+                this.ExceptionMessage = ex.Message;
+                this.Status = WebExceptionStatus.UnknownError;
+                Debug.WriteLine(string.Format("HttpRequest::Request: {0} \r\n Error:{1}", this.ToString(), ex.ToString()));
             }
 
-            return request;
+            return response;
         }
 
-        private void OnAsyncResponse(string response)
+        private void WritePostPayload(HttpWebRequest httpRequest)
         {
-            if (this.AsyncResponse != null)
+            httpRequest.ContentType = "application/x-www-form-urlencoded";
+            httpRequest.ContentLength = this.PostPayload.Length;
+
+            using (Stream stream = httpRequest.GetRequestStream())
             {
-                HttpRequestAsyncResponse handle = new HttpRequestAsyncResponse(response);
-                this.AsyncResponse(this, handle);
+                stream.Write(this.PostPayload, 0, this.PostPayload.Length);
             }
         }
 
-        private void ReadResponseAsync()
+        private byte[] ReadResponse(HttpWebResponse httpResponse)
         {
-            HttpWebRequest request = this.CreateWebRequest(this.requestUrl);
-            string response = this.ReadResponse(request);
-            this.OnAsyncResponse(response);
-        }
+            byte[] response = null;
+            Stream responseStream = null;
 
-        private string ReadResponse(HttpWebRequest request)
-        {
-            string responseText = null;
-            try
+            this.ResponseHeaders = httpResponse.Headers;
+
+            string content_encoding = httpResponse.Headers.Get("Content-Encoding");
+            if (!string.IsNullOrEmpty(content_encoding) && content_encoding == "gzip")
             {
-                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                responseStream = new GZipStream(httpResponse.GetResponseStream(), CompressionMode.Decompress);
+            }
+            else
+            {
+                responseStream = httpResponse.GetResponseStream();
+            }
+
+            byte[] buffer = new byte[this.BufferSize];
+            int read = 0;
+            using (responseStream)
+            {
+                while ((read = responseStream.Read(buffer, 0, buffer.Length)) != 0)
                 {
-                    using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+                    if (response == null)
                     {
-                        responseText = reader.ReadToEnd();
+                        response = new byte[read];
+                        Buffer.BlockCopy(buffer, 0, response, 0, read);
+                    }
+                    else
+                    {
+                        int newSize = response.Length + read;
+                        byte[] new_response = new byte[newSize];
+
+                        Buffer.BlockCopy(response, 0, new_response, 0, response.Length);
+                        Buffer.BlockCopy(buffer, 0, new_response, response.Length, read);
+
+                        response = new_response;
                     }
                 }
             }
-            catch (WebException webEx)
-            {
-                bool handled = false;
-
-                if (webEx.Status == WebExceptionStatus.ProtocolError)
-                {
-                    HttpWebResponse resp = webEx.Response as HttpWebResponse;
-                    if (resp != null)
-                    {
-                        Debug.WriteLine("QHttpRequest::ReadResponse" + String.Format("Web Error: {0} ({1})", resp.StatusCode, request.RequestUri.AbsoluteUri));
-                        handled = true;
-                    }
-                }
-
-                if (!handled)
-                {
-                    Debug.WriteLine("QHttpRequest::ReadResponse", webEx.ToString());
-                }
-
-                request = null;
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("QHttpRequest::ReadResponse", ex.ToString());
-            }
-            return responseText;
+            return response;
         }
 
+        public void Reset()
+        {
+            this.BufferSize = 2048;
+            this.Timeout = 2000;
+            this.ReadWriteTimeout = 2000;
+            this.NetworkCredential = null;
+            this.Proxy = null;
+            this.BindIpEndPointDelegate = null;
+            this.RequestHeaders = new WebHeaderCollection();
+            this.AllowAutoRedirect = false;
+            this.PreAuthenticate = false;
+            this.AuthenticationLevel = AuthenticationLevel.None;
+            this.KeepAlive = false;
+            this.PostPayload = null;
+            this.Method = GET_METHOD;
+        }
+
+        private void ResetReturnProperties()
+        {
+            this.Status = WebExceptionStatus.Success;
+            this.StatusCode = NO_HTTP_STATUS_CODE_AVAILABLE;
+        }
+
+        private void RequestAsync()
+        {
+            byte[] response = this.Request(this.RequestUrl);
+            this.OnAsyncHttpResponse(response);
+        }
+
+        private void OnAsyncHttpResponse(byte[] response)
+        {
+            EventHandler<AsyncHttpResponseEventArgs> asyncHttpResponse = this.AsyncHttpResponse;
+            if (asyncHttpResponse != null)
+            {
+                AsyncHttpResponseEventArgs asyncHttpResponseEventArgs = new AsyncHttpResponseEventArgs(response);
+                asyncHttpResponse(this, asyncHttpResponseEventArgs);
+            }
+        }
     }
 }
