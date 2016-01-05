@@ -17,6 +17,7 @@
 namespace Arrowgene.Services.Network.Http.Tunnel
 {
     using Client;
+    using Logging;
     using System;
     using System.Net;
     using System.Net.Sockets;
@@ -36,10 +37,16 @@ namespace Arrowgene.Services.Network.Http.Tunnel
         private IPEndPoint tunnelServerIpEndPoint;
         private IPEndPoint destinationIpEndPoint;
         private string tunnelServerRootUrl;
+        private Logger logger;
 
         public HttpTunnelClient()
         {
             this.isRunning = false;
+        }
+
+        public HttpTunnelClient(Logger logger) : this()
+        {
+            this.logger = logger;
         }
 
         public void Start(IPEndPoint localIpEndPoint, IPEndPoint tunnelServerIpEndPoint, IPEndPoint destinationIpEndPoint)
@@ -163,8 +170,10 @@ namespace Arrowgene.Services.Network.Http.Tunnel
 
         private void Write(string msg)
         {
-            Console.WriteLine(msg);
+            if(this.logger != null)
+            {
+                this.logger.Write(msg);
+            }
         }
     }
-
 }

@@ -16,6 +16,7 @@
  */
 namespace Arrowgene.Services.Network.Http.Tunnel
 {
+    using Logging;
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -39,6 +40,7 @@ namespace Arrowgene.Services.Network.Http.Tunnel
         private Thread readPayload;
         private List<byte[]> payloadQueue;
         private object padLock;
+        private Logger logger;
 
         public HttpTunnelServer()
         {
@@ -46,6 +48,11 @@ namespace Arrowgene.Services.Network.Http.Tunnel
             this.padLock = new object();
             this.isRunning = false;
             this.isReadingPayload = false;
+        }
+
+        public HttpTunnelServer(Logger logger) : this()
+        {
+            this.logger = logger;
         }
 
         public void Start(IPEndPoint localIpEndPoint)
@@ -301,7 +308,10 @@ namespace Arrowgene.Services.Network.Http.Tunnel
 
         private void Write(string msg)
         {
-            Console.WriteLine(msg);
+            if (this.logger != null)
+            {
+                this.logger.Write(msg);
+            }
         }
 
         private string RemoveLastSlash(string text)
