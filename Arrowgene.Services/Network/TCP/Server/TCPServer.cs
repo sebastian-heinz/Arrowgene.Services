@@ -114,6 +114,10 @@ namespace Arrowgene.Services.Network.TCP.Server
         /// </summary>
         public int Port { get; private set; }
 
+        /// <summary>
+        /// Maximum number of active Clients
+        /// </summary>
+        public int MaxClientCount { get { return this.clientManager.MaxClientCount; } set { this.clientManager.SetMaxClientCount(value); } }
 
         internal Socket Socket { get; set; }
 

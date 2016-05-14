@@ -26,10 +26,6 @@ namespace Arrowgene.Services.Network.TCP.Server
 
     internal class ClientManager
     {
-
-
-        private const int MaxId = int.MaxValue - 2;
-
         private TCPServer server;
         private List<ClientSocket> clients;
         private Thread[] clientManager;
@@ -37,8 +33,6 @@ namespace Arrowgene.Services.Network.TCP.Server
         private bool isRunning;
         private Dictionary<int, ClientSocket> clientTable;
         private List<int> idPool;
-        private int maxClientCount;
-
 
         internal ClientManager(TCPServer server)
         {
@@ -47,14 +41,17 @@ namespace Arrowgene.Services.Network.TCP.Server
             this.isRunning = false;
             this.clients = new List<ClientSocket>();
             this.clientTable = new Dictionary<int, ClientSocket>();
-            this.maxClientCount = 2000;
+            this.MaxClientCount = 2000;
+            this.RecreateIdPool();
         }
+
+        public int MaxClientCount { get; private set; }
 
         internal void SetMaxClientCount(int maxClientCount)
         {
-            if(maxClientCount > this.clients.Count)
+            if (maxClientCount > this.clients.Count)
             {
-                this.maxClientCount = maxClientCount;
+                this.MaxClientCount = maxClientCount;
                 this.RecreateIdPool();
             }
             else
@@ -117,9 +114,10 @@ namespace Arrowgene.Services.Network.TCP.Server
 
         private void RecreateIdPool()
         {
+            this.server.Logger.Write("ClientManager::RecreateIdPool");
             List<int> idPool = new List<int>();
 
-            for (int i = 0; i < this.maxClientCount; i++)
+            for (int i = 0; i < this.MaxClientCount; i++)
             {
                 idPool.Add(i);
             }
@@ -150,7 +148,7 @@ namespace Arrowgene.Services.Network.TCP.Server
             }
             else
             {
-                if (this.clients.Count == this.maxClientCount)
+                if (this.clients.Count == this.MaxClientCount)
                 {
                     this.server.Logger.Write("max connections reached");
                 }
@@ -166,7 +164,7 @@ namespace Arrowgene.Services.Network.TCP.Server
         internal void AddClient(Socket socket)
         {
             int id = this.GetClientId();
-            if (id > 0)
+            if (id >= 0)
             {
                 ClientSocket clientSocket = new ClientSocket(this.GetClientId(), socket, this.server.Logger);
                 lock (this.myLock)

@@ -7,8 +7,7 @@
     {
         public static void Main(string[] args)
         {
-            new GetMacAddressDemo();
-
+            // new GetMacAddressDemo();
             // new HttpServerDemo();
             // new HttpTunneClientDemo();
             // new HttpTunnelServerDemo();
