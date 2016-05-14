@@ -83,7 +83,7 @@
 
                     if (socket != null)
                     {
-                        this.clientSocket = new ClientSocket(socket, this.Logger);
+                        this.clientSocket = new ClientSocket(0, socket, this.Logger);
                         this.clientSocket.Socket.Connect(this.ServerIPAddress, this.ServerPort);
 
                         this.readThread = new Thread(ReadProcess);
@@ -187,13 +187,13 @@
                         if (this.clientSocket.Socket.Poll(this.PollTimeout, SelectMode.SelectRead))
                         {
                             while (this.clientSocket.Socket.Available > 0 && (bytesReceived = this.clientSocket.Socket.Receive(buffer, 0, bufferSize, SocketFlags.None)) > 0)
-                    {
+                            {
                                 payload.WriteBytes(buffer, 0, bytesReceived);
+                            }
+                        }
                     }
-                        }
-                        }
                     catch (Exception e)
-                        {
+                    {
                         if (!this.clientSocket.Socket.Connected)
                         {
                             this.Logger.Write(new Log(String.Format("Client error: {0}", e.Message)));
@@ -203,8 +203,9 @@
                             this.Logger.Write(new Log(String.Format("Failed to receive packet: {0}", e.Message)));
                         }
                         this.Disconnect();
-                        }
+                    }
 
+                    payload.ResetPosition();
                     this.OnClientReceivedPacket(this.clientSocket, payload);
                 }
             }

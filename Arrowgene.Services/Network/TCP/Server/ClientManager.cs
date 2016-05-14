@@ -26,11 +26,19 @@ namespace Arrowgene.Services.Network.TCP.Server
 
     internal class ClientManager
     {
+
+
+        private const int MaxId = int.MaxValue - 2;
+
         private TCPServer server;
         private List<ClientSocket> clients;
         private Thread[] clientManager;
         private object myLock;
         private bool isRunning;
+        private Dictionary<int, ClientSocket> clientTable;
+        private List<int> idPool;
+        private int maxClientCount;
+
 
         internal ClientManager(TCPServer server)
         {
@@ -38,6 +46,21 @@ namespace Arrowgene.Services.Network.TCP.Server
             this.myLock = new object();
             this.isRunning = false;
             this.clients = new List<ClientSocket>();
+            this.clientTable = new Dictionary<int, ClientSocket>();
+            this.maxClientCount = 2000;
+        }
+
+        internal void SetMaxClientCount(int maxClientCount)
+        {
+            if(maxClientCount > this.clients.Count)
+            {
+                this.maxClientCount = maxClientCount;
+                this.RecreateIdPool();
+            }
+            else
+            {
+                this.server.Logger.Write("Can not set max clients below currently connected clients");
+            }
         }
 
         internal void Start()
@@ -92,15 +115,69 @@ namespace Arrowgene.Services.Network.TCP.Server
             this.server.Logger.Write("All clientmanagers down.", LogType.SERVER);
         }
 
-        internal void AddClient(ClientSocket clientSocket)
+        private void RecreateIdPool()
         {
-            lock (this.myLock)
+            List<int> idPool = new List<int>();
+
+            for (int i = 0; i < this.maxClientCount; i++)
             {
-                this.clients.Add(clientSocket);
+                idPool.Add(i);
             }
 
-            this.server.Logger.Write("Client connected: {0}", clientSocket.Id.ToString(), LogType.CLIENT);
-            this.server.OnClientConnected(clientSocket);
+            lock (this.myLock)
+            {
+                foreach (ClientSocket client in this.clients)
+                {
+                    idPool.Remove(client.Id);
+                }
+                this.idPool = idPool;
+            }
+        }
+
+        private int GetClientId()
+        {
+            int id = -1;
+
+            if (this.idPool.Count <= 0)
+            {
+                this.RecreateIdPool();
+            }
+
+            if (this.idPool.Count > 0)
+            {
+                id = this.idPool[0];
+                this.idPool.RemoveAt(0);
+            }
+            else
+            {
+                if (this.clients.Count == this.maxClientCount)
+                {
+                    this.server.Logger.Write("max connections reached");
+                }
+                else
+                {
+                    this.server.Logger.Write("not reached max connections but ran out of ids, something is wrong here");
+                }
+            }
+
+            return id;
+        }
+
+        internal void AddClient(Socket socket)
+        {
+            int id = this.GetClientId();
+            if (id > 0)
+            {
+                ClientSocket clientSocket = new ClientSocket(this.GetClientId(), socket, this.server.Logger);
+                lock (this.myLock)
+                {
+                    this.clients.Add(clientSocket);
+                    this.clientTable.Add(clientSocket.Id, clientSocket);
+                }
+
+                this.server.Logger.Write("Client connected: {0}", clientSocket.Id.ToString(), LogType.CLIENT);
+                this.server.OnClientConnected(clientSocket);
+            }
         }
 
         private void DisposeClient(ClientSocket clientSocket, string reason)
@@ -182,6 +259,7 @@ namespace Arrowgene.Services.Network.TCP.Server
                         continue;
                     }
 
+                    payload.ResetPosition();
                     this.server.OnReceivedPacket(readyclients[0], payload);
 
                     readyclients[0].IsBusy = false;

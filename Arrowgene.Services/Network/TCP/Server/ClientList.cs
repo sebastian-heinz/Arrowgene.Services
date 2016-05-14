@@ -62,6 +62,14 @@ namespace Arrowgene.Services.Network.TCP.Server
             }
         }
 
+        public void RemoveClient(ClientSocket clientSocket)
+        {
+            lock (myLock)
+            {
+                if (marryClients.ContainsKey(clientSocket.Id))
+                    this.marryClients.Remove(clientSocket.Id);
+            }
+        }
 
         public ClientSocket GetClient(int id)
         {

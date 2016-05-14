@@ -212,7 +212,7 @@ namespace Arrowgene.Services.Network.TCP.Server
                     {
                         if (this.Socket.Poll(this.PollTimeout, SelectMode.SelectRead))
                         {
-                            this.clientManager.AddClient(new ClientSocket(this.Socket.Accept(), this.Logger));
+                            this.clientManager.AddClient(this.Socket.Accept());
                         }
                     }
                 }

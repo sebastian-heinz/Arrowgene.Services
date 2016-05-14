@@ -18,6 +18,7 @@ namespace Arrowgene.Services.Network.TCP.Client
 {
     using Common;
     using Logging;
+    using System.Collections.Generic;
     using System.Net;
     using System.Net.Sockets;
 
@@ -28,7 +29,7 @@ namespace Arrowgene.Services.Network.TCP.Client
     
         internal Socket Socket { get; private set; }
 
-        public int Id { get; internal set; }
+        public int Id { get; private set; }
         public bool IsBusy { get; internal set; }
         public bool IsAlive { get; internal set; }
         public int InTraffic { get; internal set; }
@@ -51,12 +52,12 @@ namespace Arrowgene.Services.Network.TCP.Client
             }
         }
 
-        public ClientSocket(Socket socket, Logger logger)
+        public ClientSocket(int id, Socket socket, Logger logger)
         {
             this.Socket = socket;
             this.logger = logger;
 
-            this.Id = Application.Random.Next(1, 1000);
+            this.Id = id;
             this.IsAlive = true;
             this.IsBusy = false;
             this.InTraffic = 0;
