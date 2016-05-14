@@ -14,35 +14,33 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network.ManagedConnection.Server
+namespace Arrowgene.Services.Network.TCP.Server
 {
-    using Arrowgene.Services.Network.ManagedConnection.Event;
+    using Arrowgene.Services.Network.TCP.Event;
     using Client;
     using Common;
     using Exceptions;
     using Logging;
-    using Packet;
-    using Serialization;
     using System;
     using System.Net;
     using System.Net.Sockets;
     using System.Threading;
 
-    public class ManagedServer
+    public class TCPServer
     {
-        private const string DEFAULT_NAME = "Managed Server";
+        private const string Name = "Managed Server";
 
         private Thread serverThread;
         private ClientManager clientManager;
 
         /// <summary>
-        /// Creates a new <see cref="ManagedServer"/> instance with a specified <see cref="ISerializer"/> serializer and <see cref="Logger"/>.
+        /// Creates a new <see cref="TCPServer"/> instance with a specified <see cref="ISerializer"/> serializer and <see cref="Logger"/>.
         /// </summary>
         /// <param name="ipAddress"></param>
         /// <param name="port"></param>
         /// <param name="serializer"></param>
         /// <param name="logger"></param>
-        public ManagedServer(IPAddress ipAddress, int port, ISerializer serializer, Logger logger)
+        public TCPServer(IPAddress ipAddress, int port, Logger logger)
         {
             if (ipAddress == null)
                 throw new InvalidParameterException(String.Format("IPAddress({0}) invalid", ipAddress));
@@ -50,19 +48,15 @@ namespace Arrowgene.Services.Network.ManagedConnection.Server
             if (port <= 0 || port > 65535)
                 throw new InvalidParameterException(String.Format("Port({0}) invalid", port));
 
-            if (serializer == null)
-                throw new InvalidParameterException("Serializer is null");
-
             if (logger == null)
                 throw new InvalidParameterException("Logger is null");
 
             this.IPAddress = ipAddress;
             this.Port = port;
-            this.Serializer = serializer;
             this.Logger = logger;
 
             this.IsListening = false;
-            this.LogUnknownPacket = true;
+
             this.ManagerCount = 5;
             this.Backlog = 10;
             this.ReadTimeout = 20;
@@ -74,38 +68,14 @@ namespace Arrowgene.Services.Network.ManagedConnection.Server
         }
 
         /// <summary>
-        /// Creates a new <see cref="ManagedServer"/> instance.
+        /// Creates a new <see cref="TCPServer"/> instance.
         /// </summary>
         /// <param name="ipAddress"></param>
         /// <param name="port"></param>
-        public ManagedServer(IPAddress ipAddress, int port) : this(ipAddress, port, new BinaryFormatterSerializer(), new Logger(DEFAULT_NAME))
+        public TCPServer(IPAddress ipAddress, int port) : this(ipAddress, port, new Logger(Name))
         {
 
         }
-
-        /// <summary>
-        /// Creates a new <see cref="ManagedServer"/> instance.
-        /// </summary>
-        /// <param name="ipAddress"></param>
-        /// <param name="port"></param>
-        /// <param name="logger"></param>
-        public ManagedServer(IPAddress ipAddress, int port, Logger logger) : this(ipAddress, port, new BinaryFormatterSerializer(), logger)
-        {
-
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="ManagedServer"/> instance.
-        /// </summary>
-        /// <param name="ipAddress"></param>
-        /// <param name="port"></param>
-        /// <param name="serializer"></param>
-        public ManagedServer(IPAddress ipAddress, int port, ISerializer serializer) : this(ipAddress, port, serializer, new Logger(DEFAULT_NAME))
-        {
-
-        }
-
-        public bool LogUnknownPacket { get; set; }
 
         public int ManagerCount { get; set; }
 
@@ -144,7 +114,6 @@ namespace Arrowgene.Services.Network.ManagedConnection.Server
         /// </summary>
         public int Port { get; private set; }
 
-        internal ISerializer Serializer { get; set; }
 
         internal Socket Socket { get; set; }
 
@@ -161,7 +130,7 @@ namespace Arrowgene.Services.Network.ManagedConnection.Server
         /// <summary>
         /// Occures when a packet is received.
         /// </summary>
-        public event EventHandler<ReceivedPacketEventArgs> ReceivedPacket;
+        public event EventHandler<ServerReceivedPacketEventArgs> ServerReceivedPacket;
 
         /// <summary>
         /// Start accepting connections,
@@ -173,7 +142,7 @@ namespace Arrowgene.Services.Network.ManagedConnection.Server
             {
                 this.Logger.Write("Starting server...", LogType.SERVER);
                 this.serverThread = new Thread(ServerThread);
-                this.serverThread.Name = DEFAULT_NAME;
+                this.serverThread.Name = Name;
                 this.serverThread.Start();
             }
             else
@@ -243,7 +212,7 @@ namespace Arrowgene.Services.Network.ManagedConnection.Server
                     {
                         if (this.Socket.Poll(this.PollTimeout, SelectMode.SelectRead))
                         {
-                            this.clientManager.AddClient(new ClientSocket(this.Socket.Accept(), this.Serializer, this.Logger));
+                            this.clientManager.AddClient(new ClientSocket(this.Socket.Accept(), this.Logger));
                         }
                     }
                 }
@@ -302,13 +271,13 @@ namespace Arrowgene.Services.Network.ManagedConnection.Server
             return socket;
         }
 
-        internal void OnReceivedPacket(int packetId, ClientSocket clientSocket, ManagedPacket packet)
+        internal virtual void OnReceivedPacket(ClientSocket clientSocket, ByteBuffer payload)
         {
-            EventHandler<ReceivedPacketEventArgs> receivedPacket = this.ReceivedPacket;
-            if (receivedPacket != null)
+            EventHandler<ServerReceivedPacketEventArgs> serverReceivedPacket = this.ServerReceivedPacket;
+            if (serverReceivedPacket != null)
             {
-                ReceivedPacketEventArgs receivedPacketEventArgs = new ReceivedPacketEventArgs(packetId, clientSocket, packet);
-                receivedPacket(this, receivedPacketEventArgs);
+                ServerReceivedPacketEventArgs serverReceivedPacketEventArgs = new ServerReceivedPacketEventArgs(clientSocket, payload);
+                serverReceivedPacket(this, serverReceivedPacketEventArgs);
             }
         }
 

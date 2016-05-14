@@ -53,7 +53,7 @@ namespace Arrowgene.Services.Network.Proxy
 
         protected override void ReceivePacket(ProxyPacket proxyPacket)
         {
-            byte[] forward = proxyPacket.Payload.GetBytes();
+            byte[] forward = proxyPacket.Payload.ReadBytes();
             this.proxyClient.Write(forward);
 
             proxyPacket.Traffic = ProxyPacket.TrafficType.CLIENT;
@@ -62,7 +62,7 @@ namespace Arrowgene.Services.Network.Proxy
 
         private void proxyClient_ReceivedPacket(object sender, ReceivedProxyPacketEventArgs e)
         {
-            byte[] forward = e.ProxyPacket.Payload.GetBytes();
+            byte[] forward = e.ProxyPacket.Payload.ReadBytes();
             base.Write(forward);
 
             base.ReceivePacket(e.ProxyPacket);

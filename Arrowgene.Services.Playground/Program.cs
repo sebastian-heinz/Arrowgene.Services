@@ -12,8 +12,9 @@
             // new ProxyDemo();
             // new UdpDemoServer();
             // new UdpDemoClient();
-            // new ManagedConnection();
-            new GetMacAddress();
+            // new TcpConnection();
+            new ManagedTcpConnection();
+            // new GetMacAddress();
 
             Console.WriteLine("Press any key to exit..");
             Console.ReadKey();

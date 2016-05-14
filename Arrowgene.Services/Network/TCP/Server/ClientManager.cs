@@ -14,11 +14,11 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network.ManagedConnection.Server
+namespace Arrowgene.Services.Network.TCP.Server
 {
     using Client;
+    using Common;
     using Logging;
-    using Packet;
     using System;
     using System.Collections.Generic;
     using System.Net.Sockets;
@@ -26,17 +26,15 @@ namespace Arrowgene.Services.Network.ManagedConnection.Server
 
     internal class ClientManager
     {
-        private PacketManager packetManager;
-        private ManagedServer server;
+        private TCPServer server;
         private List<ClientSocket> clients;
         private Thread[] clientManager;
         private object myLock;
         private bool isRunning;
 
-        internal ClientManager(ManagedServer server)
+        internal ClientManager(TCPServer server)
         {
             this.server = server;
-            this.packetManager = new PacketManager(this.server.Serializer, this.server.Logger);
             this.myLock = new object();
             this.isRunning = false;
             this.clients = new List<ClientSocket>();
@@ -107,6 +105,7 @@ namespace Arrowgene.Services.Network.ManagedConnection.Server
 
         private void DisposeClient(ClientSocket clientSocket, string reason)
         {
+            clientSocket.Close();
             lock (this.myLock)
             {
                 this.clients.Remove(clientSocket);
@@ -153,15 +152,20 @@ namespace Arrowgene.Services.Network.ManagedConnection.Server
                         continue;
                     }
 
-                    byte[] headerBuffer = new byte[ManagedPacket.HEADER_SIZE];
+                    int bufferSize = this.server.BufferSize;
+                    byte[] buffer = new byte[bufferSize];
+                    int bytesReceived = 0;
+
+                    ByteBuffer payload = new ByteBuffer();
 
                     try
                     {
-                        if (readyclients[0].Socket.Receive(headerBuffer, 0, ManagedPacket.HEADER_SIZE, SocketFlags.None) < 1)
+                        if (readyclients[0].Socket.Poll(this.server.PollTimeout, SelectMode.SelectRead))
                         {
-                            DisposeClient(readyclients[0], "Invalid header");
-                            readyclients.RemoveAt(0);
-                            continue;
+                            while (readyclients[0].Socket.Available > 0 && (bytesReceived = readyclients[0].Socket.Receive(buffer, 0, bufferSize, SocketFlags.None)) > 0)
+                            {
+                                payload.WriteBytes(buffer, 0, bytesReceived);
+                            }
                         }
                     }
                     catch (Exception e)
@@ -178,56 +182,7 @@ namespace Arrowgene.Services.Network.ManagedConnection.Server
                         continue;
                     }
 
-
-                    Int32 packetId = BitConverter.ToInt32(headerBuffer, ManagedPacket.HEADER_PAYLOAD_SIZE);
-
-                    if (this.packetManager.CheckPacketId(packetId))
-                    {
-                        Int32 payloadSize = BitConverter.ToInt32(headerBuffer, 0);
-
-                        if (payloadSize <= 0)
-                        {
-                            DisposeClient(readyclients[0], "Message length is zero or less.");
-                            readyclients.RemoveAt(0);
-                            continue;
-                        }
-
-                        // TODO MaxPacketSize ? keep reading with new buffer..
-                        if (payloadSize > this.server.BufferSize)
-                        {
-                            DisposeClient(readyclients[0], String.Format("Message length {0} is larger than maximum message size {1}", payloadSize, this.server.BufferSize));
-                            readyclients.RemoveAt(0);
-                            continue;
-                        }
-
-                        byte[] payload = new byte[payloadSize];
-                        int bytesReceived = 0;
-
-                        while (bytesReceived < payloadSize)
-                        {
-                            if (readyclients[0].Socket.Poll(this.server.PollTimeout, SelectMode.SelectRead))
-                                bytesReceived += readyclients[0].Socket.Receive(payload, bytesReceived, payloadSize - bytesReceived, SocketFlags.None);
-                        }
-
-                        ManagedPacket managedPacket = new ManagedPacket(packetId, headerBuffer, payload);
-
-                        if (this.packetManager.Handle(readyclients[0], managedPacket))
-                        {
-                            this.server.OnReceivedPacket(packetId, readyclients[0], managedPacket);
-                        }
-                        else
-                        {
-                           // Packet could not be handled
-                        }
-                    }
-                    else
-                    {
-                        if (this.server.LogUnknownPacket)
-                        {
-                            // TODO
-                            //  this.server.Logger.Write("Packet ID: " + packetHeader.PacketId + " Length:" + packetHeader.PacketSize);
-                        }
-                    }
+                    this.server.OnReceivedPacket(readyclients[0], payload);
 
                     readyclients[0].IsBusy = false;
                     readyclients.RemoveAt(0);
@@ -236,6 +191,8 @@ namespace Arrowgene.Services.Network.ManagedConnection.Server
                 Thread.Sleep(this.server.ReadTimeout);
             }
         }
+
+
 
     }
 }

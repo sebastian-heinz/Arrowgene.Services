@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network.ManagedConnection.Serialization
+namespace Arrowgene.Services.Network.TCP.Managed.Serialization
 {
     using Arrowgene.Services.Logging;
     using System;

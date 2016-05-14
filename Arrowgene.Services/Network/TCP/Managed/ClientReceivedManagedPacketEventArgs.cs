@@ -14,28 +14,21 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network.ManagedConnection.Packet.Custom
+namespace Arrowgene.Services.Network.TCP.Managed
 {
-    using Arrowgene.Services.Common;
     using System;
 
-
-    public class CraftPacket : PacketCrafter
+    public class ClientReceivedManagedPacketEventArgs : EventArgs
     {
-
-        public CraftPacket(Int32 packetId, Type type, byte[] serializedClass)
+        public ClientReceivedManagedPacketEventArgs(int packetId, ManagedClient managedClient, ManagedPacket packet)
         {
-            byte[] typeName = Conversion.GetBytes(type.AssemblyQualifiedName);
-            Int32 packetSize = typeName.Length + serializedClass.Length + PacketHeader.HEADER_SIZE;
-
-            this.Addint32(packetSize);
-            this.Addint32(packetId);
-            this.Addint32(typeName.Length);
-            this.Addint32(serializedClass.Length);
-            this.Addbytes(typeName);
-            this.Addbytes(serializedClass);
+            this.ManagedClient = managedClient;
+            this.PacketId = packetId;
+            this.Packet = packet;
         }
 
-
+        public ManagedClient ManagedClient { get; private set; }
+        public int PacketId { get; private set; }
+        public ManagedPacket Packet { get; private set; }
     }
 }

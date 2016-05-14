@@ -14,24 +14,18 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network.ManagedConnection.Client
+namespace Arrowgene.Services.Network.TCP.Client
 {
-    using Packet;
-    using Logging;
-    using Serialization;
-    using System;
-    using System.Net.Sockets;
     using Common;
+    using Logging;
     using System.Net;
-    
+    using System.Net.Sockets;
+
 
     public class ClientSocket
     {
-        private ISerializer serializer;
         private Logger logger;
-
-   
-
+    
         internal Socket Socket { get; private set; }
 
         public int Id { get; internal set; }
@@ -57,10 +51,9 @@ namespace Arrowgene.Services.Network.ManagedConnection.Client
             }
         }
 
-        public ClientSocket(Socket socket, ISerializer serializer, Logger logger)
+        public ClientSocket(Socket socket, Logger logger)
         {
             this.Socket = socket;
-            this.serializer = serializer;
             this.logger = logger;
 
             this.Id = Application.Random.Next(1, 1000);
@@ -70,15 +63,10 @@ namespace Arrowgene.Services.Network.ManagedConnection.Client
             this.OutTraffic = 0;
         }
 
-        public void SendObject(Int32 packetId, object myClass)
+        public void Send(byte[] payload)
         {
-            byte[] serialized = this.serializer.Serialize(myClass, this.logger);
-            if (serialized != null)
-            {
-                ManagedPacket packet = ManagedPacket.CreatePacket(packetId, serialized);
-                this.Socket.Send(packet.GetBytes());
-                this.OutTraffic += packet.PacketSize;
-            }
+            this.Socket.Send(payload);
+            this.OutTraffic += payload.Length;
         }
 
         public void Close()

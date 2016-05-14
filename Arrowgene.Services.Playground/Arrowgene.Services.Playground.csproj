@@ -44,13 +44,14 @@
   <ItemGroup>
     <Compile Include="Demo\GetMacAddress.cs" />
     <Compile Include="Demo\HttpServerDemo.cs" />
-    <Compile Include="Demo\ManagedConnection.cs" />
+    <Compile Include="Demo\ManagedTcpConnection.cs" />
+    <Compile Include="Demo\TcpConnection.cs" />
     <Compile Include="Demo\PortScanDemo.cs" />
+    <Compile Include="Demo\ProxyDemo.cs" />
     <Compile Include="Demo\UdpDemoClient.cs" />
     <Compile Include="Demo\UdpDemoServer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Demo\ProxyDemo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

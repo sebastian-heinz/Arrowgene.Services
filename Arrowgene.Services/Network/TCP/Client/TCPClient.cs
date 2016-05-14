@@ -1,54 +1,32 @@
-﻿/*
- *  Copyright 2015 Sebastian Heinz <sebastian.heinz.gt@googlemail.com>
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * 
- */
-namespace Arrowgene.Services.Network.ManagedConnection.Client
+﻿namespace Arrowgene.Services.Network.TCP.Client
 {
-    using Arrowgene.Services.Network.ManagedConnection.Serialization;
+    using Common;
     using Event;
     using Exceptions;
     using Logging;
-    using Packet;
     using System;
     using System.Net;
     using System.Net.Sockets;
     using System.Threading;
 
-    public class ManagedClient
+    public class TCPClient
     {
-        private const string DEFAULT_NAME = "Managed Client";
-        private const int THREAD_JOIN_TIMEOUT = 1000;
+        public const string Name = "Managed Client";
+        private const int ThreadJoinTimeout = 1000;
 
         private ClientSocket clientSocket;
         private Thread readThread;
-        private PacketManager packetManager;
-        private ISerializer serializer;
 
-        public ManagedClient(ISerializer serializer, Logger logger)
+        public TCPClient(Logger logger)
         {
-            this.serializer = serializer;
             this.Logger = logger;
 
             this.IsConnected = false;
             this.PollTimeout = 10;
             this.BufferSize = 1024;
-
-            this.packetManager = new PacketManager(this.serializer, this.Logger);
         }
 
-        public ManagedClient() : this(new BinaryFormatterSerializer(), new Logger(DEFAULT_NAME))
+        public TCPClient() : this(new Logger(Name))
         {
 
         }
@@ -87,7 +65,7 @@ namespace Arrowgene.Services.Network.ManagedConnection.Client
         /// <summary>
         /// Occures when a packet is received.
         /// </summary>
-        public event EventHandler<ReceivedPacketEventArgs> ReceivedPacket;
+        public event EventHandler<ClientReceivedPacketEventArgs> ClientReceivedPacket;
 
         public void Connect(IPAddress serverIPAddress, int serverPort)
         {
@@ -105,11 +83,11 @@ namespace Arrowgene.Services.Network.ManagedConnection.Client
 
                     if (socket != null)
                     {
-                        this.clientSocket = new ClientSocket(socket, this.serializer, this.Logger);
+                        this.clientSocket = new ClientSocket(socket, this.Logger);
                         this.clientSocket.Socket.Connect(this.ServerIPAddress, this.ServerPort);
 
                         this.readThread = new Thread(ReadProcess);
-                        this.readThread.Name = DEFAULT_NAME;
+                        this.readThread.Name = Name;
                         this.readThread.Start();
 
                         this.IsConnected = true;
@@ -143,13 +121,13 @@ namespace Arrowgene.Services.Network.ManagedConnection.Client
 
                 if (Thread.CurrentThread != this.readThread)
                 {
-                    if (this.readThread.Join(THREAD_JOIN_TIMEOUT))
+                    if (this.readThread.Join(ThreadJoinTimeout))
                     {
                         this.Logger.Write("Reading thread ended clean.", LogType.CLIENT);
                     }
                     else
                     {
-                        this.Logger.Write("Exceeded thread join timeout of {0}ms, aborting thread...", THREAD_JOIN_TIMEOUT, LogType.CLIENT);
+                        this.Logger.Write("Exceeded thread join timeout of {0}ms, aborting thread...", ThreadJoinTimeout, LogType.CLIENT);
                         this.readThread.Abort();
                     }
                 }
@@ -165,9 +143,9 @@ namespace Arrowgene.Services.Network.ManagedConnection.Client
             }
         }
 
-        public void SendObject(int packetId, object myObject)
+        public void Send(byte[] payload)
         {
-            this.clientSocket.SendObject(packetId, myObject);
+            this.clientSocket.Send(payload);
         }
 
         private Socket CreateSocket()
@@ -192,86 +170,55 @@ namespace Arrowgene.Services.Network.ManagedConnection.Client
 
         private void ReadProcess()
         {
-            byte[] headerBuffer = new byte[ManagedPacket.HEADER_SIZE];
-            byte[] payload;
-
             this.Logger.Write("Reading thread started.", LogType.CLIENT);
 
             while (this.IsConnected)
             {
                 if (this.clientSocket.Socket.Poll(this.PollTimeout, SelectMode.SelectRead))
                 {
+                    int bufferSize = this.BufferSize;
+                    byte[] buffer = new byte[bufferSize];
+                    int bytesReceived = 0;
+
+                    ByteBuffer payload = new ByteBuffer();
+
                     try
                     {
-                        if (this.clientSocket.Socket.Receive(headerBuffer, 0, ManagedPacket.HEADER_SIZE, SocketFlags.None) < ManagedPacket.HEADER_SIZE)
+                        if (this.clientSocket.Socket.Poll(this.PollTimeout, SelectMode.SelectRead))
                         {
-                            this.Logger.Write("Invalid Header", LogType.CLIENT);
-                            this.Disconnect();
-                            break;
+                            while (this.clientSocket.Socket.Available > 0 && (bytesReceived = this.clientSocket.Socket.Receive(buffer, 0, bufferSize, SocketFlags.None)) > 0)
+                            {
+                                payload.WriteBytes(buffer, 0, bytesReceived);
+                            }
                         }
                     }
                     catch (Exception e)
                     {
-                        this.Logger.Write("Error {0}", e.ToString(), LogType.CLIENT);
-                        this.Disconnect();
-                        break;
-                    }
-
-                    Int32 packetId = BitConverter.ToInt32(headerBuffer, ManagedPacket.HEADER_PAYLOAD_SIZE);
-
-                    if (this.packetManager.CheckPacketId(packetId))
-                    {
-                        Int32 payloadSize = BitConverter.ToInt32(headerBuffer, 0);
-
-                        if (payloadSize <= 0)
+                        if (!this.clientSocket.Socket.Connected)
                         {
-                            this.Logger.Write("Message length ({0}bytes) is zero or less", payloadSize, LogType.CLIENT);
-                            this.Disconnect();
-                            break;
-                        }
-
-                        if (payloadSize > this.BufferSize)
-                        {
-                            this.Logger.Write("Message length ({0}bytes) is larger than maximum message size ({1}bytes)", payloadSize, this.BufferSize, LogType.CLIENT);
-                            this.Disconnect();
-                            break;
-                        }
-
-                        payload = new byte[payloadSize];
-                        int bytesReceived = 0;
-
-                        //TODO TRY CATCH, Server disconnects client during read, will crash.
-                        while (bytesReceived < payloadSize)
-                        {
-                            if (this.clientSocket.Socket.Poll(this.PollTimeout, SelectMode.SelectRead))
-                                bytesReceived += this.clientSocket.Socket.Receive(payload, bytesReceived, payloadSize - bytesReceived, SocketFlags.None);
-                        }
-
-                        ManagedPacket managedPacket = new ManagedPacket(packetId, headerBuffer, payload);
-
-                        if (packetManager.Handle(this.clientSocket, managedPacket))
-                        {
-                            this.OnReceivedPacket(packetId, managedPacket);
+                            this.Logger.Write(new Log(String.Format("Client error: {0}", e.Message)));
                         }
                         else
                         {
-                            // packet could not be handled
+                            this.Logger.Write(new Log(String.Format("Failed to receive packet: {0}", e.Message)));
                         }
-
+                        this.Disconnect();
                     }
+
+                    this.OnClientReceivedPacket(this.clientSocket, payload);
                 }
             }
 
-            this.Logger.Write("Reading thread ended.", THREAD_JOIN_TIMEOUT, LogType.CLIENT);
+            this.Logger.Write("Reading thread ended.", ThreadJoinTimeout, LogType.CLIENT);
         }
 
-        internal void OnReceivedPacket(int packetId, ManagedPacket packet)
-        {
-            EventHandler<ReceivedPacketEventArgs> receivedPacket = this.ReceivedPacket;
-            if (receivedPacket != null)
+        internal virtual void OnClientReceivedPacket(ClientSocket clientSocket, ByteBuffer payload)
+       { 
+            EventHandler<ClientReceivedPacketEventArgs> clientReceivedPacket = this.ClientReceivedPacket;
+            if (clientReceivedPacket != null)
             {
-                ReceivedPacketEventArgs receivedPacketEventArgs = new ReceivedPacketEventArgs(packetId, this.clientSocket, packet);
-                receivedPacket(this, receivedPacketEventArgs);
+                ClientReceivedPacketEventArgs clientReceivedPacketEventArgs = new ClientReceivedPacketEventArgs(this, payload);
+                clientReceivedPacket(this, clientReceivedPacketEventArgs);
             }
         }
 
@@ -294,6 +241,7 @@ namespace Arrowgene.Services.Network.ManagedConnection.Client
                 clientConnected(this, clientConnectedEventArgs);
             }
         }
+
 
     }
 }

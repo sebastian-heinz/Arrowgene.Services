@@ -1,40 +1,21 @@
 ﻿namespace Arrowgene.Services.Playground.Demo
 {
     using Arrowgene.Services.Network.Proxy;
-    using Common;
-    using Network.ManagedConnection.Client;
-    using Network.ManagedConnection.Server;
+    using Network.TCP.Client;
+    using Network.TCP.Server;
     using System;
-    using System.Diagnostics;
     using System.Net;
-    using System.Net.Sockets;
     using System.Threading;
 
     public class ProxyDemo
     {
-        ManagedServer server;
-        ManagedClient client;
+        TCPServer server;
+        TCPClient client;
         ProxyServer proxyServer;
 
         public ProxyDemo()
         {
             this.Run();
-        }
-
-        private void ProxyServer_ReceivedPacket(object sender, ReceivedProxyPacketEventArgs e)
-        {
-            Console.WriteLine("ProxyDemo::ProxyServer_ReceivedPacket: Proxy forwarded packet from: " + e.ProxyPacket.Traffic);
-        }
-
-        private void Client_ReceivedPacket(object sender, Network.ManagedConnection.Event.ReceivedPacketEventArgs e)
-        {
-            Console.WriteLine("ProxyDemo::Client_ReceivedPacket: " + (string)e.Packet.Object);
-        }
-
-        private void Server_ReceivedPacket(object sender, Network.ManagedConnection.Event.ReceivedPacketEventArgs e)
-        {
-            Console.WriteLine("ProxyDemo::Server_ReceivedPacket: " + (string)e.Packet.Object);
-            e.ClientSocket.SendObject(1000, "world!");
         }
 
         internal void close()
@@ -46,14 +27,17 @@
 
         internal void Run()
         {
-            server = new ManagedServer(IPAddress.Any, 2345);
-            server.ReceivedPacket += Server_ReceivedPacket;
+            IPAddress serverListenIp = IPAddress.Parse("127.0.0.1");
+            int serverListenPort = 2349;
+            server = new TCPServer(serverListenIp, serverListenPort);
+            server.ServerReceivedPacket += Server_ServerReceivedPacket;
 
+            IPAddress proxyIp = IPAddress.Parse("192.168.178.20");
+            int proxyPort = 2345;
+            client = new TCPClient();
+            client.ClientReceivedPacket += Client_ClientReceivedPacket;
 
-            client = new ManagedClient();
-            client.ReceivedPacket += Client_ReceivedPacket;
-
-            ProxyConfig proxyConfig = new ProxyConfig(IPAddress.IPv6Any, 2349, IP.AddressLocalhost(AddressFamily.InterNetworkV6), 2345);
+            ProxyConfig proxyConfig = new ProxyConfig(proxyIp, proxyPort, serverListenIp, serverListenPort);
             proxyServer = new ProxyServer(proxyConfig);
             proxyServer.ReceivedPacket += ProxyServer_ReceivedPacket;
 
@@ -68,15 +52,30 @@
             while (!proxyServer.IsListening)
                 Thread.Sleep(100);
 
-            client.Connect(IPAddress.Parse("192.168.178.20"), 2345);
+            client.Connect(proxyIp, proxyPort);
 
             if (client.IsConnected)
             {
-                Debug.WriteLine("ProxyDemo::Run: Client Sends Packet...");
-                client.SendObject(1000, "hello?");
+                Console.WriteLine("ProxyDemo::Run: Client Sends Packet...");
+                client.Send(new byte[9]);
             }
         }
 
 
+        private void ProxyServer_ReceivedPacket(object sender, ReceivedProxyPacketEventArgs e)
+        {
+            Console.WriteLine("ProxyDemo::ProxyServer_ReceivedPacket: Proxy forwarded packet from: " + e.ProxyPacket.Traffic);
+        }
+
+        private void Client_ClientReceivedPacket(object sender, ClientReceivedPacketEventArgs e)
+        {
+            Console.WriteLine("ProxyDemo::Client_ReceivedPacket: " + e.Payload.Size.ToString());
+        }
+
+        private void Server_ServerReceivedPacket(object sender, ServerReceivedPacketEventArgs e)
+        {
+            Console.WriteLine("ProxyDemo::Server_ReceivedPacket: " + e.Payload.Size.ToString());
+            e.ClientSocket.Send(new byte[10]);
+        }
     }
 }

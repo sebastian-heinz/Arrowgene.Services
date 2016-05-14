@@ -14,14 +14,14 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network.ManagedConnection.Event
+namespace Arrowgene.Services.Network.TCP.Event
 {
     using Client;
     using System;
 
-    public class DisconnectedEventArgs : EventArgs
+    public class ConnectedEventArgs : EventArgs
     {
-        public DisconnectedEventArgs(ClientSocket clientSocket)
+        public ConnectedEventArgs(ClientSocket clientSocket)
         {
             this.ClientSocket = clientSocket;
         }

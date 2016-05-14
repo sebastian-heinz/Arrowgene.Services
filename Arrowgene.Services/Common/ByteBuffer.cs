@@ -77,7 +77,22 @@ namespace Arrowgene.Services.Common
 
         public long Position { get { return this.memoryStream.Position; } private set { this.memoryStream.Position = value; } }
 
-        public byte[] GetBytes()
+        public void ResetPosition()
+        {
+            this.Position = 0;
+        }
+
+        public bool SetPosition(long position)
+        {
+            if(position < this.Size)
+            {
+                this.Position = position;
+                return true;
+            }
+            return false;
+        }
+
+        public byte[] ReadBytes()
         {
             this.Position = 0;
             return this.ReadBytes((int)this.Size);
@@ -151,6 +166,11 @@ namespace Arrowgene.Services.Common
         public void WriteByte(byte b)
         {
             this.binaryWriter.Write(b);
+        }
+
+        public void WriteBuffer(ByteBuffer buffer)
+        {
+            this.WriteBytes(buffer.ReadBytes());
         }
 
         public void WriteByte(int i)
