@@ -5,10 +5,10 @@
     using System;
     using System.Net;
 
-    public class ManagedConnection
+    public class ManagedTCPConnectionDemo
     {
 
-        public ManagedConnection()
+        public ManagedTCPConnectionDemo()
         {
             ManagedServer svr = new ManagedServer(IPAddress.Any, 2345);
             svr.Logger.LogWrite += Logger_LogWrite_Server;

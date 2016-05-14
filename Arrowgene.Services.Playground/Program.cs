@@ -7,19 +7,17 @@
     {
         public static void Main(string[] args)
         {
+            new GetMacAddressDemo();
+
             // new HttpServerDemo();
-            // new PortScanDemo();
-            // new ProxyDemo();
-            // new UdpServerDemo();
-            // new UdpClientDemo();
-            // new GetMacAddressDemo();
             // new HttpTunneClientDemo();
             // new HttpTunnelServerDemo();
-            // new UdpDemoServer();
-            // new UdpDemoClient();
-            // new TcpConnection();
-            new ManagedTcpConnection();
-            // new GetMacAddress();
+            new ManagedTCPConnectionDemo();
+            // new PortScanDemo();
+            // new ProxyDemo();
+            // new TcpConnectionDemo();
+            // new UdpServerDemo();
+            // new UdpClientDemo();
 
             Console.WriteLine("Press any key to exit..");
             Console.ReadKey();

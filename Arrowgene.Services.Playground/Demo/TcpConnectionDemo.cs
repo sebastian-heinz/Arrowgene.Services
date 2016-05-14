@@ -6,10 +6,10 @@
     using System;
     using System.Net;
 
-    public class TcpConnection
+    public class TcpConnectionDemo
     {
 
-        public TcpConnection()
+        public TcpConnectionDemo()
         {
             TCPServer svr = new TCPServer(IPAddress.Any, 2345);
             svr.Logger.LogWrite += Logger_LogWrite_Server;

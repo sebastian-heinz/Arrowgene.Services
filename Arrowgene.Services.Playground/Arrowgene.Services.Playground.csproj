@@ -45,8 +45,8 @@
     <Compile Include="Demo\GetMacAddressDemo.cs" />
     <Compile Include="Demo\HttpServerDemo.cs" />
     <Compile Include="Demo\HttpTunnelClientDemo.cs" />
-    <Compile Include="Demo\ManagedTcpConnection.cs" />
-    <Compile Include="Demo\TcpConnection.cs" />
+    <Compile Include="Demo\ManagedTcpConnectionDemo.cs" />
+    <Compile Include="Demo\TcpConnectionDemo.cs" />
     <Compile Include="Demo\PortScanDemo.cs" />
     <Compile Include="Demo\UdpClientDemo.cs" />
     <Compile Include="Demo\HttpTunnelServerDemo.cs" />
