@@ -5,10 +5,10 @@ namespace Arrowgene.Services.Playground.Demo
     using Common;
     using System;
 
-    public class GetMacAddress
+    public class GetMacAddressDemo
     {
 
-        public GetMacAddress()
+        public GetMacAddressDemo()
         {
             Console.WriteLine(IP.GetMacAddress());
         }

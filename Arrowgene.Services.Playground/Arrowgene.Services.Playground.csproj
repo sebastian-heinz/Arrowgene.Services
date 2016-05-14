@@ -42,14 +42,16 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Demo\GetMacAddress.cs" />
+    <Compile Include="Demo\GetMacAddressDemo.cs" />
     <Compile Include="Demo\HttpServerDemo.cs" />
+    <Compile Include="Demo\HttpTunnelClientDemo.cs" />
     <Compile Include="Demo\ManagedTcpConnection.cs" />
     <Compile Include="Demo\TcpConnection.cs" />
     <Compile Include="Demo\PortScanDemo.cs" />
+    <Compile Include="Demo\UdpClientDemo.cs" />
+    <Compile Include="Demo\HttpTunnelServerDemo.cs" />
+    <Compile Include="Demo\UdpServerDemo.cs" />
     <Compile Include="Demo\ProxyDemo.cs" />
-    <Compile Include="Demo\UdpDemoClient.cs" />
-    <Compile Include="Demo\UdpDemoServer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

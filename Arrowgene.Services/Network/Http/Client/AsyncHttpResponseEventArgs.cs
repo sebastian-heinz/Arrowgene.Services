@@ -17,12 +17,12 @@
 namespace Arrowgene.Services.Network.Http.Client
 {
     using System;
-    public class HttpRequestAsyncResponse : EventArgs
+    public class AsyncHttpResponseEventArgs : EventArgs
     {
-        public HttpRequestAsyncResponse(string response)
+        public AsyncHttpResponseEventArgs(byte[] response)
         {
             this.Response = response;
         }
-        public string Response { get; set; }
+        public byte[] Response { get; set; }
     }
 }

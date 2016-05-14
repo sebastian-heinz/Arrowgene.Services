@@ -5,12 +5,12 @@
     using System.Net;
     using System.Threading;
 
-    public class UdpDemoClient
+    public class UdpClientDemo
     {
         private const int PORT = 15000;
         private bool received = false;
 
-        public UdpDemoClient()
+        public UdpClientDemo()
         {
             IPAddress serverIP = IPAddress.Parse("127.0.0.1");
 
