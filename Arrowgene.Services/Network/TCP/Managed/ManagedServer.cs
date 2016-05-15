@@ -29,7 +29,6 @@
     {
         private PacketManager packetManager;
         private ISerializer serializer;
-
         private Dictionary<int, ManagedClientSocket> managedClients;
 
         public ManagedServer(IPAddress ipAddress, int port, ISerializer serializer, Logger logger) : base(ipAddress, port, logger)

@@ -23,18 +23,6 @@ namespace Arrowgene.Services.Common
 
     public class ByteBuffer
     {
-        public static byte[] BlockCopy(byte[] source)
-        {
-            return ByteBuffer.BlockCopy(source, source.Length);
-        }
-
-        public static byte[] BlockCopy(byte[] source, int size)
-        {
-            byte[] destination = new byte[size];
-            Buffer.BlockCopy(source, 0, destination, 0, size);
-            return destination;
-        }
-
         private MemoryStream memoryStream;
         private BinaryWriter binaryWriter;
         private BinaryReader binaryReader;
@@ -46,20 +34,17 @@ namespace Arrowgene.Services.Common
             this.binaryWriter = new BinaryWriter(this.memoryStream);
         }
 
-        public ByteBuffer(byte[] buffer)
-            : this()
+        public ByteBuffer(byte[] buffer) : this()
         {
             this.binaryWriter.Write(buffer);
         }
 
-        public ByteBuffer(byte[] buffer, int index, int count)
-     : this()
+        public ByteBuffer(byte[] buffer, int index, int count) : this()
         {
             this.binaryWriter.Write(buffer, index, count);
         }
 
-        public ByteBuffer(string filePath)
-            : this()
+        public ByteBuffer(string filePath) : this()
         {
             int bufferSize = 1024;
             byte[] buffer = new byte[bufferSize];
@@ -84,7 +69,7 @@ namespace Arrowgene.Services.Common
 
         public bool SetPosition(long position)
         {
-            if(position < this.Size)
+            if (position < this.Size)
             {
                 this.Position = position;
                 return true;
@@ -92,21 +77,48 @@ namespace Arrowgene.Services.Common
             return false;
         }
 
-        public byte[] ReadBytes()
+        #region read
+
+        public ByteBuffer ReadByteBuffer(int index, int length)
         {
-            this.Position = 0;
-            return this.ReadBytes((int)this.Size);
+            return new ByteBuffer(this.ReadBytes(index, length));
         }
 
-        #region read
-        public byte ReadByte()
+        /// <summary>
+        /// Reads all Bytes
+        /// </summary>
+        public ByteBuffer ReadByteBuffer()
         {
-            return this.binaryReader.ReadByte();
+            return new ByteBuffer(this.ReadBytes());
+        }
+
+        public ByteBuffer ReadByteBuffer(int length)
+        {
+            return new ByteBuffer(this.ReadBytes(length));
+        }
+
+        public byte[] ReadBytes(int index, int length)
+        {
+            this.Position = index;
+            return this.binaryReader.ReadBytes(length);
+        }
+
+        /// <summary>
+        /// Reads all Bytes
+        /// </summary>
+        public byte[] ReadBytes()
+        {
+            return this.ReadBytes(0, (int)this.Size);
         }
 
         public byte[] ReadBytes(int length)
         {
             return this.binaryReader.ReadBytes(length);
+        }
+
+        public byte ReadByte()
+        {
+            return this.binaryReader.ReadByte();
         }
 
         public int ReadInt16()
@@ -168,6 +180,9 @@ namespace Arrowgene.Services.Common
             this.binaryWriter.Write(b);
         }
 
+        /// <summary>
+        /// Appends all Bytes from buffer
+        /// </summary>
         public void WriteBuffer(ByteBuffer buffer)
         {
             this.WriteBytes(buffer.ReadBytes());

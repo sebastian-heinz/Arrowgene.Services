@@ -163,8 +163,9 @@ namespace Arrowgene.Services.Network.UDP
                     int read = this.socket.ReceiveFrom(this.buffer, 0, this.buffer.Length, SocketFlags.None, ref senderRemote);
 
                     IPEndPoint remoteIPEndPoint = (IPEndPoint)senderRemote;
-                    byte[] received = ByteBuffer.BlockCopy(this.buffer, read);
-                    this.OnReceivedUDPPacket(read, received, remoteIPEndPoint);
+
+                    ByteBuffer received = new ByteBuffer(this.buffer, 0, read);
+                    this.OnReceivedUDPPacket(read, received.ReadBytes(), remoteIPEndPoint);
                 }
             }
         }

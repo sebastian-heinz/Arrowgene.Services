@@ -59,7 +59,7 @@
         }
 
         private void Logger_LogWrite_Server(object sender, Logging.LogWriteEventArgs e)
-            {
+        {
             Console.WriteLine(string.Format("Server Log: {0}", e.Log.Text));
         }
 

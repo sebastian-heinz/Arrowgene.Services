@@ -36,21 +36,6 @@ namespace Arrowgene.Services.Common
             }
         }
 
-        public static void TryCreateDirectory(string path)
-        {
-            try
-            {
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("Application::TryCreateDirectory:" + ex.ToString());
-            }
-        }
-
         public static string Version
         {
             get

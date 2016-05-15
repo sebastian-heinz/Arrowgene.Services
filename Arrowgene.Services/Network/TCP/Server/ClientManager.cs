@@ -31,7 +31,6 @@ namespace Arrowgene.Services.Network.TCP.Server
         private Thread[] clientManager;
         private object myLock;
         private bool isRunning;
-        private Dictionary<int, ClientSocket> clientTable;
         private List<int> idPool;
 
         internal ClientManager(TCPServer server)
@@ -40,7 +39,6 @@ namespace Arrowgene.Services.Network.TCP.Server
             this.myLock = new object();
             this.isRunning = false;
             this.clients = new List<ClientSocket>();
-            this.clientTable = new Dictionary<int, ClientSocket>();
             this.MaxClientCount = 2000;
             this.RecreateIdPool();
         }
@@ -143,8 +141,11 @@ namespace Arrowgene.Services.Network.TCP.Server
 
             if (this.idPool.Count > 0)
             {
-                id = this.idPool[0];
-                this.idPool.RemoveAt(0);
+                lock (this.myLock)
+                {
+                    id = this.idPool[0];
+                    this.idPool.RemoveAt(0);
+                }
             }
             else
             {
@@ -166,11 +167,10 @@ namespace Arrowgene.Services.Network.TCP.Server
             int id = this.GetClientId();
             if (id >= 0)
             {
-                ClientSocket clientSocket = new ClientSocket(this.GetClientId(), socket, this.server.Logger);
+                ClientSocket clientSocket = new ClientSocket(id, socket, this.server.Logger);
                 lock (this.myLock)
                 {
                     this.clients.Add(clientSocket);
-                    this.clientTable.Add(clientSocket.Id, clientSocket);
                 }
 
                 this.server.Logger.Write("Client connected: {0}", clientSocket.Id.ToString(), LogType.CLIENT);
@@ -204,25 +204,30 @@ namespace Arrowgene.Services.Network.TCP.Server
                     {
                         if (!clients[i].IsBusy)
                         {
-                            clients[i].IsBusy = true;
-
-                            if (clients[i].Socket.Connected && clients[i].Socket.Poll(this.server.PollTimeout, SelectMode.SelectRead) || !clients[i].IsAlive)
+                            if (clients[i].Socket.Poll(this.server.PollTimeout, SelectMode.SelectRead)
+                                || !clients[i].IsAlive
+                                || !clients[i].Socket.Connected)
                             {
+                                clients[i].IsBusy = true;
                                 readyclients.Add(clients[i]);
-                            }
-                            else
-                            {
-                                clients[i].IsBusy = false;
                             }
                         }
                     }
                 }
+
 
                 while (readyclients.Count > 0)
                 {
                     if (!readyclients[0].IsAlive)
                     {
                         DisposeClient(readyclients[0], "Disconnected by server");
+                        readyclients.RemoveAt(0);
+                        continue;
+                    }
+
+                    if (!readyclients[0].Socket.Connected)
+                    {
+                        DisposeClient(readyclients[0], "Client Disconnected");
                         readyclients.RemoveAt(0);
                         continue;
                     }
@@ -257,6 +262,13 @@ namespace Arrowgene.Services.Network.TCP.Server
                         continue;
                     }
 
+                    if (payload.Size <= 0)
+                    {
+                        DisposeClient(readyclients[0], "packet Length zero");
+                        readyclients.RemoveAt(0);
+                        continue;
+                    }
+
                     payload.ResetPosition();
                     this.server.OnReceivedPacket(readyclients[0], payload);
 
@@ -267,8 +279,6 @@ namespace Arrowgene.Services.Network.TCP.Server
                 Thread.Sleep(this.server.ReadTimeout);
             }
         }
-
-
 
     }
 }

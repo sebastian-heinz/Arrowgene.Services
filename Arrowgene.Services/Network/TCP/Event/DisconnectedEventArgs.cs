@@ -26,6 +26,6 @@ namespace Arrowgene.Services.Network.TCP.Event
             this.ClientSocket = clientSocket;
         }
 
-        public ClientSocket ClientSocket { get; set; }
+        public ClientSocket ClientSocket { get; private set; }
     }
 }
