@@ -1,120 +1,13 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{8BE22FD5-6D33-4A1F-A308-99BE60D05FF9}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Arrowgene.Services</RootNamespace>
-    <AssemblyName>Arrowgene.Services</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Title>Arrowgene.Services</Title>
+    <Company>Arrowgene</Company>
+    <Description></Description>
+    <Configuration></Configuration>
+    <Product>Services</Product>
+    <Version>1.0.0.0</Version>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Copyright>Copyright © 2017 Arrowgene</Copyright>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\Output\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-    <DocumentationFile>..\Output\Arrowgene.Services.xml</DocumentationFile>
-    <RegisterForComInterop>false</RegisterForComInterop>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\Output\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-    <DocumentationFile>..\Output\Release\Arrowgene.Services.xml</DocumentationFile>
-    <RegisterForComInterop>false</RegisterForComInterop>
-  </PropertyGroup>
-  <PropertyGroup />
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
-  <PropertyGroup />
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>arrowgene.services.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-  <PropertyGroup>
-    <DelaySign>false</DelaySign>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Common\Application.cs" />
-    <Compile Include="Common\Conversion.cs" />
-    <Compile Include="Common\OS.cs" />
-    <Compile Include="Common\Search.cs" />
-    <Compile Include="Logging\LogType.cs" />
-    <Compile Include="Network\Http\Tunnel\HttpTunnelClient.cs" />
-    <Compile Include="Network\Http\Tunnel\HttpTunnelServer.cs" />
-    <Compile Include="Network\Proxy\ProxyBase.cs" />
-    <Compile Include="Network\Proxy\ProxyClient.cs" />
-    <Compile Include="Network\Proxy\ProxyConfig.cs" />
-    <Compile Include="Network\Proxy\ProxyPacket.cs" />
-    <Compile Include="Network\Proxy\ProxyServer.cs" />
-    <Compile Include="Network\Proxy\ReceivedProxyPacketEventArgs.cs" />
-    <Compile Include="Network\TCP\Client\ClientReceivedPacketEventArgs.cs" />
-    <Compile Include="Network\TCP\Client\TCPClient.cs" />
-    <Compile Include="Network\TCP\Managed\ClientReceivedManagedPacketEventArgs.cs" />
-    <Compile Include="Network\TCP\Managed\ManagedClientSocket.cs" />
-    <Compile Include="Network\TCP\Managed\ServerReceivedManagedPacketEventArgs.cs" />
-    <Compile Include="Network\TCP\Managed\ManagedClient.cs" />
-    <Compile Include="Network\TCP\Server\ServerReceivedPacketEventArgs.cs" />
-    <Compile Include="Network\TCP\Managed\ManagedServer.cs" />
-    <Compile Include="Network\TCP\Managed\ManagedPacket.cs" />
-    <Compile Include="Network\TCP\Managed\PacketManager.cs" />
-    <Compile Include="Network\TCP\Client\ClientSocket.cs" />
-    <Compile Include="Network\UDP\UDPSocket.cs" />
-    <Compile Include="Common\IP.cs" />
-    <Compile Include="Network\TCP\Event\ConnectedEventArgs.cs" />
-    <Compile Include="Network\TCP\Event\DisconnectedEventArgs.cs" />
-    <Compile Include="Network\TCP\Managed\Serialization\BinaryFormatterSerializer.cs" />
-    <Compile Include="Network\TCP\Managed\Serialization\ISerializer.cs" />
-    <Compile Include="Network\TCP\Server\ClientManager.cs" />
-    <Compile Include="Network\TCP\Server\TCPServer.cs" />
-    <Compile Include="Network\PortScan\PortScannerResult.cs" />
-    <Compile Include="Network\PortScan\PortScanner.cs" />
-    <Compile Include="Network\PortScan\PortScannerCompletedEventArgs.cs" />
-    <Compile Include="Network\UDP\ReceivedUDPPacketEventArgs.cs" />
-    <Compile Include="Network\Http\Server\HttpHandler.cs" />
-    <Compile Include="Network\Http\Server\HttpStaticFileServer.cs" />
-    <Compile Include="Exceptions\InvalidParameterException.cs" />
-    <Compile Include="Logging\LogWriteEventArgs.cs" />
-    <Compile Include="Network\TCP\Server\ClientList.cs" />
-    <Compile Include="Logging\Log.cs" />
-    <Compile Include="Logging\Logger.cs" />
-    <Compile Include="Network\Http\Server\HttpServer.cs" />
-    <Compile Include="Network\Http\Client\HttpRequest.cs" />
-    <Compile Include="Network\Http\Client\AsyncHttpResponseEventArgs.cs" />
-    <Compile Include="Network\Http\Server\HttpHandleEventArgs.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Common\ByteBuffer.cs" />
-    <Compile Include="Common\IniFile.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Arrowgene.Services.licenseheader" />
-    <None Include="arrowgene.services.snk" />
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
