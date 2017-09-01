@@ -16,19 +16,16 @@
  */
 namespace Arrowgene.Services.Network.TCP.Managed
 {
+    using Client;
     using System;
 
-    public class ServerReceivedManagedPacketEventArgs : EventArgs
+    public class ManagedClientConnectedEventArgs : EventArgs
     {
-        public ServerReceivedManagedPacketEventArgs(int packetId, ManagedClientSocket managedClientSocket, ManagedPacket packet)
+        public ManagedClientConnectedEventArgs(ManagedClient managedClient)
         {
-            this.ManagedClientSocket = managedClientSocket;
-            this.PacketId = packetId;
-            this.Packet = packet;
+            this.ManagedClient = managedClient;
         }
 
-        public ManagedClientSocket ManagedClientSocket { get; private set; }
-        public int PacketId { get; private set; }
-        public ManagedPacket Packet { get; private set; }
+        public ManagedClient ManagedClient { get; private set; }
     }
 }

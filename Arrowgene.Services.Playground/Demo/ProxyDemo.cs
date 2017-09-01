@@ -30,12 +30,12 @@
             IPAddress serverListenIp = IPAddress.Parse("127.0.0.1");
             int serverListenPort = 2349;
             server = new TCPServer(serverListenIp, serverListenPort);
-            server.ServerReceivedPacket += Server_ServerReceivedPacket;
+            server.ReceivedPacket += Server_ServerReceivedPacket;
 
             IPAddress proxyIp = IPAddress.Parse("192.168.178.20");
             int proxyPort = 2345;
             client = new TCPClient();
-            client.ClientReceivedPacket += Client_ClientReceivedPacket;
+            client.ReceivedPacket += Client_ClientReceivedPacket;
 
             ProxyConfig proxyConfig = new ProxyConfig(proxyIp, proxyPort, serverListenIp, serverListenPort);
             proxyServer = new ProxyServer(proxyConfig);
@@ -72,7 +72,7 @@
             Console.WriteLine("ProxyDemo::Client_ReceivedPacket: " + e.Payload.Size.ToString());
         }
 
-        private void Server_ServerReceivedPacket(object sender, ServerReceivedPacketEventArgs e)
+        private void Server_ServerReceivedPacket(object sender, ReceivedPacketEventArgs e)
         {
             Console.WriteLine("ProxyDemo::Server_ReceivedPacket: " + e.Payload.Size.ToString());
             e.ClientSocket.Send(new byte[10]);

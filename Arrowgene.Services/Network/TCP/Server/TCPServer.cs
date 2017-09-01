@@ -16,7 +16,7 @@
  */
 namespace Arrowgene.Services.Network.TCP.Server
 {
-    using Arrowgene.Services.Network.TCP.Event;
+
     using Client;
     using Common;
     using Exceptions;
@@ -134,7 +134,7 @@ namespace Arrowgene.Services.Network.TCP.Server
         /// <summary>
         /// Occures when a packet is received.
         /// </summary>
-        public event EventHandler<ServerReceivedPacketEventArgs> ServerReceivedPacket;
+        public event EventHandler<ReceivedPacketEventArgs> ReceivedPacket;
 
         /// <summary>
         /// Start accepting connections,
@@ -277,15 +277,15 @@ namespace Arrowgene.Services.Network.TCP.Server
 
         internal virtual void OnReceivedPacket(ClientSocket clientSocket, ByteBuffer payload)
         {
-            EventHandler<ServerReceivedPacketEventArgs> serverReceivedPacket = this.ServerReceivedPacket;
-            if (serverReceivedPacket != null)
+            EventHandler<ReceivedPacketEventArgs> receivedPacket = this.ReceivedPacket;
+            if (receivedPacket != null)
             {
-                ServerReceivedPacketEventArgs serverReceivedPacketEventArgs = new ServerReceivedPacketEventArgs(clientSocket, payload);
-                serverReceivedPacket(this, serverReceivedPacketEventArgs);
+                ReceivedPacketEventArgs receivedPacketEventArgs = new ReceivedPacketEventArgs(clientSocket, payload);
+                receivedPacket(this, receivedPacketEventArgs);
             }
         }
 
-        internal void OnClientDisconnected(ClientSocket clientSocket)
+        internal virtual void OnClientDisconnected(ClientSocket clientSocket)
         {
             EventHandler<DisconnectedEventArgs> clientDisconnected = this.ClientDisconnected;
             if (clientDisconnected != null)
@@ -295,7 +295,7 @@ namespace Arrowgene.Services.Network.TCP.Server
             }
         }
 
-        internal void OnClientConnected(ClientSocket clientSocket)
+        internal virtual void OnClientConnected(ClientSocket clientSocket)
         {
             EventHandler<ConnectedEventArgs> clientConnected = this.ClientConnected;
             if (clientConnected != null)

@@ -1,10 +1,10 @@
 ﻿namespace Arrowgene.Services.Network.TCP.Client
 {
     using Common;
-    using Event;
     using Exceptions;
     using Logging;
     using System;
+    using Server;
     using System.Net;
     using System.Net.Sockets;
     using System.Threading;
@@ -65,7 +65,7 @@
         /// <summary>
         /// Occures when a packet is received.
         /// </summary>
-        public event EventHandler<ClientReceivedPacketEventArgs> ClientReceivedPacket;
+        public event EventHandler<ClientReceivedPacketEventArgs> ReceivedPacket;
 
         public void Connect(IPAddress serverIPAddress, int serverPort)
         {
@@ -215,15 +215,15 @@
 
         internal virtual void OnClientReceivedPacket(ClientSocket clientSocket, ByteBuffer payload)
         {
-            EventHandler<ClientReceivedPacketEventArgs> clientReceivedPacket = this.ClientReceivedPacket;
-            if (clientReceivedPacket != null)
+            EventHandler<ClientReceivedPacketEventArgs> receivedPacket = this.ReceivedPacket;
+            if (receivedPacket != null)
             {
                 ClientReceivedPacketEventArgs clientReceivedPacketEventArgs = new ClientReceivedPacketEventArgs(this, payload);
-                clientReceivedPacket(this, clientReceivedPacketEventArgs);
+                receivedPacket(this, clientReceivedPacketEventArgs);
             }
         }
 
-        internal void OnDisconnected()
+        internal virtual void OnDisconnected()
         {
             EventHandler<DisconnectedEventArgs> clientDisconnected = this.Disconnected;
             if (clientDisconnected != null)
@@ -233,7 +233,7 @@
             }
         }
 
-        internal void OnConnected()
+        internal virtual void OnConnected()
         {
             EventHandler<ConnectedEventArgs> clientConnected = this.Connected;
             if (clientConnected != null)

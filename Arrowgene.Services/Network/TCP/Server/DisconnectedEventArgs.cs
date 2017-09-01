@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network.TCP.Event
+namespace Arrowgene.Services.Network.TCP.Server
 {
     using Client;
     using System;

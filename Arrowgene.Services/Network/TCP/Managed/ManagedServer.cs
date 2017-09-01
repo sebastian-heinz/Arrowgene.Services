@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
- namespace Arrowgene.Services.Network.TCP.Managed
+namespace Arrowgene.Services.Network.TCP.Managed
 {
     using Arrowgene.Services.Network.TCP.Server;
     using Client;
@@ -51,13 +51,77 @@
         /// <summary>
         /// Occures when a packet is received.
         /// </summary>
-        public event EventHandler<ServerReceivedManagedPacketEventArgs> ServerReceivedManagedPacket;
+        public event EventHandler<ManagedReceivedPacketEventArgs> ManagedReceivedPacket;
 
+        /// <summary>
+        /// Occures when a client disconnected.
+        /// </summary>
+        public event EventHandler<ManagedDisconnectedEventArgs> ManagedDisconnected;
+
+        /// <summary>
+        /// Occures when a client connected.
+        /// </summary>
+        public event EventHandler<ManagedConnectedEventArgs> ManagedConnected;
+
+        internal override void OnClientDisconnected(ClientSocket clientSocket)
+        {
+            base.OnClientDisconnected(clientSocket);
+
+            ManagedClientSocket managedClientSocket = this.GetManagedClientSocket(clientSocket);
+            OnManagedDisconnected(managedClientSocket);
+        }
+
+        internal override void OnClientConnected(ClientSocket clientSocket)
+        {
+            base.OnClientConnected(clientSocket);
+
+            ManagedClientSocket managedClientSocket = this.GetManagedClientSocket(clientSocket);
+            OnManagedConnected(managedClientSocket);
+        }
 
         internal override void OnReceivedPacket(ClientSocket clientSocket, ByteBuffer payload)
         {
-            this.Read(clientSocket, payload);
             base.OnReceivedPacket(clientSocket, payload);
+
+            ManagedClientSocket managedClientSocket = this.GetManagedClientSocket(clientSocket);
+            ByteBuffer buffer = managedClientSocket.Buffer;
+            buffer.WriteBuffer(payload);
+            buffer.ResetPosition();
+            ManagedPacket packet = this.packetManager.Handle(clientSocket, buffer);
+            if (packet != null)
+            {
+                this.OnManagedReceivedPacket(packet.Id, packet, managedClientSocket);
+            }
+        }
+
+        private void OnManagedReceivedPacket(int packetId, ManagedPacket packet, ManagedClientSocket managedClientSocket)
+        {
+            EventHandler<ManagedReceivedPacketEventArgs> managedReceivedPacket = this.ManagedReceivedPacket;
+            if (managedReceivedPacket != null)
+            {
+                ManagedReceivedPacketEventArgs managedReceivedPacketEventArgs = new ManagedReceivedPacketEventArgs(packetId, managedClientSocket, packet);
+                managedReceivedPacket(this, managedReceivedPacketEventArgs);
+            }
+        }
+
+        private void OnManagedDisconnected(ManagedClientSocket managedClientSocket)
+        {
+            EventHandler<ManagedDisconnectedEventArgs> managedDisconnected = this.ManagedDisconnected;
+            if (managedDisconnected != null)
+            {
+                ManagedDisconnectedEventArgs managedDisconnectedEventArgs = new ManagedDisconnectedEventArgs(managedClientSocket);
+                managedDisconnected(this, managedDisconnectedEventArgs);
+            }
+        }
+
+        private void OnManagedConnected(ManagedClientSocket managedClientSocket)
+        {
+            EventHandler<ManagedConnectedEventArgs> managedConnected = this.ManagedConnected;
+            if (managedConnected != null)
+            {
+                ManagedConnectedEventArgs managedConnectedEventArgs = new ManagedConnectedEventArgs(managedClientSocket);
+                managedConnected(this, managedConnectedEventArgs);
+            }
         }
 
         private ManagedClientSocket GetManagedClientSocket(ClientSocket clientSocket)
@@ -73,32 +137,6 @@
                 this.managedClients.Add(clientSocket.Id, managedClientSocket);
             }
             return managedClientSocket;
-        }
-
-
-        private void Read(ClientSocket clientSocket, ByteBuffer payload)
-        {
-            ManagedClientSocket managedClientSocket = this.GetManagedClientSocket(clientSocket);
-
-            ByteBuffer buffer = managedClientSocket.Buffer;
-            buffer.WriteBuffer(payload);
-            buffer.ResetPosition();
-
-            ManagedPacket packet = this.packetManager.Handle(clientSocket, buffer);
-            if (packet != null)
-            {
-                this.OnServerReceivedManagedPacketEventArgs(packet.Id, packet, managedClientSocket);
-            }
-        }
-
-        private void OnServerReceivedManagedPacketEventArgs(int packetId, ManagedPacket packet, ManagedClientSocket managedClientSocket)
-        {
-            EventHandler<ServerReceivedManagedPacketEventArgs> serverReceivedManagedPacket = this.ServerReceivedManagedPacket;
-            if (serverReceivedManagedPacket != null)
-            {
-                ServerReceivedManagedPacketEventArgs serverReceivedManagedPacketEventArgs = new ServerReceivedManagedPacketEventArgs(packetId, managedClientSocket, packet);
-                serverReceivedManagedPacket(this, serverReceivedManagedPacketEventArgs);
-            }
         }
 
     }

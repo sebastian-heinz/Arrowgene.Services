@@ -5,12 +5,12 @@
     using Logging;
     using Serialization;
 
-    public class ManagedClientSocket 
+    public class ManagedClientSocket
     {
         private ISerializer serializer;
         private ClientSocket clientSocket;
         private Logger logger;
-       
+
         public ManagedClientSocket(ClientSocket clientSocket, Logger logger, ISerializer serializer)
         {
             this.clientSocket = clientSocket;
@@ -19,8 +19,15 @@
             this.Buffer = new ByteBuffer();
         }
 
-        internal ByteBuffer Buffer { get; private set; }
+        public int Id
+        {
+            get
+            {
+                return this.clientSocket.Id;
+            }
+        }
 
+        internal ByteBuffer Buffer { get; private set; }
 
         public void Send(int packetId, object myClass)
         {

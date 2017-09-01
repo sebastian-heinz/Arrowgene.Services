@@ -24,11 +24,9 @@ namespace Arrowgene.Services.Network.TCP.Managed
 
     public class ManagedClient : TCPClient
     {
-
         private PacketManager packetManager;
         private ISerializer serializer;
         private ByteBuffer buffer;
-
 
         public ManagedClient(ISerializer serializer, Logger logger) : base(logger)
         {
@@ -42,7 +40,17 @@ namespace Arrowgene.Services.Network.TCP.Managed
 
         }
 
-        public event EventHandler<ClientReceivedManagedPacketEventArgs> ClientReceivedManagedPacket;
+        public event EventHandler<ManagedClientReceivedPacketEventArgs> ManagedReceivedPacket;
+
+        /// <summary>
+        /// Occures when a client disconnected.
+        /// </summary>
+        public event EventHandler<ManagedClientDisconnectedEventArgs> ManagedDisconnected;
+
+        /// <summary>
+        /// Occures when a client connected.
+        /// </summary>
+        public event EventHandler<ManagedClientConnectedEventArgs> ManagedConnected;
 
         public void Send(int packetId, object myClass)
         {
@@ -59,15 +67,10 @@ namespace Arrowgene.Services.Network.TCP.Managed
 
         internal override void OnClientReceivedPacket(ClientSocket clientSocket, ByteBuffer payload)
         {
-            this.Read(clientSocket, payload);
             base.OnClientReceivedPacket(clientSocket, payload);
-        }
 
-        private void Read(ClientSocket clientSocket, ByteBuffer payload)
-        {
             this.buffer.WriteBuffer(payload);
             this.buffer.ResetPosition();
-
             ManagedPacket packet = this.packetManager.Handle(clientSocket, buffer);
             if (packet != null)
             {
@@ -75,13 +78,45 @@ namespace Arrowgene.Services.Network.TCP.Managed
             }
         }
 
+        internal override void OnDisconnected()
+        {
+            base.OnDisconnected();
+            OnManagedDisconnected();
+        }
+
+        internal override void OnConnected()
+        {
+            base.OnConnected();
+            OnManagedConnected();
+        }
+
         private void OnReceivedManagedPacket(int packetId, ManagedPacket packet)
         {
-            EventHandler<ClientReceivedManagedPacketEventArgs> clientReceivedManagedPacket = this.ClientReceivedManagedPacket;
-            if (clientReceivedManagedPacket != null)
+            EventHandler<ManagedClientReceivedPacketEventArgs> managedReceivedPacket = this.ManagedReceivedPacket;
+            if (managedReceivedPacket != null)
             {
-                ClientReceivedManagedPacketEventArgs clientReceivedManagedPacketEventArgs = new ClientReceivedManagedPacketEventArgs(packetId, this, packet);
-                clientReceivedManagedPacket(this, clientReceivedManagedPacketEventArgs);
+                ManagedClientReceivedPacketEventArgs managedClientReceivedPacketEventArgs = new ManagedClientReceivedPacketEventArgs(packetId, this, packet);
+                managedReceivedPacket(this, managedClientReceivedPacketEventArgs);
+            }
+        }
+
+        private void OnManagedDisconnected()
+        {
+            EventHandler<ManagedClientDisconnectedEventArgs> managedDisconnected = this.ManagedDisconnected;
+            if (managedDisconnected != null)
+            {
+                ManagedClientDisconnectedEventArgs managedClientDisconnectedEventArgs = new ManagedClientDisconnectedEventArgs(this);
+                managedDisconnected(this, managedClientDisconnectedEventArgs);
+            }
+        }
+
+        private void OnManagedConnected()
+        {
+            EventHandler<ManagedClientConnectedEventArgs> managedConnected = this.ManagedConnected;
+            if (managedConnected != null)
+            {
+                ManagedClientConnectedEventArgs managedClientConnectedEventArgs = new ManagedClientConnectedEventArgs(this);
+                managedConnected(this, managedClientConnectedEventArgs);
             }
         }
     }

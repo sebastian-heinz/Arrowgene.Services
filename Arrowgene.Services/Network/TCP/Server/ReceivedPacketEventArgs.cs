@@ -14,21 +14,22 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network.TCP.Managed
+namespace Arrowgene.Services.Network.TCP.Server
 {
+    using Common;
+    using Client;
     using System;
 
-    public class ClientReceivedManagedPacketEventArgs : EventArgs
+    public class ReceivedPacketEventArgs : EventArgs
     {
-        public ClientReceivedManagedPacketEventArgs(int packetId, ManagedClient managedClient, ManagedPacket packet)
+        public ReceivedPacketEventArgs(ClientSocket clientSocket, ByteBuffer payload)
         {
-            this.ManagedClient = managedClient;
-            this.PacketId = packetId;
-            this.Packet = packet;
+            this.ClientSocket = clientSocket;
+            this.Payload = payload;
         }
 
-        public ManagedClient ManagedClient { get; private set; }
-        public int PacketId { get; private set; }
-        public ManagedPacket Packet { get; private set; }
+        public ClientSocket ClientSocket { get; private set; }
+
+        public ByteBuffer Payload { get; private set; }
     }
 }
