@@ -31,7 +31,7 @@
 
         public void Send(int packetId, object myClass)
         {
-            byte[] serialized = this.serializer.Serialize(myClass, this.logger);
+            byte[] serialized = this.serializer.Serialize(packetId, myClass, this.logger);
             if (serialized != null)
             {
                 ByteBuffer packet = new ByteBuffer();

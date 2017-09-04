@@ -26,7 +26,7 @@ namespace Arrowgene.Services.Network.TCP.Managed.Serialization
     public class BinaryFormatterSerializer : ISerializer
     {
 
-        public byte[] Serialize(object myClass, Logger logger)
+        public byte[] Serialize(int packetId, object myClass, Logger logger)
         {
             byte[] serialized = null;
             try
