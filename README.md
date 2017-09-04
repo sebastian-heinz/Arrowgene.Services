@@ -10,9 +10,6 @@ https://www.nuget.org/packages/Arrowgene.Services/
 CLI Tools
 https://docs.microsoft.com/en-us/dotnet/core/tools/?tabs=netcore2x
 
-`dotnet`
-
 Build Project:
+`dotnet restore`
 `dotnet build`
-
-`dotnet build  Arrowgene.Services --output /Users/heinz/def/spirits-tcg/Assets/Scripts`

@@ -67,7 +67,22 @@
         /// </summary>
         public event EventHandler<ClientReceivedPacketEventArgs> ReceivedPacket;
 
+        public void Connect(String serverIPAddress, int serverPort)
+        {
+            this.Connect(IPAddress.Parse(serverIPAddress), serverPort, TimeSpan.Zero);
+        }
+
+        public void Connect(String serverIPAddress, int serverPort, TimeSpan timeout)
+        {
+            this.Connect(IPAddress.Parse(serverIPAddress), serverPort, timeout);
+        }
+
         public void Connect(IPAddress serverIPAddress, int serverPort)
+        {
+            this.Connect(serverIPAddress, serverPort, TimeSpan.Zero);
+        }
+
+        public void Connect(IPAddress serverIPAddress, int serverPort, TimeSpan timeout)
         {
             if (!this.IsConnected)
             {
@@ -80,20 +95,28 @@
                 try
                 {
                     Socket socket = this.CreateSocket();
-
                     if (socket != null)
                     {
-                        this.clientSocket = new ClientSocket(0, socket, this.Logger);
-                        this.clientSocket.Socket.Connect(this.ServerIPAddress, this.ServerPort);
-
-                        this.readThread = new Thread(ReadProcess);
-                        this.readThread.Name = Name;
-                        this.readThread.Start();
-
-                        this.IsConnected = true;
-
-                        this.Logger.Write("Client connected", LogType.CLIENT);
-                        this.OnConnected();
+                        if (timeout != TimeSpan.Zero)
+                        {
+                            IAsyncResult result = socket.BeginConnect(serverIPAddress, serverPort, null, null);
+                            bool success = result.AsyncWaitHandle.WaitOne(timeout, true);
+                            if (socket.Connected && success)
+                            {
+                                socket.EndConnect(result);
+                                ConnectionEstablished(socket);
+                            }
+                            else
+                            {
+                                this.Logger.Write("Client connection timed out", LogType.SERVER);
+                                socket.Close();
+                            }
+                        }
+                        else
+                        {
+                            socket.Connect(this.ServerIPAddress, this.ServerPort);
+                            ConnectionEstablished(socket);
+                        }
                     }
                     else
                     {
@@ -110,6 +133,7 @@
                 this.Logger.Write("Client is already connected.", LogType.SERVER);
             }
         }
+
 
         public void Disconnect()
         {
@@ -166,6 +190,20 @@
             }
 
             return socket;
+        }
+
+        private void ConnectionEstablished(Socket socket)
+        {
+            this.clientSocket = new ClientSocket(0, socket, this.Logger);
+
+            this.readThread = new Thread(ReadProcess);
+            this.readThread.Name = Name;
+            this.readThread.Start();
+
+            this.IsConnected = true;
+
+            this.Logger.Write("Client connected", LogType.CLIENT);
+            this.OnConnected();
         }
 
         private void ReadProcess()

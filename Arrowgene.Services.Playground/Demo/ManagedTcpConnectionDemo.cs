@@ -22,7 +22,7 @@
             cli.ManagedConnected += Cli_ManagedConnected;
             cli.ManagedDisconnected += Cli_ManagedDisconnected;
             cli.ManagedReceivedPacket += Cli_ManagedReceivedPacket;
-            cli.Connect(IPAddress.Parse("192.168.178.20"), 2345);
+            cli.Connect("192.168.178.20", 2345);
 
             Console.WriteLine("Press any key to send.");
             Console.ReadKey();

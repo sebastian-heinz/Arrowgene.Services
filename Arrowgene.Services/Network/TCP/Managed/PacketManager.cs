@@ -51,7 +51,7 @@ namespace Arrowgene.Services.Network.TCP.Managed
 
                 byte[] content = buffer.ReadBytes(contentSize);
 
-                object myClass = this.serializer.Deserialize(content, this.logger);
+                object myClass = this.serializer.Deserialize(packetId, content, this.logger);
                 if (myClass != null)
                 {
                     managedPacket = new ManagedPacket(packetId, myClass);
@@ -62,7 +62,6 @@ namespace Arrowgene.Services.Network.TCP.Managed
                 {
                     this.logger.Write("Could not handled packet: {0}", packetId, LogType.PACKET);
                 }
-
             }
             else
             {

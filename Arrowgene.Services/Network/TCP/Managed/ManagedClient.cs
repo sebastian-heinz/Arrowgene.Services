@@ -54,7 +54,7 @@ namespace Arrowgene.Services.Network.TCP.Managed
 
         public void Send(int packetId, object myClass)
         {
-            byte[] serialized = this.serializer.Serialize(myClass, base.Logger);
+            byte[] serialized = this.serializer.Serialize(packetId, myClass, base.Logger);
             if (serialized != null)
             {
                 ByteBuffer packet = new ByteBuffer();

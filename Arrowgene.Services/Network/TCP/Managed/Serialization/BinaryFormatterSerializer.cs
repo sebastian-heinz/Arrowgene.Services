@@ -50,7 +50,7 @@ namespace Arrowgene.Services.Network.TCP.Managed.Serialization
             return serialized;
         }
 
-        public object Deserialize(byte[] data, Logger logger)
+        public object Deserialize(int packetId, byte[] data, Logger logger)
         {
             object myClass = null;
             try

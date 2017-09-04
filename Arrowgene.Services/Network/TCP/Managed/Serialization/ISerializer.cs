@@ -20,8 +20,8 @@ namespace Arrowgene.Services.Network.TCP.Managed.Serialization
 
     public interface ISerializer
     {
-        byte[] Serialize(object myClass, Logger logger);
+        byte[] Serialize(int packetId, object myClass, Logger logger);
 
-        object Deserialize(byte[] data, Logger logger);
+        object Deserialize(int packetId, byte[] data, Logger logger);
     }
 }
