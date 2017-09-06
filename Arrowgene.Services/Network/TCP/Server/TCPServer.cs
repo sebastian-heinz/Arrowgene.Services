@@ -233,7 +233,14 @@ namespace Arrowgene.Services.Network.TCP.Server
             {
                 if (this.Socket.Connected)
                 {
-                    this.Socket.Shutdown(SocketShutdown.Both);
+                    try
+                    {
+                        this.Socket.Shutdown(SocketShutdown.Both);
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
                 }
 
                 this.clientManager.Stop();

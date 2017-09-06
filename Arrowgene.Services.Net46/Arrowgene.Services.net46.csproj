@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net46</TargetFramework>
+    <Title>Arrowgene.Services</Title>
+    <Company>Arrowgene</Company>
+    <Description></Description>
+    <Configuration></Configuration>
+    <Product>Services</Product>
+    <Version>1.0.0.0</Version>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Copyright>Copyright © 2017 Arrowgene</Copyright>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\Arrowgene.Services\**\*.cs" 	Exclude="..\Arrowgene.Services\bin\**\*.*;..\Arrowgene.Services\obj\**\*.*">
+    </Compile>
+  </ItemGroup>
+</Project>

@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arrowgene.Services", "Arrow
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arrowgene.Services.Playground", "Arrowgene.Services.Playground\Arrowgene.Services.Playground.csproj", "{A776E123-26B6-4444-88B7-3077911CB8EB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arrowgene.Services.Net46", "Arrowgene.Services.Net46\Arrowgene.Services.Net46.csproj", "{779C1E04-045D-4591-8353-C9F65F849E89}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,5 +46,17 @@ Global
 		{A776E123-26B6-4444-88B7-3077911CB8EB}.Release|x64.Build.0 = Release|x64
 		{A776E123-26B6-4444-88B7-3077911CB8EB}.Release|x86.ActiveCfg = Release|x86
 		{A776E123-26B6-4444-88B7-3077911CB8EB}.Release|x86.Build.0 = Release|x86
+		{779C1E04-045D-4591-8353-C9F65F849E89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{779C1E04-045D-4591-8353-C9F65F849E89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{779C1E04-045D-4591-8353-C9F65F849E89}.Debug|x64.ActiveCfg = Debug|x64
+		{779C1E04-045D-4591-8353-C9F65F849E89}.Debug|x64.Build.0 = Debug|x64
+		{779C1E04-045D-4591-8353-C9F65F849E89}.Debug|x86.ActiveCfg = Debug|x86
+		{779C1E04-045D-4591-8353-C9F65F849E89}.Debug|x86.Build.0 = Debug|x86
+		{779C1E04-045D-4591-8353-C9F65F849E89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{779C1E04-045D-4591-8353-C9F65F849E89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{779C1E04-045D-4591-8353-C9F65F849E89}.Release|x64.ActiveCfg = Release|x64
+		{779C1E04-045D-4591-8353-C9F65F849E89}.Release|x64.Build.0 = Release|x64
+		{779C1E04-045D-4591-8353-C9F65F849E89}.Release|x86.ActiveCfg = Release|x86
+		{779C1E04-045D-4591-8353-C9F65F849E89}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 EndGlobal

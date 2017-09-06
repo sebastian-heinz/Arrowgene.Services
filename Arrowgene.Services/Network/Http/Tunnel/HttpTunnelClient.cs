@@ -160,7 +160,17 @@ namespace Arrowgene.Services.Network.Http.Tunnel
                 }
                 else
                 {
-                    localApplicationSocket.Shutdown(SocketShutdown.Both);
+                    if (localApplicationSocket.Connected)
+                    {
+                        try
+                        {
+                            localApplicationSocket.Shutdown(SocketShutdown.Both);
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                    }
                     localApplicationSocket.Close();
 
                     this.Write(string.Format("TunnelServer couldnt establish connection with the destination, got following response: {0}", connectionInitResponse));
@@ -170,7 +180,7 @@ namespace Arrowgene.Services.Network.Http.Tunnel
 
         private void Write(string msg)
         {
-            if(this.logger != null)
+            if (this.logger != null)
             {
                 this.logger.Write(msg);
             }

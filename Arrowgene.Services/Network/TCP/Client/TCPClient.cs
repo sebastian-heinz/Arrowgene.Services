@@ -67,6 +67,11 @@
         /// </summary>
         public event EventHandler<ClientReceivedPacketEventArgs> ReceivedPacket;
 
+        /// <summary>
+        /// Occures when a client could't establish a connection.
+        /// </summary>
+        public event EventHandler<ConnectErrorEventArgs> ConnectError;
+
         public void Connect(String serverIPAddress, int serverPort)
         {
             this.Connect(IPAddress.Parse(serverIPAddress), serverPort, TimeSpan.Zero);
@@ -110,6 +115,7 @@
                             {
                                 this.Logger.Write("Client connection timed out", LogType.SERVER);
                                 socket.Close();
+                                this.OnConnectError("Client connection timed out", serverIPAddress, serverPort, timeout);
                             }
                         }
                         else
@@ -121,16 +127,19 @@
                     else
                     {
                         this.Logger.Write("Client could not connect.", LogType.SERVER);
+                        this.OnConnectError("Client could not connect.", serverIPAddress, serverPort, timeout);
                     }
                 }
                 catch (Exception exception)
                 {
                     this.Logger.Write(exception.Message, LogType.ERROR);
+                    this.OnConnectError(exception.Message, serverIPAddress, serverPort, timeout);
                 }
             }
             else
             {
                 this.Logger.Write("Client is already connected.", LogType.SERVER);
+                this.OnConnectError("Client is already connected.", serverIPAddress, serverPort, timeout);
             }
         }
 
@@ -281,6 +290,15 @@
             }
         }
 
+        internal virtual void OnConnectError(string reason, IPAddress serverIPAddress, int serverPort, TimeSpan timeout)
+        {
+            EventHandler<ConnectErrorEventArgs> connectError = this.ConnectError;
+            if (connectError != null)
+            {
+                ConnectErrorEventArgs connectErrorEventArgs = new ConnectErrorEventArgs(reason, serverIPAddress, serverPort, timeout);
+                connectError(this, connectErrorEventArgs);
+            }
+        }
 
     }
 }

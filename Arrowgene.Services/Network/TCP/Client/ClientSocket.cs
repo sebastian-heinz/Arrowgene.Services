@@ -21,12 +21,12 @@ namespace Arrowgene.Services.Network.TCP.Client
     using System.Collections.Generic;
     using System.Net;
     using System.Net.Sockets;
-
+    using System;
 
     public class ClientSocket
     {
         private Logger logger;
-    
+
         internal Socket Socket { get; private set; }
 
         public int Id { get; private set; }
@@ -73,7 +73,18 @@ namespace Arrowgene.Services.Network.TCP.Client
         public void Close()
         {
             this.IsAlive = false;
-            this.Socket.Shutdown(SocketShutdown.Both);
+            if (this.Socket.Connected)
+            {
+                try
+                {
+                    this.Socket.Shutdown(SocketShutdown.Both);
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+            this.Socket.Close();
         }
     }
 
