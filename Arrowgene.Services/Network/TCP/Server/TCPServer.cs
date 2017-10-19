@@ -29,6 +29,11 @@ namespace Arrowgene.Services.Network.TCP.Server
     public class TCPServer
     {
         private const string Name = "Managed Server";
+        
+        /// <summary>
+        /// Block endlessly
+        /// </summary>
+        private const int ServerPoll = -1;
 
         private Thread serverThread;
         private ClientManager clientManager;
@@ -59,7 +64,7 @@ namespace Arrowgene.Services.Network.TCP.Server
 
             this.ManagerCount = 5;
             this.Backlog = 10;
-            this.ReadTimeout = 20;
+            this.ReadTimeout = 300;
             this.PollTimeout = 10;
             this.BufferSize = 1024;
             this.IPv4v6AgnosticSocket = true;
@@ -214,7 +219,7 @@ namespace Arrowgene.Services.Network.TCP.Server
                     this.Logger.Write("Server online.", LogType.SERVER);
                     while (this.IsListening)
                     {
-                        if (this.Socket.Poll(this.PollTimeout, SelectMode.SelectRead))
+                        if (this.Socket.Poll(TCPServer.ServerPoll, SelectMode.SelectRead))
                         {
                             this.clientManager.AddClient(this.Socket.Accept());
                         }
