@@ -20,21 +20,13 @@ namespace Arrowgene.Services.Common.Buffers
     using System;
     using System.Text;
 
-    public class BBuffer : IBuffer
+    public class BBuffer : Buffer
     {
         private const int BUFFER_SIZE = 1024;
 
         private byte[] _buffer;
         private int _size;
         private int _currentPos;
-
-
-        public BBuffer(byte[] data)
-        {
-            _buffer = data;
-            _size = _buffer.Length;
-            _currentPos = 0;
-        }
 
         public BBuffer()
         {
@@ -49,56 +41,53 @@ namespace Arrowgene.Services.Common.Buffers
             _size = 0;
             _currentPos = 0;
         }
+        
+        public BBuffer(byte[] data)
+        {
+            _buffer = data;
+            _size = _buffer.Length;
+            _currentPos = 0;
+        }
 
-        public int Size
+        public override int Size
         {
             get { return _size; }
         }
 
-        public int Position
+        public override int Position
         {
             get { return _currentPos; }
             set { SetCurrentPos(value); }
         }
 
-        public void SetPositionStart()
+        public override void SetPositionStart()
         {
             SetCurrentPos(0);
         }
 
-        public void SetPositionEnd()
+        public override void SetPositionEnd()
         {
             SetCurrentPos(_size);
         }
 
-        public IBuffer Clone(int offset, int length)
+        public override IBuffer Clone(int offset, int length)
         {
             return new BBuffer(GetBytes(offset, length));
         }
 
-        public IBuffer Clone(int length)
-        {
-            return Clone(0, length);
-        }
-
-        public IBuffer Clone()
-        {
-            return Clone(_size);
-        }
-
-        public byte[] GetAllBytes()
+        public override byte[] GetAllBytes()
         {
             byte[] bytes = new byte[_size];
-            Buffer.BlockCopy(_buffer, 0, bytes, 0, _size);
+            System.Buffer.BlockCopy(_buffer, 0, bytes, 0, _size);
             return bytes;
         }
 
-        public byte[] GetAllBytes(int offset)
+        public override byte[] GetAllBytes(int offset)
         {
             return GetBytes(offset, _size - offset);
         }
 
-        public void WriteBytes(byte[] bytes)
+        public override void WriteBytes(byte[] bytes)
         {
             ExtendBufferIfNecessary(bytes.Length);
             foreach (byte b in bytes)
@@ -108,7 +97,7 @@ namespace Arrowgene.Services.Common.Buffers
             UpdateSizeForPosition(_currentPos);
         }
 
-        public void WriteBytes(byte[] bytes, int offset, int length)
+        public override void WriteBytes(byte[] bytes, int offset, int length)
         {
             ExtendBufferForOffsetIfNecessary(length, offset);
             for (int i = 0; i < length; i++)
@@ -118,33 +107,33 @@ namespace Arrowgene.Services.Common.Buffers
             UpdateSizeForPosition(_currentPos);
         }
 
-        public void WriteByte(byte value)
+        public override void WriteByte(byte value)
         {
             WriteBytes(new byte[] {value});
         }
 
-        public void WriteByte(int value)
+        public override void WriteByte(int value)
         {
             WriteByte((byte) value);
         }
 
-        public void WriteByte(long value)
+        public override void WriteByte(long value)
         {
             WriteByte((byte) value);
         }
 
-        public void WriteInt16(short value)
+        public override void WriteInt16(short value)
         {
             WriteByte(value & 0xff);
             WriteByte((value & 0xff00) >> 8);
         }
 
-        public void WriteInt16(int value)
+        public override void WriteInt16(int value)
         {
             WriteInt16((short) value);
         }
 
-        public void WriteInt32(int value)
+        public override void WriteInt32(int value)
         {
             WriteByte(value & 0xff);
             WriteByte((value & 0xff00) >> 8);
@@ -152,12 +141,12 @@ namespace Arrowgene.Services.Common.Buffers
             WriteByte((value & 0xff000000) >> 24);
         }
 
-        public void WriteFloat(float value)
+        public override void WriteFloat(float value)
         {
             throw new NotImplementedException();
         }
 
-        public void WriteString(string value)
+        public override void WriteString(string value)
         {
             foreach (char c in value)
             {
@@ -165,7 +154,7 @@ namespace Arrowgene.Services.Common.Buffers
             }
         }
 
-        public void WriteFixedString(string value, int length)
+        public override void WriteFixedString(string value, int length)
         {
             for (int i = 0; i < length; i++)
             {
@@ -178,30 +167,25 @@ namespace Arrowgene.Services.Common.Buffers
             }
         }
 
-        public void WriteBuffer(IBuffer value)
-        {
-            WriteBytes(value.GetAllBytes());
-        }
-
-        public void WriteCString(string value)
+        public override void WriteCString(string value)
         {
             WriteString(value);
             WriteByte(0);
         }
 
-        public byte ReadByte()
+        public override byte ReadByte()
         {
             byte b = GetByte(_currentPos);
             _currentPos++;
             return b;
         }
 
-        public byte GetByte(int offset)
+        public override byte GetByte(int offset)
         {
             return _buffer[offset];
         }
 
-        public byte[] ReadBytes(int length)
+        public override byte[] ReadBytes(int length)
         {
             byte[] data = GetBytes(_currentPos, length);
             // Advance to skip read bytes
@@ -209,7 +193,7 @@ namespace Arrowgene.Services.Common.Buffers
             return data;
         }
 
-        public byte[] GetBytes(int offset, int length)
+        public override byte[] GetBytes(int offset, int length)
         {
             byte[] data = new byte[length];
             for (int i = 0; i < length; i++)
@@ -219,14 +203,14 @@ namespace Arrowgene.Services.Common.Buffers
             return data;
         }
 
-        public short GetInt16(int offset)
+        public override short GetInt16(int offset)
         {
             short value = (short) (_buffer[offset++] & 0xff);
             value += (short) ((_buffer[offset] & 0xff) << 8);
             return value;
         }
 
-        public short ReadInt16()
+        public override short ReadInt16()
         {
             short value = GetInt16(_currentPos);
             // Advance to skip read bytes
@@ -234,7 +218,7 @@ namespace Arrowgene.Services.Common.Buffers
             return value;
         }
 
-        public int GetInt32(int offset)
+        public override int GetInt32(int offset)
         {
             int value = _buffer[offset++] & 0xff;
             value += (_buffer[offset++] & 0xff) << 8;
@@ -243,7 +227,7 @@ namespace Arrowgene.Services.Common.Buffers
             return value;
         }
 
-        public int ReadInt32()
+        public override int ReadInt32()
         {
             int value = GetInt32(_currentPos);
             // Advance to skip read bytes
@@ -251,17 +235,17 @@ namespace Arrowgene.Services.Common.Buffers
             return value;
         }
 
-        public float GetFloat(int offset)
+        public override float GetFloat(int offset)
         {
             throw new NotImplementedException();
         }
 
-        public float ReadFloat()
+        public override float ReadFloat()
         {
             throw new NotImplementedException();
         }
 
-        public string GetString(int offset, int length)
+        public override string GetString(int offset, int length)
         {
             StringBuilder sb = new StringBuilder();
             if (offset + length <= _size)
@@ -274,7 +258,7 @@ namespace Arrowgene.Services.Common.Buffers
             return sb.ToString();
         }
 
-        public string ReadString(int length)
+        public override string ReadString(int length)
         {
             string str = GetString(_currentPos, length);
             // Advance to skip read bytes
@@ -282,7 +266,7 @@ namespace Arrowgene.Services.Common.Buffers
             return str;
         }
 
-        public string ReadCString()
+        public override string ReadCString()
         {
             string str = GetCString(_currentPos);
             // Advance to skip read bytes
@@ -292,45 +276,10 @@ namespace Arrowgene.Services.Common.Buffers
             return str;
         }
 
-        public string GetCString(int offset)
+        public override string GetCString(int offset)
         {
             int len = GetLengthTillNulTermination(offset);
             return GetString(offset, len);
-        }
-
-        public string ToHexString()
-        {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < _size; i++)
-            {
-                sb.Append(_buffer[i].ToString("X2"));
-            }
-            return sb.ToString();
-        }
-
-        public string ToAsciiString(bool spaced)
-        {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < _size; i++)
-            {
-                char c = '.';
-                if (_buffer[i] >= 'A' && _buffer[i] <= 'Z') c = (char) _buffer[i];
-                if (_buffer[i] >= 'a' && _buffer[i] <= 'z') c = (char) _buffer[i];
-                if (_buffer[i] >= '0' && _buffer[i] <= '9') c = (char) _buffer[i];
-                if (spaced && i != 0)
-                {
-                    sb.Append("  ");
-                }
-                sb.Append(c);
-            }
-            return sb.ToString();
-        }
-
-        public override string ToString()
-        {
-            return ToAsciiString(true) +
-                   Environment.NewLine +
-                   ToHexString();
         }
 
         private void SetCurrentPos(int newCurrentPos)
@@ -374,7 +323,7 @@ namespace Arrowgene.Services.Common.Buffers
         private void ExtendBuffer(int newSize)
         {
             byte[] extension = new byte[newSize];
-            Buffer.BlockCopy(_buffer, 0, extension, 0, _size);
+            System.Buffer.BlockCopy(_buffer, 0, extension, 0, _size);
             _buffer = extension;
         }
 

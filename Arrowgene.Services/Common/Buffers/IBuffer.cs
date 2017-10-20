@@ -93,6 +93,8 @@ namespace Arrowgene.Services.Common.Buffers
         void WriteFixedString(string value, int length);
 
         void WriteBuffer(IBuffer value);
+        
+        void WriteBuffer(IBuffer value, int offset, int length);
 
         /// <summary>
         /// Write a Nul-Terminated-String.

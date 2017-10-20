@@ -21,7 +21,7 @@ namespace Arrowgene.Services.Common.Buffers
 {
     using System.IO;
 
-    public class ByteBuffer : IBuffer
+    public class ByteBuffer : Buffer
     {
         private MemoryStream _memoryStream;
         private BinaryWriter _binaryWriter;
@@ -58,98 +58,88 @@ namespace Arrowgene.Services.Common.Buffers
             }
         }
 
-        public int Size
+        public override int Size
         {
             get { return (int) _memoryStream.Length; }
         }
 
-        public int Position
+        public override int Position
         {
             get { return (int) _memoryStream.Position; }
             set { _memoryStream.Position = value; }
         }
 
-        public void SetPositionStart()
+        public override void SetPositionStart()
         {
             Position = 0;
         }
 
-        public void SetPositionEnd()
+        public override void SetPositionEnd()
         {
             Position = Size - 1;
         }
 
-        public IBuffer Clone(int offset, int length)
+        public override IBuffer Clone(int offset, int length)
         {
             return new BBuffer(GetBytes(offset, length));
         }
 
-        public IBuffer Clone(int length)
-        {
-            return Clone(0, length);
-        }
-
-        public IBuffer Clone()
-        {
-            return Clone(Size);
-        }
-
-        public byte[] GetAllBytes()
+        public override byte[] GetAllBytes()
         {
             return GetAllBytes(0);
         }
 
-        public byte[] GetAllBytes(int offset)
+        public override byte[] GetAllBytes(int offset)
         {
             return GetBytes(offset, Size - offset);
         }
 
-        public void WriteBytes(byte[] bytes)
+        public override void WriteBytes(byte[] bytes)
         {
             _binaryWriter.Write(bytes);
         }
 
-        public void WriteBytes(byte[] bytes, int offset, int length)
+        public override void WriteBytes(byte[] bytes, int offset, int length)
         {
             _binaryWriter.Write(bytes, offset, length);
         }
 
-        public void WriteByte(byte value)
+        public override void WriteByte(byte value)
         {
             _binaryWriter.Write(value);
         }
 
-        public void WriteByte(int value)
+        public override void WriteByte(int value)
         {
             _binaryWriter.Write((byte) value);
         }
 
-        public void WriteByte(long value)
+        public override void WriteByte(long value)
         {
             _binaryWriter.Write((byte) value);
         }
 
-        public void WriteInt16(short value)
+        public override void WriteInt16(short value)
         {
             _binaryWriter.Write(value);
         }
 
-        public void WriteInt16(int value)
+        public override void WriteInt16(int value)
         {
             _binaryWriter.Write((short) value);
         }
 
-        public void WriteInt32(int value)
+        public override void WriteInt32(int value)
         {
             _binaryWriter.Write(value);
         }
 
-        public void WriteFloat(float value)
+        public override void WriteFloat(float value)
         {
             _binaryWriter.Write(value);
         }
 
-        public void WriteString(string value)
+        public override void WriteString(string value)
         {
             for (int i = 0; i < value.Length; i++)
             {
@@ -157,7 +147,7 @@ namespace Arrowgene.Services.Common.Buffers
             }
         }
 
-        public void WriteFixedString(string value, int length)
+        public override void WriteFixedString(string value, int length)
         {
             for (int i = 0; i < length; i++)
             {
@@ -170,23 +160,18 @@ namespace Arrowgene.Services.Common.Buffers
             }
         }
 
-        public void WriteBuffer(IBuffer value)
-        {
-            WriteBytes(value.GetAllBytes());
-        }
-
-        public void WriteCString(string value)
+        public override void WriteCString(string value)
         {
             WriteString(value);
             WriteByte(0);
         }
 
-        public byte ReadByte()
+        public override byte ReadByte()
         {
             return _binaryReader.ReadByte();
         }
 
-        public byte GetByte(int offset)
+        public override byte GetByte(int offset)
         {
             int position = Position;
             Position = offset;
@@ -195,12 +180,12 @@ namespace Arrowgene.Services.Common.Buffers
             return b;
         }
 
-        public byte[] ReadBytes(int length)
+        public override byte[] ReadBytes(int length)
         {
             return _binaryReader.ReadBytes(length);
         }
 
-        public byte[] GetBytes(int offset, int length)
+        public override byte[] GetBytes(int offset, int length)
         {
             int position = Position;
             Position = offset;
@@ -209,7 +194,7 @@ namespace Arrowgene.Services.Common.Buffers
             return bytes;
         }
 
-        public short GetInt16(int offset)
+        public override short GetInt16(int offset)
         {
             int position = Position;
             Position = offset;
@@ -218,12 +203,12 @@ namespace Arrowgene.Services.Common.Buffers
             return value;
         }
 
-        public short ReadInt16()
+        public override short ReadInt16()
         {
             return _binaryReader.ReadInt16();
         }
 
-        public int GetInt32(int offset)
+        public override int GetInt32(int offset)
         {
             int position = Position;
             Position = offset;
@@ -232,12 +217,12 @@ namespace Arrowgene.Services.Common.Buffers
             return value;
         }
 
-        public int ReadInt32()
+        public override int ReadInt32()
         {
             return _binaryReader.ReadInt32();
         }
 
-        public float GetFloat(int offset)
+        public override float GetFloat(int offset)
         {
             int position = Position;
             Position = offset;
@@ -246,12 +231,12 @@ namespace Arrowgene.Services.Common.Buffers
             return value;
         }
 
-        public float ReadFloat()
+        public override float ReadFloat()
         {
             return _binaryReader.ReadSingle();
         }
 
-        public string GetString(int offset, int length)
+        public override string GetString(int offset, int length)
         {
             int position = Position;
             Position = offset;
@@ -260,7 +245,7 @@ namespace Arrowgene.Services.Common.Buffers
             return value;
         }
 
-        public string ReadString(int length)
+        public override string ReadString(int length)
         {
             string s = string.Empty;
 
@@ -278,7 +263,7 @@ namespace Arrowgene.Services.Common.Buffers
             return s;
         }
 
-        public string ReadCString()
+        public override string ReadCString()
         {
             string s = string.Empty;
             bool read = true;
@@ -297,7 +282,7 @@ namespace Arrowgene.Services.Common.Buffers
             return s;
         }
 
-        public string GetCString(int offset)
+        public override string GetCString(int offset)
         {
             int position = Position;
             Position = offset;
@@ -305,35 +290,6 @@ namespace Arrowgene.Services.Common.Buffers
             Position = position;
             return value;
         }
-
-        public string ToHexString()
-        {
-            byte[] buffer = GetAllBytes();
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < buffer.Length; i++)
-            {
-                sb.Append(buffer[i].ToString("X2"));
-            }
-            return sb.ToString();
-        }
-
-        public string ToAsciiString(bool spaced)
-        {
-            byte[] buffer = GetAllBytes();
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < buffer.Length; i++)
-            {
-                char c = '.';
-                if (buffer[i] >= 'A' && buffer[i] <= 'Z') c = (char) buffer[i];
-                if (buffer[i] >= 'a' && buffer[i] <= 'z') c = (char) buffer[i];
-                if (buffer[i] >= '0' && buffer[i] <= '9') c = (char) buffer[i];
-                if (spaced && i != 0)
-                {
-                    sb.Append("  ");
-                }
-                sb.Append(c);
-            }
-            return sb.ToString();
-        }
+      
     }
 }
