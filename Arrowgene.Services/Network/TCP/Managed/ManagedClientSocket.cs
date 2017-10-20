@@ -1,7 +1,7 @@
 ﻿namespace Arrowgene.Services.Network.TCP.Managed
 {
     using Arrowgene.Services.Network.TCP.Client;
-    using Common;
+    using Common.Buffers;
     using Logging;
     using Serialization;
 
@@ -21,13 +21,10 @@
 
         public int Id
         {
-            get
-            {
-                return this.clientSocket.Id;
-            }
+            get { return this.clientSocket.Id; }
         }
 
-        internal ByteBuffer Buffer { get; private set; }
+        internal IBuffer Buffer { get; private set; }
 
         public void Send(int packetId, object myClass)
         {
@@ -38,9 +35,8 @@
                 packet.WriteInt32(packetId);
                 packet.WriteInt32(serialized.Length + ManagedPacket.HeaderSize);
                 packet.WriteBytes(serialized);
-                this.clientSocket.Send(packet.ReadBytes());
+                this.clientSocket.Send(packet.GetAllBytes());
             }
         }
-
     }
 }

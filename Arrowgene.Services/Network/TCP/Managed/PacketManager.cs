@@ -16,7 +16,7 @@
  */
 namespace Arrowgene.Services.Network.TCP.Managed
 {
-    using Common;
+    using Common.Buffers;
     using Client;
     using Logging;
     using Serialization;
@@ -35,7 +35,7 @@ namespace Arrowgene.Services.Network.TCP.Managed
 
         public bool LogUnknownPacket { get; set; }
 
-        internal ManagedPacket Handle(ClientSocket clientSocket, ByteBuffer buffer)
+        internal ManagedPacket Handle(ClientSocket clientSocket, IBuffer buffer)
         {
             ManagedPacket managedPacket = null;
             int packetId = buffer.ReadInt32();

@@ -14,16 +14,23 @@
  * limitations under the License.
  * 
  */
+
 namespace Arrowgene.Services.Network.Proxy
 {
-    using Common;
-    public class ProxyPacket 
-    {
-        public enum TrafficType { CLIENT, SERVER };
-        public TrafficType Traffic { get; set; }
-        public ByteBuffer Payload { get; set; }
+    using Common.Buffers;
 
-        public ProxyPacket(ByteBuffer payload)
+    public class ProxyPacket
+    {
+        public enum TrafficType
+        {
+            CLIENT,
+            SERVER
+        };
+
+        public TrafficType Traffic { get; set; }
+        public IBuffer Payload { get; set; }
+
+        public ProxyPacket(IBuffer payload)
         {
             this.Payload = payload;
         }

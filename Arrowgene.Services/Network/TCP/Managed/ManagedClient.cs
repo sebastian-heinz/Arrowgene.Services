@@ -14,10 +14,11 @@
  * limitations under the License.
  * 
  */
+
 namespace Arrowgene.Services.Network.TCP.Managed
 {
     using Client;
-    using Common;
+    using Common.Buffers;
     using Logging;
     using System;
     using TCP.Managed.Serialization;
@@ -26,7 +27,7 @@ namespace Arrowgene.Services.Network.TCP.Managed
     {
         private PacketManager packetManager;
         private ISerializer serializer;
-        private ByteBuffer buffer;
+        private IBuffer buffer;
 
         public ManagedClient(ISerializer serializer, Logger logger) : base(logger)
         {
@@ -37,7 +38,6 @@ namespace Arrowgene.Services.Network.TCP.Managed
 
         public ManagedClient() : this(new BinaryFormatterSerializer(), new Logger(TCPClient.Name))
         {
-
         }
 
         public event EventHandler<ManagedClientReceivedPacketEventArgs> ManagedReceivedPacket;
@@ -61,7 +61,7 @@ namespace Arrowgene.Services.Network.TCP.Managed
                 packet.WriteInt32(packetId);
                 packet.WriteInt32(serialized.Length + ManagedPacket.HeaderSize);
                 packet.WriteBytes(serialized);
-                base.Send(packet.ReadBytes());
+                base.Send(packet.GetAllBytes());
             }
         }
 
@@ -70,7 +70,7 @@ namespace Arrowgene.Services.Network.TCP.Managed
             base.OnClientReceivedPacket(clientSocket, payload);
 
             this.buffer.WriteBuffer(payload);
-            this.buffer.ResetPosition();
+            this.buffer.SetPositionStart();
             ManagedPacket packet = this.packetManager.Handle(clientSocket, buffer);
             if (packet != null)
             {

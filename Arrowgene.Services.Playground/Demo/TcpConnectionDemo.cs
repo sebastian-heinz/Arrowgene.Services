@@ -1,6 +1,6 @@
 ﻿namespace Arrowgene.Services.Playground.Demo
 {
-    using Common;
+    using Common.Buffers;
     using Network.TCP.Client;
     using Network.TCP.Server;
     using System;
@@ -8,7 +8,6 @@
 
     public class TcpConnectionDemo
     {
-
         public TcpConnectionDemo()
         {
             TCPServer svr = new TCPServer(IPAddress.Any, 2345);
@@ -42,13 +41,13 @@
 
         private void Cli_ClientReceivedPacket(object sender, ClientReceivedPacketEventArgs e)
         {
-            ByteBuffer data = e.Payload;
+            IBuffer data = e.Payload;
             Console.WriteLine(string.Format("Client: received packet Size:{0}", data.Size));
         }
 
         private void Svr_ServerReceivedPacket(object sender, ReceivedPacketEventArgs e)
         {
-            ByteBuffer data = e.Payload;
+            IBuffer data = e.Payload;
             Console.WriteLine(string.Format("Server: received packet Size:{0}", data.Size));
             e.ClientSocket.Send(new byte[10]);
         }

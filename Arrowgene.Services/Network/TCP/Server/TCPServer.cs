@@ -14,22 +14,24 @@
  * limitations under the License.
  * 
  */
+
 namespace Arrowgene.Services.Network.TCP.Server
 {
-
     using Client;
     using Common;
+    using Common.Buffers;
     using Exceptions;
     using Logging;
     using System;
     using System.Net;
     using System.Net.Sockets;
     using System.Threading;
+    using Managed.Serialization;
 
     public class TCPServer
     {
         private const string Name = "Managed Server";
-        
+
         /// <summary>
         /// Block endlessly
         /// </summary>
@@ -79,7 +81,6 @@ namespace Arrowgene.Services.Network.TCP.Server
         /// <param name="port"></param>
         public TCPServer(IPAddress ipAddress, int port) : this(ipAddress, port, new Logger(Name))
         {
-
         }
 
         public int ManagerCount { get; set; }
@@ -122,7 +123,11 @@ namespace Arrowgene.Services.Network.TCP.Server
         /// <summary>
         /// Maximum number of active Clients
         /// </summary>
-        public int MaxClientCount { get { return this.clientManager.MaxClientCount; } set { this.clientManager.SetMaxClientCount(value); } }
+        public int MaxClientCount
+        {
+            get { return this.clientManager.MaxClientCount; }
+            set { this.clientManager.SetMaxClientCount(value); }
+        }
 
         internal Socket Socket { get; set; }
 
@@ -244,7 +249,6 @@ namespace Arrowgene.Services.Network.TCP.Server
                     }
                     catch (Exception ex)
                     {
-
                     }
                 }
 
@@ -287,7 +291,7 @@ namespace Arrowgene.Services.Network.TCP.Server
             return socket;
         }
 
-        internal virtual void OnReceivedPacket(ClientSocket clientSocket, ByteBuffer payload)
+        internal virtual void OnReceivedPacket(ClientSocket clientSocket, IBuffer payload)
         {
             EventHandler<ReceivedPacketEventArgs> receivedPacket = this.ReceivedPacket;
             if (receivedPacket != null)
@@ -316,6 +320,5 @@ namespace Arrowgene.Services.Network.TCP.Server
                 clientConnected(this, clientConnectedEventArgs);
             }
         }
-
     }
 }

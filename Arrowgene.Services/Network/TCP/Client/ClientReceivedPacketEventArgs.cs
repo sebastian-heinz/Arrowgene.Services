@@ -14,15 +14,15 @@
  * limitations under the License.
  * 
  */
+
 namespace Arrowgene.Services.Network.TCP.Client
 {
-    using Client;
-    using Common;
+    using Common.Buffers;
     using System;
 
     public class ClientReceivedPacketEventArgs : EventArgs
     {
-        public ClientReceivedPacketEventArgs(TCPClient tcpClient, ByteBuffer payload)
+        public ClientReceivedPacketEventArgs(TCPClient tcpClient, IBuffer payload)
         {
             this.TCPClient = tcpClient;
             this.Payload = payload;
@@ -30,6 +30,6 @@ namespace Arrowgene.Services.Network.TCP.Client
 
         public TCPClient TCPClient { get; private set; }
 
-        public ByteBuffer Payload { get; private set; }
+        public IBuffer Payload { get; private set; }
     }
 }

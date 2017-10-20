@@ -14,6 +14,7 @@
  * limitations under the License.
  * 
  */
+
 namespace Arrowgene.Services.Network.Proxy
 {
     using Common;
@@ -53,7 +54,7 @@ namespace Arrowgene.Services.Network.Proxy
 
         protected override void ReceivePacket(ProxyPacket proxyPacket)
         {
-            byte[] forward = proxyPacket.Payload.ReadBytes();
+            byte[] forward = proxyPacket.Payload.GetAllBytes();
             this.proxyClient.Write(forward);
 
             proxyPacket.Traffic = ProxyPacket.TrafficType.CLIENT;
@@ -62,7 +63,7 @@ namespace Arrowgene.Services.Network.Proxy
 
         private void proxyClient_ReceivedPacket(object sender, ReceivedProxyPacketEventArgs e)
         {
-            byte[] forward = e.ProxyPacket.Payload.ReadBytes();
+            byte[] forward = e.ProxyPacket.Payload.GetAllBytes();
             base.Write(forward);
 
             base.ReceivePacket(e.ProxyPacket);
@@ -132,6 +133,5 @@ namespace Arrowgene.Services.Network.Proxy
 
             return socket;
         }
-
     }
 }

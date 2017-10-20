@@ -1,10 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Title>Arrowgene.Services</Title>
     <Company>Arrowgene</Company>
-    <Description></Description>
-    <Configuration></Configuration>
+    <Description>
+    </Description>
+    <Configuration>
+    </Configuration>
     <Product>Services</Product>
     <Version>1.0.0.0</Version>
     <FileVersion>1.0.0.0</FileVersion>

@@ -1,6 +1,6 @@
 ﻿namespace Arrowgene.Services.Network.TCP.Client
 {
-    using Common;
+    using Common.Buffers;
     using Exceptions;
     using Logging;
     using System;
@@ -252,7 +252,7 @@
                         this.Disconnect();
                     }
 
-                    payload.ResetPosition();
+                    payload.SetPositionStart();
                     this.OnClientReceivedPacket(this.clientSocket, payload);
                 }
             }

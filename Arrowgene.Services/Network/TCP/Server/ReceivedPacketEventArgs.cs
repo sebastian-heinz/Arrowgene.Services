@@ -16,13 +16,13 @@
  */
 namespace Arrowgene.Services.Network.TCP.Server
 {
-    using Common;
+    using Common.Buffers;
     using Client;
     using System;
 
     public class ReceivedPacketEventArgs : EventArgs
     {
-        public ReceivedPacketEventArgs(ClientSocket clientSocket, ByteBuffer payload)
+        public ReceivedPacketEventArgs(ClientSocket clientSocket, IBuffer payload)
         {
             this.ClientSocket = clientSocket;
             this.Payload = payload;
@@ -30,6 +30,6 @@ namespace Arrowgene.Services.Network.TCP.Server
 
         public ClientSocket ClientSocket { get; private set; }
 
-        public ByteBuffer Payload { get; private set; }
+        public IBuffer Payload { get; private set; }
     }
 }

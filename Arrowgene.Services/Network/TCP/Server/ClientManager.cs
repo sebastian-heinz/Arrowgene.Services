@@ -14,10 +14,11 @@
  * limitations under the License.
  * 
  */
+
 namespace Arrowgene.Services.Network.TCP.Server
 {
     using Client;
-    using Common;
+    using Common.Buffers;
     using Logging;
     using System;
     using System.Collections.Generic;
@@ -192,7 +193,6 @@ namespace Arrowgene.Services.Network.TCP.Server
 
         private void ManagerProcess()
         {
-
             List<ClientSocket> readyclients = new List<ClientSocket>();
 
             while (this.isRunning)
@@ -236,7 +236,7 @@ namespace Arrowgene.Services.Network.TCP.Server
                     byte[] buffer = new byte[bufferSize];
                     int bytesReceived = 0;
 
-                    ByteBuffer payload = new ByteBuffer();
+                    IBuffer payload = new ByteBuffer();
 
                     try
                     {
@@ -269,7 +269,7 @@ namespace Arrowgene.Services.Network.TCP.Server
                         continue;
                     }
 
-                    payload.ResetPosition();
+                    payload.SetPositionStart();
                     this.server.OnReceivedPacket(readyclients[0], payload);
 
                     readyclients[0].IsBusy = false;
@@ -279,6 +279,5 @@ namespace Arrowgene.Services.Network.TCP.Server
                 Thread.Sleep(this.server.ReadTimeout);
             }
         }
-
     }
 }

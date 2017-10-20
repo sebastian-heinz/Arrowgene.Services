@@ -14,14 +14,15 @@
  * limitations under the License.
  * 
  */
+
 namespace Arrowgene.Services.Network.UDP
 {
-    using Common;
     using System;
     using System.Diagnostics;
     using System.Net;
     using System.Net.Sockets;
     using System.Threading;
+    using Common.Buffers;
 
     /// <summary>
     /// Class for handling udp sending and receiving of packets.
@@ -158,14 +159,14 @@ namespace Arrowgene.Services.Network.UDP
                 {
                     // Create EndPoint, Senders information will be written to this object.
                     IPEndPoint sender = new IPEndPoint(IPAddress.Any, 0);
-                    EndPoint senderRemote = (EndPoint)sender;
+                    EndPoint senderRemote = (EndPoint) sender;
 
                     int read = this.socket.ReceiveFrom(this.buffer, 0, this.buffer.Length, SocketFlags.None, ref senderRemote);
 
-                    IPEndPoint remoteIPEndPoint = (IPEndPoint)senderRemote;
+                    IPEndPoint remoteIPEndPoint = (IPEndPoint) senderRemote;
 
-                    ByteBuffer received = new ByteBuffer(this.buffer, 0, read);
-                    this.OnReceivedUDPPacket(read, received.ReadBytes(), remoteIPEndPoint);
+                    IBuffer received = new ByteBuffer(this.buffer, 0, read);
+                    this.OnReceivedUDPPacket(read, received.GetAllBytes(), remoteIPEndPoint);
                 }
             }
         }
@@ -199,6 +200,5 @@ namespace Arrowgene.Services.Network.UDP
                 receivedBroadcast(this, receivedProxyPacketEventArgs);
             }
         }
-
     }
 }

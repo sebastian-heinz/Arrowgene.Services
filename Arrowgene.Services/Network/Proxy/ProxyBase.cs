@@ -14,14 +14,15 @@
  * limitations under the License.
  * 
  */
+
 namespace Arrowgene.Services.Network.Proxy
 {
-    using Common;
-    using Arrowgene.Services.Logging;
     using System;
     using System.Diagnostics;
     using System.Net.Sockets;
     using System.Threading;
+    using Common.Buffers;
+    using Logging;
 
     public abstract class ProxyBase
     {
@@ -67,7 +68,7 @@ namespace Arrowgene.Services.Network.Proxy
             {
                 if (this.socket.Connected)
                 {
-                    ByteBuffer payload = new ByteBuffer();
+                    IBuffer payload = new ByteBuffer();
 
                     try
                     {
@@ -109,6 +110,5 @@ namespace Arrowgene.Services.Network.Proxy
                 receivedPacket(this, receivedProxyPacketEventArgs);
             }
         }
-
     }
 }

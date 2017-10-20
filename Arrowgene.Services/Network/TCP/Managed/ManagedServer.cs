@@ -14,6 +14,9 @@
  * limitations under the License.
  * 
  */
+
+using Arrowgene.Services.Common.Buffers;
+
 namespace Arrowgene.Services.Network.TCP.Managed
 {
     using Arrowgene.Services.Network.TCP.Server;
@@ -79,14 +82,14 @@ namespace Arrowgene.Services.Network.TCP.Managed
             OnManagedConnected(managedClientSocket);
         }
 
-        internal override void OnReceivedPacket(ClientSocket clientSocket, ByteBuffer payload)
+        internal override void OnReceivedPacket(ClientSocket clientSocket, IBuffer payload)
         {
             base.OnReceivedPacket(clientSocket, payload);
 
             ManagedClientSocket managedClientSocket = this.GetManagedClientSocket(clientSocket);
-            ByteBuffer buffer = managedClientSocket.Buffer;
+            IBuffer buffer = managedClientSocket.Buffer;
             buffer.WriteBuffer(payload);
-            buffer.ResetPosition();
+            buffer.SetPositionStart();
             ManagedPacket packet = this.packetManager.Handle(clientSocket, buffer);
             if (packet != null)
             {

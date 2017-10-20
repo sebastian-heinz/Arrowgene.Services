@@ -14,16 +14,17 @@
  * limitations under the License.
  * 
  */
+
 namespace Arrowgene.Services.Network.UDP
 {
-    using Common;
+    using Common.Buffers;
     using System;
     using System.Net;
 
 
     public class ReceivedUDPPacketEventArgs : EventArgs
     {
-        private ByteBuffer readableBuffer;
+        private IBuffer readableBuffer;
 
 
         public ReceivedUDPPacketEventArgs(int size, byte[] received, IPEndPoint remoteIPEndPoint)
@@ -34,7 +35,10 @@ namespace Arrowgene.Services.Network.UDP
         }
 
 
-        public ByteBuffer ReadableBuffer { get { return this.GetReadableBuffer(); } }
+        public IBuffer ReadableBuffer
+        {
+            get { return this.GetReadableBuffer(); }
+        }
 
 
         public IPEndPoint RemoteIPEndPoint { get; private set; }
@@ -45,7 +49,7 @@ namespace Arrowgene.Services.Network.UDP
 
         public int Size { get; private set; }
 
-        private ByteBuffer GetReadableBuffer()
+        private IBuffer GetReadableBuffer()
         {
             if (this.readableBuffer == null)
             {
@@ -53,6 +57,5 @@ namespace Arrowgene.Services.Network.UDP
             }
             return this.readableBuffer;
         }
-
     }
 }
