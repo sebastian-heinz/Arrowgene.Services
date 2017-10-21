@@ -143,7 +143,7 @@ namespace Arrowgene.Services.Common.Buffers
         {
             for (int i = 0; i < value.Length; i++)
             {
-                _binaryWriter.Write((int) value[i]);
+                _binaryWriter.Write((byte) value[i]);
             }
         }
 
@@ -151,7 +151,7 @@ namespace Arrowgene.Services.Common.Buffers
         {
             for (int i = 0; i < length; i++)
             {
-                _binaryWriter.Write((int) value[i]);
+                _binaryWriter.Write((byte) value[i]);
             }
             int diff = length - value.Length;
             if (diff > 0)
