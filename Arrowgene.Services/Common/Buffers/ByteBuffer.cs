@@ -15,11 +15,10 @@
  * 
  */
 
-using System.Text;
-
 namespace Arrowgene.Services.Common.Buffers
 {
     using System.IO;
+    using System.Text;
 
     public class ByteBuffer : Buffer
     {
@@ -37,11 +36,13 @@ namespace Arrowgene.Services.Common.Buffers
         public ByteBuffer(byte[] buffer) : this()
         {
             _binaryWriter.Write(buffer);
+            SetPositionStart();
         }
 
         public ByteBuffer(byte[] buffer, int index, int count) : this()
         {
             _binaryWriter.Write(buffer, index, count);
+            SetPositionStart();
         }
 
         public ByteBuffer(string filePath) : this()
@@ -56,16 +57,17 @@ namespace Arrowgene.Services.Common.Buffers
                     _binaryWriter.Write(buffer, 0, read);
                 }
             }
+            SetPositionStart();
         }
 
         public override int Size
         {
-            get { return (int) _memoryStream.Length; }
+            get { return (int)_memoryStream.Length; }
         }
 
         public override int Position
         {
-            get { return (int) _memoryStream.Position; }
+            get { return (int)_memoryStream.Position; }
             set { _memoryStream.Position = value; }
         }
 
@@ -111,12 +113,12 @@ namespace Arrowgene.Services.Common.Buffers
 
         public override void WriteByte(int value)
         {
-            _binaryWriter.Write((byte) value);
+            _binaryWriter.Write((byte)value);
         }
 
         public override void WriteByte(long value)
         {
-            _binaryWriter.Write((byte) value);
+            _binaryWriter.Write((byte)value);
         }
 
         public override void WriteInt16(short value)
@@ -126,7 +128,7 @@ namespace Arrowgene.Services.Common.Buffers
 
         public override void WriteInt16(int value)
         {
-            _binaryWriter.Write((short) value);
+            _binaryWriter.Write((short)value);
         }
 
         public override void WriteInt32(int value)
@@ -143,7 +145,7 @@ namespace Arrowgene.Services.Common.Buffers
         {
             for (int i = 0; i < value.Length; i++)
             {
-                _binaryWriter.Write((byte) value[i]);
+                _binaryWriter.Write((byte)value[i]);
             }
         }
 
@@ -151,7 +153,7 @@ namespace Arrowgene.Services.Common.Buffers
         {
             for (int i = 0; i < length; i++)
             {
-                _binaryWriter.Write((byte) value[i]);
+                _binaryWriter.Write((byte)value[i]);
             }
             int diff = length - value.Length;
             if (diff > 0)
@@ -256,7 +258,7 @@ namespace Arrowgene.Services.Common.Buffers
                     byte b = _binaryReader.ReadByte();
                     if (b > 0)
                     {
-                        s = s + ((char) b);
+                        s = s + ((char)b);
                     }
                 }
             }
@@ -272,7 +274,7 @@ namespace Arrowgene.Services.Common.Buffers
                 byte b = _binaryReader.ReadByte();
                 if (b > 0)
                 {
-                    s = s + (char) b;
+                    s = s + (char)b;
                 }
                 else
                 {
@@ -290,6 +292,6 @@ namespace Arrowgene.Services.Common.Buffers
             Position = position;
             return value;
         }
-      
+
     }
 }

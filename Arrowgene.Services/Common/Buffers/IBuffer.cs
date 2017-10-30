@@ -30,6 +30,11 @@ namespace Arrowgene.Services.Common.Buffers
         int Position { get; set; }
 
         /// <summary>
+        /// Gets or Sets the byte order.
+        /// </summary>
+        Endianness Endianness { get; set; }
+
+        /// <summary>
         /// Set the cursor to the beginning of the buffer.
         /// </summary>
         void SetPositionStart();
@@ -93,7 +98,7 @@ namespace Arrowgene.Services.Common.Buffers
         void WriteFixedString(string value, int length);
 
         void WriteBuffer(IBuffer value);
-        
+
         void WriteBuffer(IBuffer value, int offset, int length);
 
         /// <summary>

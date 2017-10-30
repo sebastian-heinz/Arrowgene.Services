@@ -2,11 +2,12 @@
 {
     using System;
     using System.Text;
-    
+
     public abstract class Buffer : IBuffer, ICloneable
     {
         public abstract int Size { get; }
         public abstract int Position { get; set; }
+        public virtual Endianness Endianness { get; set; }
         public abstract void SetPositionStart();
         public abstract void SetPositionEnd();
         public abstract IBuffer Clone(int offset, int length);
@@ -43,7 +44,7 @@
         {
             WriteBytes(value.GetBytes(offset, length));
         }
-        
+
         public virtual void WriteBuffer(IBuffer value)
         {
             WriteBytes(value.GetAllBytes());
@@ -58,7 +59,7 @@
         {
             return Clone(Size);
         }
-        
+
         public virtual string ToHexString()
         {
             byte[] buffer = GetAllBytes();
@@ -77,9 +78,9 @@
             for (int i = 0; i < buffer.Length; i++)
             {
                 char c = '.';
-                if (buffer[i] >= 'A' && buffer[i] <= 'Z') c = (char) buffer[i];
-                if (buffer[i] >= 'a' && buffer[i] <= 'z') c = (char) buffer[i];
-                if (buffer[i] >= '0' && buffer[i] <= '9') c = (char) buffer[i];
+                if (buffer[i] >= 'A' && buffer[i] <= 'Z') c = (char)buffer[i];
+                if (buffer[i] >= 'a' && buffer[i] <= 'z') c = (char)buffer[i];
+                if (buffer[i] >= '0' && buffer[i] <= '9') c = (char)buffer[i];
                 if (spaced && i != 0)
                 {
                     sb.Append("  ");

@@ -41,7 +41,7 @@ namespace Arrowgene.Services.Common.Buffers
             _size = 0;
             _currentPos = 0;
         }
-        
+
         public BBuffer(byte[] data)
         {
             _buffer = data;
@@ -109,17 +109,17 @@ namespace Arrowgene.Services.Common.Buffers
 
         public override void WriteByte(byte value)
         {
-            WriteBytes(new byte[] {value});
+            WriteBytes(new byte[] { value });
         }
 
         public override void WriteByte(int value)
         {
-            WriteByte((byte) value);
+            WriteByte((byte)value);
         }
 
         public override void WriteByte(long value)
         {
-            WriteByte((byte) value);
+            WriteByte((byte)value);
         }
 
         public override void WriteInt16(short value)
@@ -130,7 +130,7 @@ namespace Arrowgene.Services.Common.Buffers
 
         public override void WriteInt16(int value)
         {
-            WriteInt16((short) value);
+            WriteInt16((short)value);
         }
 
         public override void WriteInt32(int value)
@@ -205,8 +205,8 @@ namespace Arrowgene.Services.Common.Buffers
 
         public override short GetInt16(int offset)
         {
-            short value = (short) (_buffer[offset++] & 0xff);
-            value += (short) ((_buffer[offset] & 0xff) << 8);
+            short value = (short)(_buffer[offset++] & 0xff);
+            value += (short)((_buffer[offset] & 0xff) << 8);
             return value;
         }
 
@@ -252,7 +252,7 @@ namespace Arrowgene.Services.Common.Buffers
             {
                 for (int i = 0; i < length; i++)
                 {
-                    sb.Append((char) _buffer[offset++]);
+                    sb.Append((char)_buffer[offset++]);
                 }
             }
             return sb.ToString();
