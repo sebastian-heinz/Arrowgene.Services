@@ -1,5 +1,5 @@
 API_KEY=""
-VERSION="1.2.2"
+VERSION="1.2.3"
 
 # https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-pack?tabs=netcore2x
 dotnet pack Arrowgene.Services/Arrowgene.Services.csproj --output ../nupkgs /p:Version=$VERSION

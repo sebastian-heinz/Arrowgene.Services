@@ -90,7 +90,7 @@
             return sb.ToString();
         }
 
-        public override string ToString()
+        public string Dump()
         {
             return ToAsciiString(true) +
                    Environment.NewLine +
