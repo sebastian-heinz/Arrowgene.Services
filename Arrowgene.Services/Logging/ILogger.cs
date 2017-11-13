@@ -14,22 +14,19 @@
  * limitations under the License.
  * 
  */
-
-namespace Arrowgene.Services.Network.TCP.Client
+namespace Arrowgene.Services.Logging
 {
-    using Common.Buffers;
     using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
 
-    public class ClientReceivedPacketEventArgs : EventArgs
+    /// <summary>
+    /// Logging Class</summary>
+    /// <remarks>
+    /// Logs message combined with id and type as <see cref="Log"/>
+    /// Events for log writings, will only occur if its declared as safe</remarks>
+    public interface ILogger
     {
-        public ClientReceivedPacketEventArgs(TCPClient tcpClient, IBuffer payload)
-        {
-            this.TCPClient = tcpClient;
-            this.Payload = payload;
-        }
-
-        public TCPClient TCPClient { get; private set; }
-
-        public IBuffer Payload { get; private set; }
+    
     }
 }

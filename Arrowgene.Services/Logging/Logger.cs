@@ -25,7 +25,7 @@ namespace Arrowgene.Services.Logging
     /// <remarks>
     /// Logs message combined with id and type as <see cref="Log"/>
     /// Events for log writings, will only occur if its declared as safe</remarks>
-    public class Logger
+    public class Logger : ILogger
     {
         /// <summary>
         /// Notifies when a <see cref="Log"/> write occured.

@@ -23,25 +23,15 @@
  */
 namespace Arrowgene.Services.Network.TCP.Client
 {
-    using Client;
     using System;
-    using System.Net;
 
-    public class ConnectErrorEventArgs : EventArgs
+    public class ConnectedEventArgs : EventArgs
     {
-
-        public ConnectErrorEventArgs(string reason, IPAddress serverIPAddress, int serverPort, TimeSpan timeout)
+        public ConnectedEventArgs(ITCPClient clientSocket)
         {
-            this.Reason = reason;
-            this.ServerIPAddress = serverIPAddress;
-            this.ServerPort = serverPort;
-            this.Timeout = timeout;
+            ClientSocket = clientSocket;
         }
 
-        public string Reason { get; private set; }
-        public IPAddress ServerIPAddress { get; private set; }
-        public int ServerPort { get; private set; }
-        public TimeSpan Timeout { get; private set; }
-
+        public ITCPClient ClientSocket { get;  }
     }
 }

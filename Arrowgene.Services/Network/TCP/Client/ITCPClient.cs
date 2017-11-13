@@ -21,27 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 namespace Arrowgene.Services.Network.TCP.Client
 {
-    using Client;
     using System;
     using System.Net;
+    using Arrowgene.Services.Logging;
+    using Arrowgene.Services.Network.TCP.Server;
 
-    public class ConnectErrorEventArgs : EventArgs
+    public interface ITCPClient
     {
-
-        public ConnectErrorEventArgs(string reason, IPAddress serverIPAddress, int serverPort, TimeSpan timeout)
-        {
-            this.Reason = reason;
-            this.ServerIPAddress = serverIPAddress;
-            this.ServerPort = serverPort;
-            this.Timeout = timeout;
-        }
-
-        public string Reason { get; private set; }
-        public IPAddress ServerIPAddress { get; private set; }
-        public int ServerPort { get; private set; }
-        public TimeSpan Timeout { get; private set; }
-
+        IPAddress RemoteIpAddress { get; }
+        int Port { get; }
+        ILogger Logger { get; }
+        ITCPSocket Socket { get; }
+        event EventHandler<DisconnectedEventArgs> Disconnected;
+        event EventHandler<ConnectedEventArgs> Connected;
+        event EventHandler<ReceivedPacketEventArgs> ReceivedPacket;
+        event EventHandler<ConnectErrorEventArgs> ConnectError;
+        void Connect(IPAddress serverIPAddress, int serverPort, TimeSpan timeout);
+        void Disconnect();
+        void Send(byte[] payload);
     }
 }

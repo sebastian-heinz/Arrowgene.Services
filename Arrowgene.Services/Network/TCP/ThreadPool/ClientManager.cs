@@ -15,7 +15,7 @@
  * 
  */
 
-namespace Arrowgene.Services.Network.TCP.Server
+namespace Arrowgene.Services.Network.TCP.Server.ThreadPool
 {
     using Client;
     using Common.Buffers;

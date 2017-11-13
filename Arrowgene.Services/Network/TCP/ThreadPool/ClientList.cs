@@ -14,7 +14,7 @@
  * limitations under the License.
  * 
  */
-namespace Arrowgene.Services.Network.TCP.Server
+namespace Arrowgene.Services.Network.TCP.Server.ThreadPool
 {
     using Client;
     using System.Collections.Generic;
