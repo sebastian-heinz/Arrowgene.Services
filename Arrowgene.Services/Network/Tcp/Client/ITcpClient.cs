@@ -21,54 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-namespace Arrowgene.Services.Network.TCP
+
+namespace Arrowgene.Services.Network.Tcp.Client
 {
     using System;
     using System.Net;
-    using Arrowgene.Services.Logging;
-    using Arrowgene.Services.Network.TCP.Server;
+    using Logging;
 
-    public interface ITCPServer
+    public interface ITcpClient
     {
-        /// <summary>
-        /// Logging instance where logs get written to.
-        /// </summary>
-        ILogger Logger { get; }
-
-        /// <summary>
-        /// <see cref="System.Net.IPAddress"/> for listening.
-        /// </summary>
-        IPAddress IPAddress { get; }
-
-        /// <summary>
-        /// Server port.
-        /// </summary>
+        IPAddress RemoteIpAddress { get; }
         int Port { get; }
-
-        /// <summary>
-        /// Occures when a client disconnected.
-        /// </summary>
-        event EventHandler<DisconnectedEventArgs> ClientDisconnected;
-
-        /// <summary>
-        /// Occures when a client connected.
-        /// </summary>
-        event EventHandler<ConnectedEventArgs> ClientConnected;
-
-        /// <summary>
-        /// Occures when a packet is received.
-        /// </summary>
+        ILogger Logger { get; }
+        event EventHandler<DisconnectedEventArgs> Disconnected;
+        event EventHandler<ConnectedEventArgs> Connected;
         event EventHandler<ReceivedPacketEventArgs> ReceivedPacket;
-
-        /// <summary>
-        /// Start accepting connections,
-        /// Creates a new <see cref="Arrowgene.Services.Logging.Logger"/> instance if none is set.
-        /// </summary>
-        void Start();
-
-        /// <summary>
-        /// Stops the server.
-        /// </summary>
-        void Stop();
+        event EventHandler<ConnectErrorEventArgs> ConnectError;
+        void Connect(IPAddress serverIpAddress, int serverPort, TimeSpan timeout);
+        void Disconnect();
+        void Send(byte[] payload);
     }
 }

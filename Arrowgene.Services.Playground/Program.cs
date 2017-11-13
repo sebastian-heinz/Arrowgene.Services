@@ -11,10 +11,9 @@
             // new HttpServerDemo();
             // new HttpTunneClientDemo();
             // new HttpTunnelServerDemo();
-            new ManagedTCPConnectionDemo();
             // new PortScanDemo();
             // new ProxyDemo();
-            // new TcpConnectionDemo();
+             new TcpConnectionDemo();
             // new UdpServerDemo();
             // new UdpClientDemo();
 

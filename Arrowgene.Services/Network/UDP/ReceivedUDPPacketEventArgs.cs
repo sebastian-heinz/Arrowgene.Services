@@ -17,7 +17,7 @@
 
 namespace Arrowgene.Services.Network.UDP
 {
-    using Common.Buffers;
+    using Buffers;
     using System;
     using System.Net;
 

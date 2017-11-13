@@ -22,30 +22,31 @@
  * SOFTWARE.
  */
 
-namespace Arrowgene.Services.Network.TCP.Server
+namespace Arrowgene.Services.Network.Tcp.Server
 {
-    using Common.Buffers;
+    using Buffers;
     using Logging;
+    using Exceptions;
     using System;
     using System.Net;
 
-    public abstract class TCPServer : ITCPServer
+    public abstract class TcpServer : ITcpServer
     {
-        private const String TCP_SERVER = "TCP Server";
-
-        public TCPServer(IPAddress ipAddress, int port, ILogger logger)
+        public TcpServer(IPAddress ipAddress, int port, ILogger logger)
         {
-            IPAddress = ipAddress;
+            if (ipAddress == null)
+                throw new InvalidParameterException("IPAddress is null");
+
+            if (port <= 0 || port > 65535)
+                throw new InvalidParameterException(String.Format("Port({0}) invalid", port));
+
+            if (logger == null)
+                throw new InvalidParameterException("Logger is null");
+
+
+            IpAddress = ipAddress;
             Port = port;
             Logger = logger;
-        }
-
-        public TCPServer(int port, ILogger logger) : this(IPAddress.Any, port, logger)
-        {
-        }
-
-        public TCPServer(int port) : this(IPAddress.Any, port, new Logger(TCP_SERVER))
-        {
         }
 
         /// <summary>
@@ -56,7 +57,7 @@ namespace Arrowgene.Services.Network.TCP.Server
         /// <summary>
         /// Servers <see cref="System.Net.IPAddress"/>.
         /// </summary>
-        public IPAddress IPAddress { get; }
+        public IPAddress IpAddress { get; }
 
         /// <summary>
         /// Servers port.
@@ -89,32 +90,32 @@ namespace Arrowgene.Services.Network.TCP.Server
         /// </summary>
         public abstract void Stop();
 
-        protected virtual void OnReceivedPacket(ITCPSocket clientSocket, IBuffer payload)
+        protected virtual void OnReceivedPacket(ITcpSocket socket, IBuffer data)
         {
             EventHandler<ReceivedPacketEventArgs> receivedPacket = ReceivedPacket;
             if (receivedPacket != null)
             {
-                ReceivedPacketEventArgs receivedPacketEventArgs = new ReceivedPacketEventArgs(clientSocket, payload);
+                ReceivedPacketEventArgs receivedPacketEventArgs = new ReceivedPacketEventArgs(socket, data);
                 receivedPacket(this, receivedPacketEventArgs);
             }
         }
 
-        protected virtual void OnClientDisconnected(ITCPSocket clientSocket)
+        protected virtual void OnClientDisconnected(ITcpSocket socket)
         {
             EventHandler<DisconnectedEventArgs> clientDisconnected = ClientDisconnected;
             if (clientDisconnected != null)
             {
-                DisconnectedEventArgs clientDisconnectedEventArgs = new DisconnectedEventArgs(clientSocket);
+                DisconnectedEventArgs clientDisconnectedEventArgs = new DisconnectedEventArgs(socket);
                 clientDisconnected(this, clientDisconnectedEventArgs);
             }
         }
 
-        protected virtual void OnClientConnected(ITCPSocket clientSocket)
+        protected virtual void OnClientConnected(ITcpSocket socket)
         {
             EventHandler<ConnectedEventArgs> clientConnected = ClientConnected;
             if (clientConnected != null)
             {
-                ConnectedEventArgs clientConnectedEventArgs = new ConnectedEventArgs(clientSocket);
+                ConnectedEventArgs clientConnectedEventArgs = new ConnectedEventArgs(socket);
                 clientConnected(this, clientConnectedEventArgs);
             }
         }

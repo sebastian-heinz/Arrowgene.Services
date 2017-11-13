@@ -1,24 +1,30 @@
 ﻿/*
- *  Copyright 2015 Sebastian Heinz <sebastian.heinz.gt@googlemail.com>
+ * MIT License
  * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (c) 2018 Sebastian Heinz <sebastian.heinz.gt@googlemail.com>
  * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
-namespace Arrowgene.Services.Common.Buffers
+namespace Arrowgene.Services.Buffers
 {
     using System.IO;
-    using System.Text;
 
     public class ByteBuffer : Buffer
     {
@@ -62,12 +68,12 @@ namespace Arrowgene.Services.Common.Buffers
 
         public override int Size
         {
-            get { return (int)_memoryStream.Length; }
+            get { return (int) _memoryStream.Length; }
         }
 
         public override int Position
         {
-            get { return (int)_memoryStream.Position; }
+            get { return (int) _memoryStream.Position; }
             set { _memoryStream.Position = value; }
         }
 
@@ -101,9 +107,14 @@ namespace Arrowgene.Services.Common.Buffers
             _binaryWriter.Write(bytes);
         }
 
-        public override void WriteBytes(byte[] bytes, int offset, int length)
+        public override void WriteBytes(byte[] source, int srcOffset, int length)
         {
-            _binaryWriter.Write(bytes, offset, length);
+            throw new System.NotImplementedException();
+        }
+
+        public override void WriteBytes(byte[] source, int srcOffset, int dstOffset, int count)
+        {
+            throw new System.NotImplementedException();
         }
 
         public override void WriteByte(byte value)
@@ -113,12 +124,12 @@ namespace Arrowgene.Services.Common.Buffers
 
         public override void WriteByte(int value)
         {
-            _binaryWriter.Write((byte)value);
+            _binaryWriter.Write((byte) value);
         }
 
         public override void WriteByte(long value)
         {
-            _binaryWriter.Write((byte)value);
+            _binaryWriter.Write((byte) value);
         }
 
         public override void WriteInt16(short value)
@@ -128,7 +139,7 @@ namespace Arrowgene.Services.Common.Buffers
 
         public override void WriteInt16(int value)
         {
-            _binaryWriter.Write((short)value);
+            _binaryWriter.Write((short) value);
         }
 
         public override void WriteInt32(int value)
@@ -145,7 +156,7 @@ namespace Arrowgene.Services.Common.Buffers
         {
             for (int i = 0; i < value.Length; i++)
             {
-                _binaryWriter.Write((byte)value[i]);
+                _binaryWriter.Write((byte) value[i]);
             }
         }
 
@@ -153,7 +164,7 @@ namespace Arrowgene.Services.Common.Buffers
         {
             for (int i = 0; i < length; i++)
             {
-                _binaryWriter.Write((byte)value[i]);
+                _binaryWriter.Write((byte) value[i]);
             }
             int diff = length - value.Length;
             if (diff > 0)
@@ -258,7 +269,7 @@ namespace Arrowgene.Services.Common.Buffers
                     byte b = _binaryReader.ReadByte();
                     if (b > 0)
                     {
-                        s = s + ((char)b);
+                        s = s + ((char) b);
                     }
                 }
             }
@@ -274,7 +285,7 @@ namespace Arrowgene.Services.Common.Buffers
                 byte b = _binaryReader.ReadByte();
                 if (b > 0)
                 {
-                    s = s + (char)b;
+                    s = s + (char) b;
                 }
                 else
                 {
@@ -292,6 +303,5 @@ namespace Arrowgene.Services.Common.Buffers
             Position = position;
             return value;
         }
-
     }
 }

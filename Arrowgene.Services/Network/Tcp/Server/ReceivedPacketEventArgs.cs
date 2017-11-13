@@ -21,27 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-namespace Arrowgene.Services.Network.TCP.Client
+
+namespace Arrowgene.Services.Network.Tcp.Server
 {
-    using Client;
+    using Buffers;
     using System;
-    using System.Net;
 
-    public class ConnectErrorEventArgs : EventArgs
+    public class ReceivedPacketEventArgs : EventArgs
     {
-
-        public ConnectErrorEventArgs(string reason, IPAddress serverIPAddress, int serverPort, TimeSpan timeout)
+        public ReceivedPacketEventArgs(ITcpSocket socket, IBuffer data)
         {
-            this.Reason = reason;
-            this.ServerIPAddress = serverIPAddress;
-            this.ServerPort = serverPort;
-            this.Timeout = timeout;
+            Socket = socket;
+            Data = data;
         }
 
-        public string Reason { get; private set; }
-        public IPAddress ServerIPAddress { get; private set; }
-        public int ServerPort { get; private set; }
-        public TimeSpan Timeout { get; private set; }
+        public ITcpSocket Socket { get; }
 
+        public IBuffer Data { get; }
     }
 }

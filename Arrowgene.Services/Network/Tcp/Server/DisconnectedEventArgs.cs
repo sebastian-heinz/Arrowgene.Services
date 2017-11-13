@@ -22,13 +22,17 @@
  * SOFTWARE.
  */
 
-namespace Arrowgene.Services.Logging
+namespace Arrowgene.Services.Network.Tcp.Server
 {
     using System;
 
-    public interface ILogger
+    public class DisconnectedEventArgs : EventArgs
     {
-        void Write(string log, LogType logType);
-        event EventHandler<LogWriteEventArgs> LogWrite;
+        public DisconnectedEventArgs(ITcpSocket socket)
+        {
+            Socket = socket;
+        }
+
+        public ITcpSocket Socket { get; }
     }
 }

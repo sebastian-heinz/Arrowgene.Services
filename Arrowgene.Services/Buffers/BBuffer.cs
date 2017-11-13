@@ -1,21 +1,28 @@
 ﻿/*
- *  Copyright 2015 Sebastian Heinz <sebastian.heinz.gt@googlemail.com>
+ * MIT License
  * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (c) 2018 Sebastian Heinz <sebastian.heinz.gt@googlemail.com>
  * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
-namespace Arrowgene.Services.Common.Buffers
+namespace Arrowgene.Services.Buffers
 {
     using System;
     using System.Text;
@@ -97,29 +104,31 @@ namespace Arrowgene.Services.Common.Buffers
             UpdateSizeForPosition(_currentPos);
         }
 
-        public override void WriteBytes(byte[] bytes, int offset, int length)
+        public override void WriteBytes(byte[] source, int srcOffset, int count)
         {
-            ExtendBufferForOffsetIfNecessary(length, offset);
-            for (int i = 0; i < length; i++)
-            {
-                _buffer[offset++] = bytes[i];
-            }
+            WriteBytes(source, srcOffset, _currentPos, count);
+        }
+
+        public override void WriteBytes(byte[] source, int srcOffset, int dstOffset, int count)
+        {
+            ExtendBufferForOffsetIfNecessary(srcOffset, count);
+            System.Buffer.BlockCopy(source, srcOffset, _buffer, dstOffset, count);
             UpdateSizeForPosition(_currentPos);
         }
 
         public override void WriteByte(byte value)
         {
-            WriteBytes(new byte[] { value });
+            WriteBytes(new byte[] {value});
         }
 
         public override void WriteByte(int value)
         {
-            WriteByte((byte)value);
+            WriteByte((byte) value);
         }
 
         public override void WriteByte(long value)
         {
-            WriteByte((byte)value);
+            WriteByte((byte) value);
         }
 
         public override void WriteInt16(short value)
@@ -130,7 +139,7 @@ namespace Arrowgene.Services.Common.Buffers
 
         public override void WriteInt16(int value)
         {
-            WriteInt16((short)value);
+            WriteInt16((short) value);
         }
 
         public override void WriteInt32(int value)
@@ -205,8 +214,8 @@ namespace Arrowgene.Services.Common.Buffers
 
         public override short GetInt16(int offset)
         {
-            short value = (short)(_buffer[offset++] & 0xff);
-            value += (short)((_buffer[offset] & 0xff) << 8);
+            short value = (short) (_buffer[offset++] & 0xff);
+            value += (short) ((_buffer[offset] & 0xff) << 8);
             return value;
         }
 
@@ -252,7 +261,7 @@ namespace Arrowgene.Services.Common.Buffers
             {
                 for (int i = 0; i < length; i++)
                 {
-                    sb.Append((char)_buffer[offset++]);
+                    sb.Append((char) _buffer[offset++]);
                 }
             }
             return sb.ToString();

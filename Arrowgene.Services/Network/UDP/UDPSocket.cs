@@ -22,7 +22,7 @@ namespace Arrowgene.Services.Network.UDP
     using System.Net;
     using System.Net.Sockets;
     using System.Threading;
-    using Common.Buffers;
+    using Buffers;
 
     /// <summary>
     /// Class for handling udp sending and receiving of packets.

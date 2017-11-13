@@ -21,17 +21,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-namespace Arrowgene.Services.Network.TCP.Client
-{
-    using System;
 
-    public class ConnectedEventArgs : EventArgs
+namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
+{
+    using System.Net.Sockets;
+    using Arrowgene.Services.Network.Tcp;
+
+    public class AsyncEventClient : ITcpSocket
     {
-        public ConnectedEventArgs(ITCPClient clientSocket)
+        public Socket Socket { get; }
+
+        public void Accept(Socket Socket)
         {
-            ClientSocket = clientSocket;
+            Socket = Socket;
         }
 
-        public ITCPClient ClientSocket { get;  }
+        public void Send(byte[] payload)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void Close()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

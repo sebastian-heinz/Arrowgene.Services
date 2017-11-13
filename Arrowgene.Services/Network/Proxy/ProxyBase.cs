@@ -21,7 +21,7 @@ namespace Arrowgene.Services.Network.Proxy
     using System.Diagnostics;
     using System.Net.Sockets;
     using System.Threading;
-    using Common.Buffers;
+    using Buffers;
     using Logging;
 
     public abstract class ProxyBase

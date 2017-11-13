@@ -21,21 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-namespace Arrowgene.Services.Network.TCP.Server
+
+namespace Arrowgene.Services.Network.Tcp.Client
 {
-    using Common.Buffers;
     using System;
 
-    public class ReceivedPacketEventArgs : EventArgs
+    public class ConnectedEventArgs : EventArgs
     {
-        public ReceivedPacketEventArgs(ITCPSocket clientSocket, IBuffer payload)
+        public ConnectedEventArgs(ITcpClient client)
         {
-            ClientSocket = clientSocket;
-            Payload = payload;
+            Client = client;
         }
 
-        public ITCPSocket ClientSocket { get; }
-
-        public IBuffer Payload { get; }
+        public ITcpClient Client { get; }
     }
 }

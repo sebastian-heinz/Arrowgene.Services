@@ -17,7 +17,7 @@
 
 namespace Arrowgene.Services.Network.Proxy
 {
-    using Common.Buffers;
+    using Buffers;
 
     public class ProxyPacket
     {

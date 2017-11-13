@@ -22,25 +22,53 @@
  * SOFTWARE.
  */
 
-namespace Arrowgene.Services.Network.TCP.Client
+namespace Arrowgene.Services.Network.Tcp.Server
 {
     using System;
     using System.Net;
-    using Arrowgene.Services.Logging;
-    using Arrowgene.Services.Network.TCP.Server;
+    using Logging;
 
-    public interface ITCPClient
+    public interface ITcpServer
     {
-        IPAddress RemoteIpAddress { get; }
-        int Port { get; }
+        /// <summary>
+        /// Logging instance where logs get written to.
+        /// </summary>
         ILogger Logger { get; }
-        ITCPSocket Socket { get; }
-        event EventHandler<DisconnectedEventArgs> Disconnected;
-        event EventHandler<ConnectedEventArgs> Connected;
+
+        /// <summary>
+        /// <see cref="System.Net.IPAddress"/> for listening.
+        /// </summary>
+        IPAddress IpAddress { get; }
+
+        /// <summary>
+        /// Server port.
+        /// </summary>
+        int Port { get; }
+
+        /// <summary>
+        /// Occures when a client disconnected.
+        /// </summary>
+        event EventHandler<DisconnectedEventArgs> ClientDisconnected;
+
+        /// <summary>
+        /// Occures when a client connected.
+        /// </summary>
+        event EventHandler<ConnectedEventArgs> ClientConnected;
+
+        /// <summary>
+        /// Occures when a packet is received.
+        /// </summary>
         event EventHandler<ReceivedPacketEventArgs> ReceivedPacket;
-        event EventHandler<ConnectErrorEventArgs> ConnectError;
-        void Connect(IPAddress serverIPAddress, int serverPort, TimeSpan timeout);
-        void Disconnect();
-        void Send(byte[] payload);
+
+        /// <summary>
+        /// Start accepting connections,
+        /// Creates a new <see cref="Arrowgene.Services.Logging.Logger"/> instance if none is set.
+        /// </summary>
+        void Start();
+
+        /// <summary>
+        /// Stops the server.
+        /// </summary>
+        void Stop();
     }
 }
