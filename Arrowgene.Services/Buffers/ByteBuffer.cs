@@ -89,7 +89,17 @@ namespace Arrowgene.Services.Buffers
 
         public override IBuffer Clone(int offset, int length)
         {
-            return new BBuffer(GetBytes(offset, length));
+            return new ByteBuffer(GetBytes(offset, length));
+        }
+        
+        public override IBuffer Provide()
+        {
+            return new ByteBuffer();
+        }
+
+        public override IBuffer Provide(byte[] buffer)
+        {
+            return new ByteBuffer(buffer);
         }
 
         public override byte[] GetAllBytes()

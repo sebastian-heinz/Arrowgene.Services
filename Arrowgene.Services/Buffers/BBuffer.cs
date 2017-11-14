@@ -82,6 +82,16 @@ namespace Arrowgene.Services.Buffers
             return new BBuffer(GetBytes(offset, length));
         }
 
+        public override IBuffer Provide()
+        {
+            return new BBuffer();
+        }
+
+        public override IBuffer Provide(byte[] buffer)
+        {
+            return new BBuffer(buffer);
+        }
+        
         public override byte[] GetAllBytes()
         {
             byte[] bytes = new byte[_size];

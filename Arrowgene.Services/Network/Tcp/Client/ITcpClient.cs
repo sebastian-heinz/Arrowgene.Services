@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+using Arrowgene.Services.Buffers;
+
 namespace Arrowgene.Services.Network.Tcp.Client
 {
     using System;

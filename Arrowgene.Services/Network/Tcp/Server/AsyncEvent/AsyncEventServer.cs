@@ -22,7 +22,6 @@
  * SOFTWARE.
  */
 
-
 namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
 {
     using System;

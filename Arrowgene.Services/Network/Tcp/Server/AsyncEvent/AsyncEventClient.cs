@@ -29,21 +29,20 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
 
     public class AsyncEventClient : ITcpSocket
     {
-        public Socket Socket { get; }
+        public Socket Socket { get; private set; }
 
-        public void Accept(Socket Socket)
+        public void Accept(Socket socket)
         {
-            Socket = Socket;
+            this.Socket = socket;
         }
 
         public void Send(byte[] payload)
         {
-            throw new System.NotImplementedException();
+            
         }
 
         public void Close()
-        {
-            throw new System.NotImplementedException();
+        { 
         }
     }
 }

@@ -42,6 +42,7 @@ namespace Arrowgene.Services.Network.Tcp.Client
         private int _bufferSize;
         private volatile bool _isConnected;
 
+        public IBufferProvider BufferProvider { get; set; }
         public int SocketPollTimeout { get; set; }
         public int ThreadJoinTimeout { get; set; }
         public string Name { get; set; }
@@ -57,6 +58,7 @@ namespace Arrowgene.Services.Network.Tcp.Client
 
         public TcpClient(ILogger logger)
         {
+            BufferProvider = new BBuffer();
             Logger = logger;
             SocketPollTimeout = 100;
             Name = TCP_CLIENT;
@@ -202,7 +204,7 @@ namespace Arrowgene.Services.Network.Tcp.Client
                 {
                     byte[] buffer = new byte[_bufferSize];
                     int bytesReceived;
-                    ByteBuffer payload = new ByteBuffer();
+                    IBuffer payload = BufferProvider.Provide();
                     try
                     {
                         while (_socket.Available > 0 && (bytesReceived = _socket.Receive(buffer, 0, _bufferSize, SocketFlags.None)) > 0)
@@ -230,7 +232,7 @@ namespace Arrowgene.Services.Network.Tcp.Client
             Logger.Write("Reading thread ended.", LogType.CLIENT);
         }
 
-        protected virtual void OnClientReceivedPacket(ByteBuffer payload)
+        protected virtual void OnClientReceivedPacket(IBuffer payload)
         {
             EventHandler<ReceivedPacketEventArgs> receivedPacket = ReceivedPacket;
             if (receivedPacket != null)

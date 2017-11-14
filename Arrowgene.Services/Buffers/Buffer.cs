@@ -27,7 +27,7 @@ namespace Arrowgene.Services.Buffers
     using System;
     using System.Text;
 
-    public abstract class Buffer : IBuffer, ICloneable
+    public abstract class Buffer : IBuffer, IBufferProvider, ICloneable
     {
         public abstract int Size { get; }
         public abstract int Position { get; set; }
@@ -35,6 +35,8 @@ namespace Arrowgene.Services.Buffers
         public abstract void SetPositionStart();
         public abstract void SetPositionEnd();
         public abstract IBuffer Clone(int offset, int length);
+        public abstract IBuffer Provide();
+        public abstract IBuffer Provide(byte[] buffer);
         public abstract byte[] GetAllBytes();
         public abstract byte[] GetAllBytes(int offset);
         public abstract void WriteByte(byte value);
@@ -103,9 +105,9 @@ namespace Arrowgene.Services.Buffers
             for (int i = 0; i < buffer.Length; i++)
             {
                 char c = '.';
-                if (buffer[i] >= 'A' && buffer[i] <= 'Z') c = (char)buffer[i];
-                if (buffer[i] >= 'a' && buffer[i] <= 'z') c = (char)buffer[i];
-                if (buffer[i] >= '0' && buffer[i] <= '9') c = (char)buffer[i];
+                if (buffer[i] >= 'A' && buffer[i] <= 'Z') c = (char) buffer[i];
+                if (buffer[i] >= 'a' && buffer[i] <= 'z') c = (char) buffer[i];
+                if (buffer[i] >= '0' && buffer[i] <= '9') c = (char) buffer[i];
                 if (spaced && i != 0)
                 {
                     sb.Append("  ");
