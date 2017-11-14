@@ -33,7 +33,7 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
 
         public void Accept(Socket socket)
         {
-            this.Socket = socket;
+            Socket = socket;
         }
 
         public void Send(byte[] payload)

@@ -91,7 +91,7 @@ namespace Arrowgene.Services.Buffers
         {
             return new BBuffer(buffer);
         }
-        
+
         public override byte[] GetAllBytes()
         {
             byte[] bytes = new byte[_size];
@@ -106,12 +106,7 @@ namespace Arrowgene.Services.Buffers
 
         public override void WriteBytes(byte[] bytes)
         {
-            ExtendBufferIfNecessary(bytes.Length);
-            foreach (byte b in bytes)
-            {
-                _buffer[_currentPos++] = b;
-            }
-            UpdateSizeForPosition(_currentPos);
+            WriteBytes(bytes, 0, bytes.Length);
         }
 
         public override void WriteBytes(byte[] source, int srcOffset, int count)
@@ -121,14 +116,17 @@ namespace Arrowgene.Services.Buffers
 
         public override void WriteBytes(byte[] source, int srcOffset, int dstOffset, int count)
         {
-            ExtendBufferForOffsetIfNecessary(srcOffset, count);
+            ExtendBufferForOffsetIfNecessary(dstOffset, count);
             System.Buffer.BlockCopy(source, srcOffset, _buffer, dstOffset, count);
+            _currentPos += count;
             UpdateSizeForPosition(_currentPos);
         }
 
         public override void WriteByte(byte value)
         {
-            WriteBytes(new byte[] {value});
+            ExtendBufferIfNecessary(1);
+            _buffer[_currentPos++] = value;
+            UpdateSizeForPosition(_currentPos);
         }
 
         public override void WriteByte(int value)
