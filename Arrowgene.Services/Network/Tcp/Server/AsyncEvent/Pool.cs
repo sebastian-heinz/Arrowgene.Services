@@ -29,24 +29,24 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
     using System.Net.Sockets;
 
 // Represents a collection of reusable SocketAsyncEventArgs objects.  
-    class SocketAsyncEventArgsPool
+    class Pool<T>
     {
-        Stack<SocketAsyncEventArgs> m_pool;
+        Stack<T> m_pool;
 
         // Initializes the object pool to the specified size
         //
         // The "capacity" parameter is the maximum number of 
         // SocketAsyncEventArgs objects the pool can hold
-        public SocketAsyncEventArgsPool(int capacity)
+        public Pool(int capacity)
         {
-            m_pool = new Stack<SocketAsyncEventArgs>(capacity);
+            m_pool = new Stack<T>(capacity);
         }
 
         // Add a SocketAsyncEventArg instance to the pool
         //
         //The "item" parameter is the SocketAsyncEventArgs instance 
         // to add to the pool
-        public void Push(SocketAsyncEventArgs item)
+        public void Push(T item)
         {
             if (item == null)
             {
@@ -60,7 +60,7 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
 
         // Removes a SocketAsyncEventArgs instance from the pool
         // and returns the object removed from the pool
-        public SocketAsyncEventArgs Pop()
+        public T Pop()
         {
             lock (m_pool)
             {

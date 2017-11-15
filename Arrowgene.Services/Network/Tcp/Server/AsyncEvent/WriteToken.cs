@@ -9,9 +9,9 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
             get => _data;
         }
 
-        public Socket Socket
+        public AsyncEventClient Client
         {
-            get => _socket;
+            get => _client;
         }
 
         public int TransferredCount
@@ -25,7 +25,7 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
         }
 
         private byte[] _data;
-        private Socket _socket;
+        private AsyncEventClient _client;
         private int _transferredCount;
         private int _outstandingCount;
 
@@ -33,9 +33,9 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
         {
         }
 
-        public void Assign(Socket socket, byte[] data)
+        public void Assign(AsyncEventClient client, byte[] data)
         {
-            _socket = Socket;
+            _client = client;
             _data = data;
         }
 
@@ -47,7 +47,7 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
 
         public void Reset()
         {
-            _socket = null;
+            _client = null;
             _data = null;
         }
     }

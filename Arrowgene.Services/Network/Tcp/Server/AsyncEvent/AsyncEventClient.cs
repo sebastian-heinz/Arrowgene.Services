@@ -31,6 +31,16 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
     {
         public Socket Socket { get; private set; }
 
+        public SocketAsyncEventArgs ReadEventArg => _readEventArg;
+
+        private SocketAsyncEventArgs _readEventArg;
+
+        public AsyncEventClient()
+        {
+            _readEventArg = new SocketAsyncEventArgs();
+            _readEventArg.UserToken = this;
+        }
+
         public void Accept(Socket socket)
         {
             Socket = socket;
@@ -38,11 +48,10 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
 
         public void Send(byte[] payload)
         {
-            
         }
 
         public void Close()
-        { 
+        {
         }
     }
 }

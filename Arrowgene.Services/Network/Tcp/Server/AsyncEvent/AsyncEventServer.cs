@@ -41,8 +41,8 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
         private Thread _thread;
         private BufferManager _bufferManager;
         private Socket _listenSocket;
-        private SocketAsyncEventArgsPool _readPool;
-        private SocketAsyncEventArgsPool _writePool;
+        private Pool<AsyncEventClient> _readPool;
+        private Pool<SocketAsyncEventArgs> _writePool;
         private Semaphore _maxNumberAcceptedClients;
 
         public IBufferProvider BufferProvider { get; set; }
@@ -54,17 +54,16 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
             _numConnectedSockets = 0;
             _numConnections = 10;
             _bufferManager = new BufferManager(_bufferSize * _numConnections * 2, _bufferSize);
-            _readPool = new SocketAsyncEventArgsPool(_numConnections);
-            _writePool = new SocketAsyncEventArgsPool(_numConnections);
+            _readPool = new Pool<AsyncEventClient>(_numConnections);
+            _writePool = new Pool<SocketAsyncEventArgs>(_numConnections);
             _maxNumberAcceptedClients = new Semaphore(_numConnections, _numConnections);
             _bufferManager.InitBuffer();
             for (int i = 0; i < _numConnections; i++)
             {
-                SocketAsyncEventArgs readEventArg = new SocketAsyncEventArgs();
-                readEventArg.Completed += Receive_Completed;
-                readEventArg.UserToken = new AsyncEventClient();
-                _bufferManager.SetBuffer(readEventArg);
-                _readPool.Push(readEventArg);
+                AsyncEventClient client = new AsyncEventClient();
+                client.ReadEventArg.Completed += Receive_Completed;
+                _bufferManager.SetBuffer(client.ReadEventArg);
+                _readPool.Push(client);
 
                 SocketAsyncEventArgs writeEventArg = new SocketAsyncEventArgs();
                 writeEventArg.Completed += Send_Completed;
@@ -115,11 +114,11 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
             }
         }
 
-        public void SendData(Socket socket, byte[] data)
+        public void SendData(AsyncEventClient client, byte[] data)
         {
             SocketAsyncEventArgs writeEventArgs = _writePool.Pop();
             WriteToken token = (WriteToken) writeEventArgs.UserToken;
-            token.Assign(socket, data);
+            token.Assign(client, data);
             StartSend(writeEventArgs);
         }
 
@@ -173,13 +172,11 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
             Interlocked.Increment(ref _numConnectedSockets);
             Console.WriteLine("Client connection accepted. There are {0} clients connected to the server", _numConnectedSockets);
 
-            SocketAsyncEventArgs readEventArgs = _readPool.Pop();
-
-            AsyncEventClient client = (AsyncEventClient) readEventArgs.UserToken;
+            AsyncEventClient client = _readPool.Pop();
             client.Accept(acceptEventArg.AcceptSocket);
             OnClientConnected(client);
 
-            StartReceive(readEventArgs);
+            StartReceive(client.ReadEventArg);
             StartAccept(acceptEventArg);
         }
 
@@ -200,11 +197,9 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
 
         private void ProcessReceive(SocketAsyncEventArgs readEventArgs)
         {
+            AsyncEventClient client = (AsyncEventClient) readEventArgs.UserToken;
             if (readEventArgs.BytesTransferred > 0 && readEventArgs.SocketError == SocketError.Success)
             {
-                AsyncEventClient client = (AsyncEventClient) readEventArgs.UserToken;
-
-
                 IBuffer buffer = BufferProvider.Provide();
                 buffer.WriteBytes(readEventArgs.Buffer, readEventArgs.Offset, readEventArgs.BytesTransferred);
                 OnReceivedPacket(client, buffer);
@@ -213,7 +208,7 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
             }
             else
             {
-                CloseClientSocket(readEventArgs);
+                CloseClientSocket(client);
             }
         }
 
@@ -230,7 +225,7 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
                 writeEventArgs.SetBuffer(writeEventArgs.Offset, _bufferSize);
                 System.Buffer.BlockCopy(token.Data, token.TransferredCount, writeEventArgs.Buffer, writeEventArgs.Offset, _bufferSize);
             }
-            bool willRaiseEvent = token.Socket.SendAsync(writeEventArgs);
+            bool willRaiseEvent = token.Client.Socket.SendAsync(writeEventArgs);
             if (!willRaiseEvent)
             {
                 ProcessSend(writeEventArgs);
@@ -261,14 +256,13 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
             else
             {
                 token.Reset();
-                CloseClientSocket(writeEventArgs);
+                CloseClientSocket(token.Client);
                 _writePool.Push(writeEventArgs);
             }
         }
 
-        private void CloseClientSocket(SocketAsyncEventArgs e)
+        private void CloseClientSocket(AsyncEventClient client)
         {
-            AsyncEventClient client = e.UserToken as AsyncEventClient;
             try
             {
                 client.Socket.Shutdown(SocketShutdown.Send);
@@ -281,7 +275,7 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
             _maxNumberAcceptedClients.Release();
             OnClientDisconnected(client);
             Console.WriteLine("A client has been disconnected from the server. There are {0} clients connected to the server", _numConnectedSockets);
-            _readPool.Push(e);
+            _readPool.Push(client);
         }
     }
 }
