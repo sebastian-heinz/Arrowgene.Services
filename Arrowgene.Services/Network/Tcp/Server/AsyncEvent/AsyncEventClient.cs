@@ -24,6 +24,7 @@
 
 namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
 {
+    using System;
     using System.Net.Sockets;
     using Arrowgene.Services.Network.Tcp;
 
@@ -34,9 +35,11 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
         public SocketAsyncEventArgs ReadEventArg => _readEventArg;
 
         private SocketAsyncEventArgs _readEventArg;
+        private AsyncEventServer _server;
 
-        public AsyncEventClient()
+        public AsyncEventClient(AsyncEventServer server)
         {
+            _server = server;
             _readEventArg = new SocketAsyncEventArgs();
             _readEventArg.UserToken = this;
         }
@@ -46,12 +49,21 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
             Socket = socket;
         }
 
-        public void Send(byte[] payload)
+        public void Send(byte[] data)
         {
+            _server.SendData(this, data);
         }
 
         public void Close()
         {
+            try
+            {
+                Socket.Shutdown(SocketShutdown.Send);
+            }
+            catch (Exception)
+            {
+            }
+            Socket.Close();
         }
     }
 }

@@ -13,9 +13,10 @@
             // new HttpTunnelServerDemo();
             // new PortScanDemo();
             // new ProxyDemo();
-             new TcpConnectionDemo();
+            // new TcpConnectionDemo();
             // new UdpServerDemo();
             // new UdpClientDemo();
+            new TcpEchoDemo();
 
             Console.WriteLine("Press any key to exit..");
             Console.ReadKey();

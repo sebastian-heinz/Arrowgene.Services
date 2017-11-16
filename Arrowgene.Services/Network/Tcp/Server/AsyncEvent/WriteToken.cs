@@ -37,18 +37,22 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
         {
             _client = client;
             _data = data;
+            _outstandingCount = data.Length;
+            _transferredCount = 0;
         }
 
         public void Update(int transferredCount)
         {
             _transferredCount += transferredCount;
-            _outstandingCount = _data.Length - _transferredCount;
+            _outstandingCount -= transferredCount;
         }
 
         public void Reset()
         {
             _client = null;
             _data = null;
+            _outstandingCount = 0;
+            _transferredCount = 0;
         }
     }
 }

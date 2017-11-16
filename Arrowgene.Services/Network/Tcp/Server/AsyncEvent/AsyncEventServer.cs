@@ -34,16 +34,17 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
 
     public class AsyncEventServer : TcpServer
     {
-        private volatile bool _isRunning;
         private int _numConnections;
+        private int _numSimultaneouslyWriteOperations;
         private int _bufferSize;
-        private int _numConnectedSockets;
         private Thread _thread;
         private BufferManager _bufferManager;
         private Socket _listenSocket;
-        private Pool<AsyncEventClient> _readPool;
+        private Pool<AsyncEventClient> _clientPool;
         private Pool<SocketAsyncEventArgs> _writePool;
         private Semaphore _maxNumberAcceptedClients;
+        private Semaphore _maxNumberWriteOperations;
+        private SocketAsyncEventArgs _acceptEventArg;
 
         public IBufferProvider BufferProvider { get; set; }
 
@@ -51,34 +52,35 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
         {
             BufferProvider = new BBuffer();
             _bufferSize = 10;
-            _numConnectedSockets = 0;
             _numConnections = 10;
-            _bufferManager = new BufferManager(_bufferSize * _numConnections * 2, _bufferSize);
-            _readPool = new Pool<AsyncEventClient>(_numConnections);
+            _numSimultaneouslyWriteOperations = 10;
+        }
+
+        public override void Start()
+        {
+            _acceptEventArg = new SocketAsyncEventArgs();
+            _acceptEventArg.Completed += Accept_Completed;
+            _bufferManager = new BufferManager(_bufferSize * _numConnections * _numSimultaneouslyWriteOperations, _bufferSize);
+            _clientPool = new Pool<AsyncEventClient>(_numConnections);
             _writePool = new Pool<SocketAsyncEventArgs>(_numConnections);
             _maxNumberAcceptedClients = new Semaphore(_numConnections, _numConnections);
+            _maxNumberWriteOperations = new Semaphore(_numSimultaneouslyWriteOperations, _numSimultaneouslyWriteOperations);
             _bufferManager.InitBuffer();
             for (int i = 0; i < _numConnections; i++)
             {
-                AsyncEventClient client = new AsyncEventClient();
+                AsyncEventClient client = new AsyncEventClient(this);
                 client.ReadEventArg.Completed += Receive_Completed;
                 _bufferManager.SetBuffer(client.ReadEventArg);
-                _readPool.Push(client);
-
+                _clientPool.Push(client);
+            }
+            for (int i = 0; i < _numSimultaneouslyWriteOperations; i++)
+            {
                 SocketAsyncEventArgs writeEventArg = new SocketAsyncEventArgs();
                 writeEventArg.Completed += Send_Completed;
                 writeEventArg.UserToken = new WriteToken();
                 _bufferManager.SetBuffer(writeEventArg);
                 _writePool.Push(writeEventArg);
             }
-        }
-        // https://codereview.stackexchange.com/questions/8361/socketasynceventargs-send-and-receive
-        // check SocketError in process methods
-        // check last OP? - uneccasry because hard defined
-        // close client socket mngmt
-
-        public override void Start()
-        {
             _thread = new Thread(Run);
             _thread.Name = "AsyncEventServer";
             _thread.Start();
@@ -86,7 +88,6 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
 
         public override void Stop()
         {
-            _isRunning = false;
             if (_thread != null)
             {
                 Logger.Write("Shutting server thread down...", LogType.CLIENT);
@@ -116,7 +117,7 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
 
         public void SendData(AsyncEventClient client, byte[] data)
         {
-            SocketAsyncEventArgs writeEventArgs = _writePool.Pop();
+            SocketAsyncEventArgs writeEventArgs = AcquireWrite();
             WriteToken token = (WriteToken) writeEventArgs.UserToken;
             token.Assign(client, data);
             StartSend(writeEventArgs);
@@ -128,56 +129,43 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
             _listenSocket = new Socket(localEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             _listenSocket.Bind(localEndPoint);
             _listenSocket.Listen(100);
-            StartAccept(null);
+            StartAccept();
         }
 
-        private void StartAccept(SocketAsyncEventArgs acceptEventArg)
+        private void StartAccept()
         {
-            if (acceptEventArg == null)
-            {
-                acceptEventArg = new SocketAsyncEventArgs();
-                acceptEventArg.Completed += Accept_Completed;
-            }
-            else
-            {
-                acceptEventArg.AcceptSocket = null;
-            }
             _maxNumberAcceptedClients.WaitOne();
-            bool willRaiseEvent = _listenSocket.AcceptAsync(acceptEventArg);
+            _acceptEventArg.AcceptSocket = null;
+            bool willRaiseEvent = _listenSocket.AcceptAsync(_acceptEventArg);
             if (!willRaiseEvent)
             {
-                ProcessAccept(acceptEventArg);
+                ProcessAccept(_acceptEventArg);
             }
         }
 
         private void Accept_Completed(object sender, SocketAsyncEventArgs acceptEventArg)
         {
-            if (acceptEventArg.SocketError != SocketError.OperationAborted)
-            {
-                Console.WriteLine(acceptEventArg.SocketError);
-                // Server shut down.
-            }
-            if (acceptEventArg.SocketError != SocketError.Success)
-            {
-                Console.WriteLine(acceptEventArg.SocketError);
-            }
-            else
-            {
-                ProcessAccept(acceptEventArg);
-            }
+            ProcessAccept(acceptEventArg);
         }
 
         private void ProcessAccept(SocketAsyncEventArgs acceptEventArg)
         {
-            Interlocked.Increment(ref _numConnectedSockets);
-            Console.WriteLine("Client connection accepted. There are {0} clients connected to the server", _numConnectedSockets);
-
-            AsyncEventClient client = _readPool.Pop();
-            client.Accept(acceptEventArg.AcceptSocket);
-            OnClientConnected(client);
-
-            StartReceive(client.ReadEventArg);
-            StartAccept(acceptEventArg);
+            if (acceptEventArg.SocketError == SocketError.Success)
+            {
+                AsyncEventClient client = _clientPool.Pop();
+                client.Accept(acceptEventArg.AcceptSocket);
+                OnClientConnected(client);
+                StartReceive(client.ReadEventArg);
+                StartAccept();
+            }
+            else
+            {
+                if (acceptEventArg.SocketError == SocketError.OperationAborted)
+                {
+                    // Server shut down.
+                }
+                Console.WriteLine(acceptEventArg.SocketError);
+            }
         }
 
         private void StartReceive(SocketAsyncEventArgs readEventArgs)
@@ -203,7 +191,6 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
                 IBuffer buffer = BufferProvider.Provide();
                 buffer.WriteBytes(readEventArgs.Buffer, readEventArgs.Offset, readEventArgs.BytesTransferred);
                 OnReceivedPacket(client, buffer);
-
                 StartReceive(readEventArgs);
             }
             else
@@ -246,7 +233,7 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
                 if (token.OutstandingCount == 0)
                 {
                     token.Reset();
-                    _writePool.Push(writeEventArgs);
+                    ReleaseWrite(writeEventArgs);
                 }
                 else
                 {
@@ -257,25 +244,28 @@ namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
             {
                 token.Reset();
                 CloseClientSocket(token.Client);
-                _writePool.Push(writeEventArgs);
+                ReleaseWrite(writeEventArgs);
             }
+        }
+
+        private void ReleaseWrite(SocketAsyncEventArgs writeEventArgs)
+        {
+            _writePool.Push(writeEventArgs);
+            _maxNumberWriteOperations.Release();
+        }
+
+        private SocketAsyncEventArgs AcquireWrite()
+        {
+            _maxNumberWriteOperations.WaitOne();
+            return _writePool.Pop();
         }
 
         private void CloseClientSocket(AsyncEventClient client)
         {
-            try
-            {
-                client.Socket.Shutdown(SocketShutdown.Send);
-            }
-            catch (Exception)
-            {
-            }
-            client.Socket.Close();
-            Interlocked.Decrement(ref _numConnectedSockets);
+            client.Close();
+            _clientPool.Push(client);
             _maxNumberAcceptedClients.Release();
             OnClientDisconnected(client);
-            Console.WriteLine("A client has been disconnected from the server. There are {0} clients connected to the server", _numConnectedSockets);
-            _readPool.Push(client);
         }
     }
 }
