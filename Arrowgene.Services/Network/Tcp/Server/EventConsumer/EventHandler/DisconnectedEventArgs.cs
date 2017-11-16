@@ -22,7 +22,8 @@
  * SOFTWARE.
  */
 
-namespace Arrowgene.Services.Network.Tcp.Server
+
+namespace Arrowgene.Services.Network.Tcp.Server.EventConsumer.EventHandler
 {
     using System;
 

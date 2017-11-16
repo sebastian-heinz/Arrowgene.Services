@@ -22,9 +22,9 @@
  * SOFTWARE.
  */
 
+
 namespace Arrowgene.Services.Network.Tcp.Server
 {
-    using System;
     using System.Net;
     using Logging;
 
@@ -44,21 +44,6 @@ namespace Arrowgene.Services.Network.Tcp.Server
         /// Server port.
         /// </summary>
         int Port { get; }
-
-        /// <summary>
-        /// Occures when a client disconnected.
-        /// </summary>
-        event EventHandler<DisconnectedEventArgs> ClientDisconnected;
-
-        /// <summary>
-        /// Occures when a client connected.
-        /// </summary>
-        event EventHandler<ConnectedEventArgs> ClientConnected;
-
-        /// <summary>
-        /// Occures when a packet is received.
-        /// </summary>
-        event EventHandler<ReceivedPacketEventArgs> ReceivedPacket;
 
         /// <summary>
         /// Start accepting connections,

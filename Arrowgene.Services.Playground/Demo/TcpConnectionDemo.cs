@@ -5,19 +5,21 @@
     using System.Net;
     using Logging;
     using Network.Tcp.Client;
-    using Network.Tcp.Server; 
-    using Network.TCP.Server.AsyncEvent;
+    using Network.Tcp.Server;
+    using Network.Tcp.Server.AsyncEvent;
+    using Network.Tcp.Server.EventConsumer.EventHandler;
 
     public class TcpConnectionDemo
     {
         public TcpConnectionDemo()
         {
+            EventHandlerConsumer consumer = new EventHandlerConsumer();
+            consumer.ClientConnected += Svr_ClientConnected;
+            consumer.ClientDisconnected += Svr_ClientDisconnected;
+            consumer.ReceivedPacket += Svr_ServerReceivedPacket;
 
-            ITcpServer svr = new AsyncEventServer(IPAddress.Any, 2345, new Logger("a"));
+            ITcpServer svr = new AsyncEventServer(IPAddress.Any, 2345, consumer, new Logger("a"));
             svr.Logger.LogWrite += Logger_LogWrite_Server;
-            svr.ClientConnected += Svr_ClientConnected;
-            svr.ClientDisconnected += Svr_ClientDisconnected;
-            svr.ReceivedPacket += Svr_ServerReceivedPacket;
             svr.Start();
 
             ITcpClient cli = new TcpClient();
@@ -42,25 +44,26 @@
             Console.ReadKey();
         }
 
+
         private void Cli_ClientReceivedPacket(object sender, Network.Tcp.Client.ReceivedPacketEventArgs e)
         {
             IBuffer data = e.Data;
             Console.WriteLine(string.Format("Demo: Client: received packet Size:{0}", data.Size));
         }
 
-        private void Svr_ServerReceivedPacket(object sender, Network.Tcp.Server.ReceivedPacketEventArgs e)
+        private void Svr_ServerReceivedPacket(object sender, Network.Tcp.Server.EventConsumer.EventHandler.ReceivedPacketEventArgs e)
         {
-            IBuffer data = e.Data;
-            Console.WriteLine(string.Format("Demo: Server: received packet Size:{0}", data.Size));
+            byte[] received = e.Data;
+            Console.WriteLine(string.Format("Demo: Server: received packet Size:{0}", received.Length));
             e.Socket.Send(new byte[10]);
         }
 
-        private void Logger_LogWrite_Client(object sender, Logging.LogWriteEventArgs e)
+        private void Logger_LogWrite_Client(object sender, LogWriteEventArgs e)
         {
             Console.WriteLine(string.Format("Client Log: {0}", e.Log.Text));
         }
 
-        private void Logger_LogWrite_Server(object sender, Logging.LogWriteEventArgs e)
+        private void Logger_LogWrite_Server(object sender, LogWriteEventArgs e)
         {
             Console.WriteLine(string.Format("Server Log: {0}", e.Log.Text));
         }
@@ -75,12 +78,12 @@
             Console.WriteLine("Demo: Client Connected");
         }
 
-        private void Svr_ClientDisconnected(object sender, Network.Tcp.Server.DisconnectedEventArgs e)
+        private void Svr_ClientDisconnected(object sender, Network.Tcp.Server.EventConsumer.EventHandler.DisconnectedEventArgs e)
         {
             Console.WriteLine(string.Format("Demo: Server: Client Disconnected ({0})", e.Socket));
         }
 
-        private void Svr_ClientConnected(object sender, Network.Tcp.Server.ConnectedEventArgs e)
+        private void Svr_ClientConnected(object sender, Network.Tcp.Server.EventConsumer.EventHandler.ConnectedEventArgs e)
         {
             Console.WriteLine(string.Format("Demo: Server: Client Connected ({0})", e.Socket));
         }

@@ -22,55 +22,47 @@
  * SOFTWARE.
  */
 
-
-namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
+namespace Arrowgene.Services.Network.Udp
 {
-    using System.Collections.Generic;
-    using System.Net.Sockets;
+    using Buffers;
+    using System;
+    using System.Net;
 
-    class BufferManager
+
+    public class ReceivedUdpPacketEventArgs : EventArgs
     {
-        int m_numBytes;
-        byte[] m_buffer;
-        Stack<int> m_freeIndexPool;
-        int m_currentIndex;
-        int m_bufferSize;
+        private IBuffer readableBuffer;
 
-        public BufferManager(int totalBytes, int bufferSize)
+
+        public ReceivedUdpPacketEventArgs(int size, byte[] received, IPEndPoint remoteIPEndPoint)
         {
-            m_numBytes = totalBytes;
-            m_currentIndex = 0;
-            m_bufferSize = bufferSize;
-            m_freeIndexPool = new Stack<int>();
+            this.Size = size;
+            this.Received = received;
+            this.RemoteIPEndPoint = remoteIPEndPoint;
         }
 
-        public void InitBuffer()
+
+        public IBuffer ReadableBuffer
         {
-            m_buffer = new byte[m_numBytes];
+            get { return this.GetReadableBuffer(); }
         }
 
-        public bool SetBuffer(SocketAsyncEventArgs args)
+
+        public IPEndPoint RemoteIPEndPoint { get; private set; }
+
+
+        public byte[] Received { get; private set; }
+
+
+        public int Size { get; private set; }
+
+        private IBuffer GetReadableBuffer()
         {
-            if (m_freeIndexPool.Count > 0)
+            if (this.readableBuffer == null)
             {
-                args.SetBuffer(m_buffer, m_freeIndexPool.Pop(), m_bufferSize);
+                readableBuffer = new ByteBuffer(this.Received);
             }
-            else
-            {
-                if ((m_numBytes - m_bufferSize) < m_currentIndex)
-                {
-                    return false;
-                }
-                args.SetBuffer(m_buffer, m_currentIndex, m_bufferSize);
-                m_currentIndex += m_bufferSize;
-            }
-            return true;
-        }
-
-        public void FreeBuffer(SocketAsyncEventArgs args)
-        {
-            m_freeIndexPool.Push(args.Offset);
-            args.SetBuffer(null, 0, 0);
+            return this.readableBuffer;
         }
     }
 }

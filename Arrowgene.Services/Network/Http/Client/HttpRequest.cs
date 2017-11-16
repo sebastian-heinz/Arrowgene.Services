@@ -1,19 +1,27 @@
 ﻿/*
- *  Copyright 2015 Sebastian Heinz <sebastian.heinz.gt@googlemail.com>
+ * MIT License
  * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (c) 2018 Sebastian Heinz <sebastian.heinz.gt@googlemail.com>
  * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
+
 namespace Arrowgene.Services.Network.Http.Client
 {
     using System;
@@ -33,7 +41,7 @@ namespace Arrowgene.Services.Network.Http.Client
         private Thread asyncHttpResponseThread;
         public event EventHandler<AsyncHttpResponseEventArgs> AsyncHttpResponse;
 
-        public const HttpStatusCode NO_HTTP_STATUS_CODE_AVAILABLE = (HttpStatusCode)0;
+        public const HttpStatusCode NO_HTTP_STATUS_CODE_AVAILABLE = (HttpStatusCode) 0;
 
         public const string GET_METHOD = "GET";
         public const string HEAD_METHOD = "HEAD";
@@ -68,6 +76,7 @@ namespace Arrowgene.Services.Network.Http.Client
         /// Timeout in ms to wait till a http response arrives.
         /// </summary>
         public int Timeout { get; set; }
+
         public int ReadWriteTimeout { get; set; }
         public string UserAgent { get; set; }
 
@@ -81,6 +90,7 @@ namespace Arrowgene.Services.Network.Http.Client
         /// Available after a request.
         /// </summary>
         public string RequestUrl { get; private set; }
+
         public string Method { get; set; }
         public string Accept { get; set; }
         public IWebProxy Proxy { get; set; }
@@ -106,7 +116,8 @@ namespace Arrowgene.Services.Network.Http.Client
                 headers += key + " " + this.RequestHeaders.Get(key) + "; ";
             }
 
-            return string.Format("URL:{0}\r\n Method:{1}\r\n StatusCode:{2}\r\n Timeout:{3}\r\n ReadWriteTimeout:{4}\r\n Headers:{5}", this.RequestUrl, this.Method, this.StatusCode, this.Timeout, this.ReadWriteTimeout, headers);
+            return string.Format("URL:{0}\r\n Method:{1}\r\n StatusCode:{2}\r\n Timeout:{3}\r\n ReadWriteTimeout:{4}\r\n Headers:{5}", this.RequestUrl, this.Method, this.StatusCode, this.Timeout, this.ReadWriteTimeout,
+                headers);
         }
 
         public void SetCredential(string userName, string password)
@@ -162,7 +173,7 @@ namespace Arrowgene.Services.Network.Http.Client
 
             try
             {
-                HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create(url);
+                HttpWebRequest httpRequest = (HttpWebRequest) WebRequest.Create(url);
                 httpRequest.Proxy = this.Proxy;
                 httpRequest.Timeout = this.Timeout;
                 httpRequest.ReadWriteTimeout = this.ReadWriteTimeout;
@@ -188,7 +199,7 @@ namespace Arrowgene.Services.Network.Http.Client
 
                 this.ResetReturnProperties();
 
-                HttpWebResponse httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+                HttpWebResponse httpResponse = (HttpWebResponse) httpRequest.GetResponse();
 
                 this.StatusCode = httpResponse.StatusCode;
                 this.responseCharacterSet = httpResponse.CharacterSet;
@@ -202,7 +213,7 @@ namespace Arrowgene.Services.Network.Http.Client
 
                 if (webException.Status == WebExceptionStatus.ProtocolError && webException.Response != null)
                 {
-                    HttpWebResponse webResponse = (HttpWebResponse)webException.Response;
+                    HttpWebResponse webResponse = (HttpWebResponse) webException.Response;
                     response = this.ReadResponse(webResponse);
                     this.StatusCode = webResponse.StatusCode;
                 }

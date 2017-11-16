@@ -23,59 +23,20 @@
  */
 
 
-namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
+namespace Arrowgene.Services.Network.Tcp.Server.EventConsumer.EventHandler
 {
-    public class WriteToken
+    using System;
+
+    public class ReceivedPacketEventArgs : EventArgs
     {
-        public byte[] Data
+        public ReceivedPacketEventArgs(ITcpSocket socket, byte[] data)
         {
-            get => _data;
+            Socket = socket;
+            Data = data;
         }
 
-        public AsyncEventClient Client
-        {
-            get => _client;
-        }
+        public ITcpSocket Socket { get; }
 
-        public int TransferredCount
-        {
-            get => _transferredCount;
-        }
-
-        public int OutstandingCount
-        {
-            get => _outstandingCount;
-        }
-
-        private byte[] _data;
-        private AsyncEventClient _client;
-        private int _transferredCount;
-        private int _outstandingCount;
-
-        public WriteToken()
-        {
-        }
-
-        public void Assign(AsyncEventClient client, byte[] data)
-        {
-            _client = client;
-            _data = data;
-            _outstandingCount = data.Length;
-            _transferredCount = 0;
-        }
-
-        public void Update(int transferredCount)
-        {
-            _transferredCount += transferredCount;
-            _outstandingCount -= transferredCount;
-        }
-
-        public void Reset()
-        {
-            _client = null;
-            _data = null;
-            _outstandingCount = 0;
-            _transferredCount = 0;
-        }
+        public byte[] Data { get; }
     }
 }

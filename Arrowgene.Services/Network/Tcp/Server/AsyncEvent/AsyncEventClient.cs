@@ -22,26 +22,25 @@
  * SOFTWARE.
  */
 
-namespace Arrowgene.Services.Network.TCP.Server.AsyncEvent
+
+namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
 {
     using System;
     using System.Net.Sockets;
-    using Arrowgene.Services.Network.Tcp;
+    using Tcp;
 
     public class AsyncEventClient : ITcpSocket
     {
         public Socket Socket { get; private set; }
+        public SocketAsyncEventArgs ReadEventArg { get; }
 
-        public SocketAsyncEventArgs ReadEventArg => _readEventArg;
-
-        private SocketAsyncEventArgs _readEventArg;
         private AsyncEventServer _server;
 
         public AsyncEventClient(AsyncEventServer server)
         {
             _server = server;
-            _readEventArg = new SocketAsyncEventArgs();
-            _readEventArg.UserToken = this;
+            ReadEventArg = new SocketAsyncEventArgs();
+            ReadEventArg.UserToken = this;
         }
 
         public void Accept(Socket socket)

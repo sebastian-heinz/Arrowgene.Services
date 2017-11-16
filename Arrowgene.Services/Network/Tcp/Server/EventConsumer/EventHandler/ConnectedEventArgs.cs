@@ -22,21 +22,18 @@
  * SOFTWARE.
  */
 
-namespace Arrowgene.Services.Network.Tcp.Server
+
+namespace Arrowgene.Services.Network.Tcp.Server.EventConsumer.EventHandler
 {
-    using Buffers;
     using System;
 
-    public class ReceivedPacketEventArgs : EventArgs
+    public class ConnectedEventArgs : EventArgs
     {
-        public ReceivedPacketEventArgs(ITcpSocket socket, IBuffer data)
+        public ConnectedEventArgs(ITcpSocket socket)
         {
             Socket = socket;
-            Data = data;
         }
 
         public ITcpSocket Socket { get; }
-
-        public IBuffer Data { get; }
     }
 }

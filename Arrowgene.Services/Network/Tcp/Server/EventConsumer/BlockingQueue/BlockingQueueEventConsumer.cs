@@ -23,54 +23,42 @@
  */
 
 
-namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
+namespace Arrowgene.Services.Network.Tcp.Server.EventConsumer.BlockingQueue
 {
-    using System.Collections.Generic;
-    using System.Net.Sockets;
+    using System.Collections.Concurrent;
 
-    class BufferManager
+    public class BlockingQueueEventConsumer : IClientEventConsumer
     {
-        int m_numBytes;
-        byte[] m_buffer;
-        Stack<int> m_freeIndexPool;
-        int m_currentIndex;
-        int m_bufferSize;
+        public BlockingCollection<ClientEvent> ClientEvents;
 
-        public BufferManager(int totalBytes, int bufferSize)
+
+        public BlockingQueueEventConsumer()
         {
-            m_numBytes = totalBytes;
-            m_currentIndex = 0;
-            m_bufferSize = bufferSize;
-            m_freeIndexPool = new Stack<int>();
+            OnStart();
         }
 
-        public void InitBuffer()
+        public void OnStart()
         {
-            m_buffer = new byte[m_numBytes];
+            ClientEvents = new BlockingCollection<ClientEvent>();
         }
 
-        public bool SetBuffer(SocketAsyncEventArgs args)
+        public void OnReceivedPacket(ITcpSocket socket, byte[] data)
         {
-            if (m_freeIndexPool.Count > 0)
-            {
-                args.SetBuffer(m_buffer, m_freeIndexPool.Pop(), m_bufferSize);
-            }
-            else
-            {
-                if ((m_numBytes - m_bufferSize) < m_currentIndex)
-                {
-                    return false;
-                }
-                args.SetBuffer(m_buffer, m_currentIndex, m_bufferSize);
-                m_currentIndex += m_bufferSize;
-            }
-            return true;
+            ClientEvents.Add(new ClientEvent(socket, ClientEventType.ReceivedData, data));
         }
 
-        public void FreeBuffer(SocketAsyncEventArgs args)
+        public void OnClientDisconnected(ITcpSocket socket)
         {
-            m_freeIndexPool.Push(args.Offset);
-            args.SetBuffer(null, 0, 0);
+            ClientEvents.Add(new ClientEvent(socket, ClientEventType.Disconnected));
+        }
+
+        public void OnClientConnected(ITcpSocket socket)
+        {
+            ClientEvents.Add(new ClientEvent(socket, ClientEventType.Connected));
+        }
+
+        public void OnStop()
+        {
         }
     }
 }

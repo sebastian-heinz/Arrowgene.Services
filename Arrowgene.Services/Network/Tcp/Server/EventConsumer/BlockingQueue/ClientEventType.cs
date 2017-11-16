@@ -22,17 +22,13 @@
  * SOFTWARE.
  */
 
-namespace Arrowgene.Services.Network.Tcp.Server
+
+namespace Arrowgene.Services.Network.Tcp.Server.EventConsumer.BlockingQueue
 {
-    using System;
-
-    public class ConnectedEventArgs : EventArgs
+    public enum ClientEventType
     {
-        public ConnectedEventArgs(ITcpSocket socket)
-        {
-            Socket = socket;
-        }
-
-        public ITcpSocket Socket { get; }
+        Connected,
+        ReceivedData,
+        Disconnected
     }
 }

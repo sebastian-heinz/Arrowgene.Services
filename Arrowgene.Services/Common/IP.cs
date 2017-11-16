@@ -1,19 +1,27 @@
 ﻿/*
- *  Copyright 2015 Sebastian Heinz <sebastian.heinz.gt@googlemail.com>
+ * MIT License
  * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (c) 2018 Sebastian Heinz <sebastian.heinz.gt@googlemail.com>
  * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
+
 namespace Arrowgene.Services.Common
 {
     using System;
@@ -40,7 +48,7 @@ namespace Arrowgene.Services.Common
         /// Note that the ability to interact with an IPv4 address requires the use of IPv4 mapped addresses.
         /// This socket option is supported on Windows Vista or later.
         /// </summary>
-        public const SocketOptionName USE_IPV6_ONLY = (SocketOptionName)27;
+        public const SocketOptionName USE_IPV6_ONLY = (SocketOptionName) 27;
 
         private static IPEndPoint QueryRoutingInterface(Socket socket, IPEndPoint remoteEndPoint)
         {
@@ -60,7 +68,7 @@ namespace Arrowgene.Services.Common
             }
 
             EndPoint ep = remoteEndPoint.Create(address);
-            return (IPEndPoint)ep;
+            return (IPEndPoint) ep;
         }
 
         /// <summary>
@@ -132,14 +140,14 @@ namespace Arrowgene.Services.Common
         public static string GetMacAddress()
         {
             List<NetworkInterfaceType> acceptedNetInterfaceTypes = new List<NetworkInterfaceType>
-             {
+            {
                 NetworkInterfaceType.Ethernet,
                 NetworkInterfaceType.Ethernet3Megabit,
                 NetworkInterfaceType.FastEthernetFx,
                 NetworkInterfaceType.FastEthernetT,
                 NetworkInterfaceType.GigabitEthernet,
                 NetworkInterfaceType.Wireless80211
-             };
+            };
 
             string mac = null;
 
@@ -322,9 +330,5 @@ namespace Arrowgene.Services.Common
         {
             return IP.ConnectTest(new IPEndPoint(ipAddress, port), timeout);
         }
-
-
-
-
     }
 }

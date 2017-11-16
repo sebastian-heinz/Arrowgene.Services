@@ -1,7 +1,6 @@
 ﻿namespace Arrowgene.Services.Playground
 {
-    using Arrowgene.Services.Playground.Demo;
-    using System;
+    using Demo;
 
     public class Program
     {
@@ -17,9 +16,6 @@
             // new UdpServerDemo();
             // new UdpClientDemo();
             new TcpEchoDemo();
-
-            Console.WriteLine("Press any key to exit..");
-            Console.ReadKey();
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Arrowgene.Services.Playground.Demo
 {
-    using Network.UDP;
+    using Network.Udp;
     using System;
     using System.Net;
     using System.Threading;
@@ -14,7 +14,7 @@
         {
             IPAddress serverIP = IPAddress.Parse("127.0.0.1");
 
-            UDPSocket client = new UDPSocket();
+            UdpSocket client = new UdpSocket();
             client.ReceivedPacket += Client_ReceivedPacket;
 
 
@@ -28,7 +28,7 @@
             client.StopReceive();
         }
 
-        private void Client_ReceivedPacket(object sender, ReceivedUDPPacketEventArgs e)
+        private void Client_ReceivedPacket(object sender, ReceivedUdpPacketEventArgs e)
         {
             Console.WriteLine("UdpDemo::EchoServer_ReceivedPacket: received: " + e.Size + "bytes from " + e.RemoteIPEndPoint.ToString());
             this.received = true;
