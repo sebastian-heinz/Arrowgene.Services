@@ -217,7 +217,16 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
                 writeEventArgs.SetBuffer(writeEventArgs.Offset, _bufferSize);
                 Buffer.BlockCopy(token.Data, token.TransferredCount, writeEventArgs.Buffer, writeEventArgs.Offset, _bufferSize);
             }
-            bool willRaiseEvent = token.Client.Socket.SendAsync(writeEventArgs);
+            bool willRaiseEvent;
+            try
+            {
+                willRaiseEvent = token.Client.Socket.SendAsync(writeEventArgs);
+            }
+            catch (ObjectDisposedException ex)
+            {
+                ReleaseWrite(writeEventArgs);
+                return;
+            }
             if (!willRaiseEvent)
             {
                 ProcessSend(writeEventArgs);
