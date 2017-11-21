@@ -27,20 +27,25 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
 {
     using System;
     using System.Net.Sockets;
+    using System.Collections.Generic;
     using Tcp;
+
 
     public class AsyncEventClient : ITcpSocket
     {
         public Socket Socket { get; private set; }
-        public SocketAsyncEventArgs ReadEventArg { get; }
+
+        internal SocketAsyncEventArgs ReadEvent { get; }
+        internal List<SocketAsyncEventArgs> WriteEvents { get; }
 
         private AsyncEventServer _server;
 
         public AsyncEventClient(AsyncEventServer server)
         {
             _server = server;
-            ReadEventArg = new SocketAsyncEventArgs();
-            ReadEventArg.UserToken = this;
+            WriteEvents = new List<SocketAsyncEventArgs>();
+            ReadEvent = new SocketAsyncEventArgs();
+            ReadEvent.UserToken = this;
         }
 
         public void Accept(Socket socket)

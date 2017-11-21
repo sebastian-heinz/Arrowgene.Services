@@ -58,6 +58,7 @@
                 }
                 catch (Exception ex)
                 {
+                    Console.WriteLine(ex);
                     _isRunning = false;
                 }
                 if (clientEvent != null)

@@ -44,7 +44,7 @@ namespace Arrowgene.Services.Network.Tcp.Server.EventConsumer.BlockingQueue
 
         public void OnReceivedPacket(ITcpSocket socket, byte[] data)
         {
-            ClientEvents.Add(new ClientEvent(socket, ClientEventType.ReceivedData, data));
+            ClientEvents.TryAdd(new ClientEvent(socket, ClientEventType.ReceivedData, data));
         }
 
         public void OnClientDisconnected(ITcpSocket socket)

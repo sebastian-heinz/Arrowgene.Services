@@ -52,9 +52,9 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
         public AsyncEventServer(IPAddress ipAddress, int port, IClientEventConsumer clientEventConsumer, ILogger logger)
             : base(ipAddress, port, clientEventConsumer, logger)
         {
-            _bufferSize = 10;
-            _numConnections = 10;
-            _numSimultaneouslyWriteOperations = 10;
+            _bufferSize = 1000;
+            _numConnections = 100;
+            _numSimultaneouslyWriteOperations = 100;
             _backlog = 100;
         }
 
@@ -72,8 +72,8 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
             for (int i = 0; i < _numConnections; i++)
             {
                 AsyncEventClient client = new AsyncEventClient(this);
-                client.ReadEventArg.Completed += Receive_Completed;
-                _bufferManager.SetBuffer(client.ReadEventArg);
+                client.ReadEvent.Completed += Receive_Completed;
+                _bufferManager.SetBuffer(client.ReadEvent);
                 _clientPool.Push(client);
             }
             for (int i = 0; i < _numSimultaneouslyWriteOperations; i++)
@@ -121,8 +121,14 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
 
         public void SendData(AsyncEventClient client, byte[] data)
         {
+            if (!client.Socket.Connected)
+            {
+                Logger.Write("SendData:Socket is not connected");
+                return;
+            }
             _maxNumberWriteOperations.WaitOne();
             SocketAsyncEventArgs writeEventArgs = _writePool.Pop();
+            client.WriteEvents.Add(writeEventArgs);
             WriteToken token = (WriteToken) writeEventArgs.UserToken;
             token.Assign(client, data);
             StartSend(writeEventArgs);
@@ -160,7 +166,7 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
                 AsyncEventClient client = _clientPool.Pop();
                 client.Accept(acceptEventArg.AcceptSocket);
                 ClientEventConsumer.OnClientConnected(client);
-                StartReceive(client.ReadEventArg);
+                StartReceive(client.ReadEvent);
                 StartAccept();
             }
             else
@@ -225,6 +231,7 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
             catch (ObjectDisposedException ex)
             {
                 ReleaseWrite(writeEventArgs);
+                Logger.Write("StartSend:Socket was disposed");
                 return;
             }
             if (!willRaiseEvent)
@@ -271,6 +278,11 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
         private void CloseClientSocket(AsyncEventClient client)
         {
             client.Close();
+            foreach (SocketAsyncEventArgs writeEvent in client.WriteEvents)
+            {
+                ReleaseWrite(writeEvent);
+            }
+            client.WriteEvents.Clear();
             _clientPool.Push(client);
             _maxNumberAcceptedClients.Release();
             ClientEventConsumer.OnClientDisconnected(client);

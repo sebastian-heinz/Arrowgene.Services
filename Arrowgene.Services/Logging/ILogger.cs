@@ -29,6 +29,7 @@ namespace Arrowgene.Services.Logging
     public interface ILogger
     {
         void Write(string log, LogType logType);
+        void Write(string log);
         event EventHandler<LogWriteEventArgs> LogWrite;
     }
 }
