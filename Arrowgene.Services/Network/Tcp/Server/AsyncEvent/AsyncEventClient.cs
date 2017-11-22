@@ -27,29 +27,20 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
 {
     using System;
     using System.Net.Sockets;
-    using System.Collections.Generic;
     using Tcp;
 
 
     public class AsyncEventClient : ITcpSocket
     {
-        public Socket Socket { get; private set; }
-
-        internal SocketAsyncEventArgs ReadEvent { get; }
-        internal List<SocketAsyncEventArgs> WriteEvents { get; }
+        public Socket Socket { get; }
+        public bool IsAlive { get; private set; }
 
         private AsyncEventServer _server;
 
-        public AsyncEventClient(AsyncEventServer server)
+        public AsyncEventClient(Socket socket, AsyncEventServer server)
         {
+            IsAlive = true;
             _server = server;
-            WriteEvents = new List<SocketAsyncEventArgs>();
-            ReadEvent = new SocketAsyncEventArgs();
-            ReadEvent.UserToken = this;
-        }
-
-        public void Accept(Socket socket)
-        {
             Socket = socket;
         }
 
@@ -60,6 +51,7 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
 
         public void Close()
         {
+            IsAlive = false;
             try
             {
                 Socket.Shutdown(SocketShutdown.Send);

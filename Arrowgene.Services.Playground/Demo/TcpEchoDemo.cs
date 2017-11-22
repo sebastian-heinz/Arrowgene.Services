@@ -10,6 +10,12 @@
 
     public class TcpEchoDemo
     {
+        
+        private void LogAnyExceptions(object sender, UnhandledExceptionEventArgs e)
+        {
+            Console.Write(e.ExceptionObject);
+        }
+        
         private volatile bool _isRunning;
         private BlockingQueueEventConsumer _consumer;
         private Thread _consumerThread;
@@ -17,6 +23,7 @@
 
         public TcpEchoDemo()
         {
+            AppDomain.CurrentDomain.UnhandledException += LogAnyExceptions;
             Start();
             Console.WriteLine("Echo Demo: Press any key to exit...");
             Console.ReadKey();

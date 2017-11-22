@@ -35,14 +35,14 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
 
     public class AsyncEventServer : TcpServer
     {
-        private int _numConnections;
+        private int _maxConnections;
         private int _numSimultaneouslyWriteOperations;
         private int _bufferSize;
         private int _backlog;
         private Thread _thread;
         private BufferManager _bufferManager;
         private Socket _listenSocket;
-        private Pool<AsyncEventClient> _clientPool;
+        private Pool<SocketAsyncEventArgs> _readPool;
         private Pool<SocketAsyncEventArgs> _writePool;
         private Semaphore _maxNumberAcceptedClients;
         private Semaphore _maxNumberWriteOperations;
@@ -52,10 +52,15 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
         public AsyncEventServer(IPAddress ipAddress, int port, IClientEventConsumer clientEventConsumer, ILogger logger)
             : base(ipAddress, port, clientEventConsumer, logger)
         {
-            _bufferSize = 1000;
-            _numConnections = 100;
-            _numSimultaneouslyWriteOperations = 100;
-            _backlog = 100;
+            Configure(new AsyncEventSettings());
+        }
+
+        public void Configure(AsyncEventSettings settings)
+        {
+            _bufferSize = settings.BufferSize;
+            _maxConnections = settings.MaxConnections;
+            _numSimultaneouslyWriteOperations = settings.NumSimultaneouslyWriteOperations;
+            _backlog = settings.Backlog;
         }
 
         public override void Start()
@@ -63,26 +68,27 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
             ClientEventConsumer.OnStart();
             _acceptEventArg = new SocketAsyncEventArgs();
             _acceptEventArg.Completed += Accept_Completed;
-            _bufferManager = new BufferManager(_bufferSize * _numConnections * _numSimultaneouslyWriteOperations, _bufferSize);
-            _clientPool = new Pool<AsyncEventClient>(_numConnections);
-            _writePool = new Pool<SocketAsyncEventArgs>(_numConnections);
-            _maxNumberAcceptedClients = new Semaphore(_numConnections, _numConnections);
+            _bufferManager = new BufferManager((_bufferSize * _maxConnections) + (_bufferSize * _numSimultaneouslyWriteOperations), _bufferSize);
+            _readPool = new Pool<SocketAsyncEventArgs>(_maxConnections);
+            _writePool = new Pool<SocketAsyncEventArgs>(_numSimultaneouslyWriteOperations);
+            _maxNumberAcceptedClients = new Semaphore(_maxConnections, _maxConnections);
             _maxNumberWriteOperations = new Semaphore(_numSimultaneouslyWriteOperations, _numSimultaneouslyWriteOperations);
             _bufferManager.InitBuffer();
-            for (int i = 0; i < _numConnections; i++)
+            for (int i = 0; i < _maxConnections; i++)
             {
-                AsyncEventClient client = new AsyncEventClient(this);
-                client.ReadEvent.Completed += Receive_Completed;
-                _bufferManager.SetBuffer(client.ReadEvent);
-                _clientPool.Push(client);
+                SocketAsyncEventArgs readEventArgs = new SocketAsyncEventArgs();
+                readEventArgs.Completed += Receive_Completed;
+                readEventArgs.UserToken = new WriteToken();
+                _bufferManager.SetBuffer(readEventArgs);
+                _readPool.Push(readEventArgs);
             }
             for (int i = 0; i < _numSimultaneouslyWriteOperations; i++)
             {
-                SocketAsyncEventArgs writeEventArg = new SocketAsyncEventArgs();
-                writeEventArg.Completed += Send_Completed;
-                writeEventArg.UserToken = new WriteToken();
-                _bufferManager.SetBuffer(writeEventArg);
-                _writePool.Push(writeEventArg);
+                SocketAsyncEventArgs writeEventArgs = new SocketAsyncEventArgs();
+                writeEventArgs.Completed += Send_Completed;
+                writeEventArgs.UserToken = new WriteToken();
+                _bufferManager.SetBuffer(writeEventArgs);
+                _writePool.Push(writeEventArgs);
             }
             _thread = new Thread(Run);
             _thread.Name = "AsyncEventServer";
@@ -128,7 +134,6 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
             }
             _maxNumberWriteOperations.WaitOne();
             SocketAsyncEventArgs writeEventArgs = _writePool.Pop();
-            client.WriteEvents.Add(writeEventArgs);
             WriteToken token = (WriteToken) writeEventArgs.UserToken;
             token.Assign(client, data);
             StartSend(writeEventArgs);
@@ -163,10 +168,12 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
         {
             if (acceptEventArg.SocketError == SocketError.Success)
             {
-                AsyncEventClient client = _clientPool.Pop();
-                client.Accept(acceptEventArg.AcceptSocket);
+                SocketAsyncEventArgs readEventArgs = _readPool.Pop();
+                AsyncEventClient client = new AsyncEventClient(acceptEventArg.AcceptSocket, this);
+                Logger.Write("ProcessAccept::NEW CLIENT");
+                readEventArgs.UserToken = client;
                 ClientEventConsumer.OnClientConnected(client);
-                StartReceive(client.ReadEvent);
+                StartReceive(readEventArgs);
                 StartAccept();
             }
             else
@@ -182,7 +189,18 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
         private void StartReceive(SocketAsyncEventArgs readEventArgs)
         {
             AsyncEventClient client = (AsyncEventClient) readEventArgs.UserToken;
-            bool willRaiseEvent = client.Socket.ReceiveAsync(readEventArgs);
+            bool willRaiseEvent;
+            try
+            {
+                willRaiseEvent = client.Socket.ReceiveAsync(readEventArgs);
+            }
+            catch (ObjectDisposedException ex)
+            {
+                CloseClientSocket(client);
+                ReleaseRead(readEventArgs);
+                Logger.Write("StartReceive:Socket was disposed");
+                return;
+            }
             if (!willRaiseEvent)
             {
                 ProcessReceive(readEventArgs);
@@ -207,6 +225,7 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
             else
             {
                 CloseClientSocket(client);
+                ReleaseRead(readEventArgs);
             }
         }
 
@@ -230,6 +249,7 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
             }
             catch (ObjectDisposedException ex)
             {
+                CloseClientSocket(token.Client);
                 ReleaseWrite(writeEventArgs);
                 Logger.Write("StartSend:Socket was disposed");
                 return;
@@ -275,17 +295,20 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
             _maxNumberWriteOperations.Release();
         }
 
+        private void ReleaseRead(SocketAsyncEventArgs readEventArgs)
+        {
+            _readPool.Push(readEventArgs);
+            _maxNumberAcceptedClients.Release();
+        }
+
         private void CloseClientSocket(AsyncEventClient client)
         {
-            client.Close();
-            foreach (SocketAsyncEventArgs writeEvent in client.WriteEvents)
+            if (client.IsAlive)
             {
-                ReleaseWrite(writeEvent);
+                Logger.Write("CloseClientSocket");
+                client.Close();
+                ClientEventConsumer.OnClientDisconnected(client);
             }
-            client.WriteEvents.Clear();
-            _clientPool.Push(client);
-            _maxNumberAcceptedClients.Release();
-            ClientEventConsumer.OnClientDisconnected(client);
         }
     }
 }
