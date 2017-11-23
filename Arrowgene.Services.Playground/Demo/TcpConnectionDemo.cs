@@ -23,7 +23,7 @@
             svr.Start();
 
             ITcpClient cli = new TcpClient();
-            cli.Logger.LogWrite += Logger_LogWrite_Client;
+            LogProvider.LogWrite += Logger_LogWrite_Client;
             cli.Connected += Cli_Connected;
             cli.Disconnected += Cli_Disconnected;
             cli.ReceivedPacket += Cli_ClientReceivedPacket;

@@ -26,30 +26,31 @@ namespace Arrowgene.Services.Logging
 {
     using System;
 
-
     public class Log
     {
-        public Log(string text)
+        public Log(LogLevel logLevel, string text) : this(logLevel, text, null)
         {
-            this.Text = text;
-            this.LogType = LogType.NONE;
-            this.DateTime = DateTime.Now;
-            this.Id = -1;
         }
 
-
-        public Log(string text, LogType logType) : this(text)
+        public Log(LogLevel logLevel, string text, string loggerName)
         {
-            this.LogType = logType;
+            Text = text;
+            LogLevel = logLevel;
+            DateTime = DateTime.Now;
+            LoggerName = loggerName;
         }
 
+        public string LoggerName { get; }
 
-        public int Id { get; set; }
+        public string Text { get; }
 
-        public string Text { get; private set; }
+        public LogLevel LogLevel { get; }
 
-        public LogType LogType { get; private set; }
+        public DateTime DateTime { get; }
 
-        public DateTime DateTime { get; private set; }
+        public override string ToString()
+        {
+            return String.Format("{0:yyyy-MM-dd HH:mm:ss} - {1}: {2}:: {3}", DateTime, LogLevel, LoggerName, Text);
+        }
     }
 }

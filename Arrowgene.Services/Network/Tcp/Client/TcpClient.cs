@@ -36,11 +36,12 @@ namespace Arrowgene.Services.Network.Tcp.Client
     {
         private const String TCP_CLIENT = "Tcp Client";
 
-        private Socket _socket;
-        private Thread _readThread;
+        private volatile bool _isConnected;
         private int _pollTimeout;
         private int _bufferSize;
-        private volatile bool _isConnected;
+        private ILogger _logger;
+        private Socket _socket;
+        private Thread _readThread;
 
         public IBufferProvider BufferProvider { get; set; }
         public int SocketPollTimeout { get; set; }
@@ -48,7 +49,6 @@ namespace Arrowgene.Services.Network.Tcp.Client
         public string Name { get; set; }
         public IPAddress RemoteIpAddress { get; private set; }
         public int Port { get; private set; }
-        public ILogger Logger { get; }
 
         public event EventHandler<DisconnectedEventArgs> Disconnected;
         public event EventHandler<ConnectedEventArgs> Connected;
@@ -56,19 +56,15 @@ namespace Arrowgene.Services.Network.Tcp.Client
         public event EventHandler<ConnectErrorEventArgs> ConnectError;
 
 
-        public TcpClient(ILogger logger)
+        public TcpClient()
         {
             BufferProvider = new BBuffer();
-            Logger = logger;
+            _logger = LogProvider.GetLogger(this);
             SocketPollTimeout = 100;
             Name = TCP_CLIENT;
             ThreadJoinTimeout = 1000;
             _pollTimeout = 10;
             _bufferSize = 1024;
-        }
-
-        public TcpClient() : this(new Logger(TCP_CLIENT))
-        {
         }
 
         public void Connect(String remoteIpAddress, int serverPort, TimeSpan timeout)
@@ -102,9 +98,10 @@ namespace Arrowgene.Services.Network.Tcp.Client
                             }
                             else
                             {
-                                Logger.Write("Client connection timed out", LogType.ERROR);
+                                String errTimeout = "Client connection timed out.";
+                                _logger.Error(errTimeout);
                                 socket.Close();
-                                OnConnectError("Client connection timed out", RemoteIpAddress, Port, timeout);
+                                OnConnectError(errTimeout, RemoteIpAddress, Port, timeout);
                             }
                         }
                         else
@@ -115,20 +112,22 @@ namespace Arrowgene.Services.Network.Tcp.Client
                     }
                     else
                     {
-                        Logger.Write("Client could not connect.", LogType.ERROR);
-                        OnConnectError("Client could not connect.", RemoteIpAddress, Port, timeout);
+                        String errConnect = "Client could not connect.";
+                        _logger.Error(errConnect);
+                        OnConnectError(errConnect, RemoteIpAddress, Port, timeout);
                     }
                 }
                 catch (Exception exception)
                 {
-                    Logger.Write(exception.Message, LogType.ERROR);
+                    _logger.Exception(exception);
                     OnConnectError(exception.Message, RemoteIpAddress, Port, timeout);
                 }
             }
             else
             {
-                Logger.Write("Client is already connected.", LogType.ERROR);
-                OnConnectError("Client is already connected.", RemoteIpAddress, Port, timeout);
+                String errConnected = "Client is already connected.";
+                _logger.Error(errConnected);
+                OnConnectError(errConnected, RemoteIpAddress, Port, timeout);
             }
         }
 
@@ -142,22 +141,22 @@ namespace Arrowgene.Services.Network.Tcp.Client
             _isConnected = false;
             if (_readThread != null)
             {
-                Logger.Write("Shutting reading thread down...", LogType.CLIENT);
+                _logger.Info("Shutting {0} down...", Name);
                 if (Thread.CurrentThread != _readThread)
                 {
                     if (_readThread.Join(ThreadJoinTimeout))
                     {
-                        Logger.Write("Reading thread ended clean.", LogType.CLIENT);
+                        _logger.Info("{0} ended.", Name);
                     }
                     else
                     {
-                        Logger.Write(String.Format("Exceeded thread join timeout of {0}ms, aborting thread...", ThreadJoinTimeout), LogType.CLIENT);
+                        _logger.Error("Exceeded thread join timeout of {0}ms, could not close {1}.", 1000, Name);
                         _readThread.Abort();
                     }
                 }
                 else
                 {
-                    Logger.Write("Tried to join thread from within thread, letting thread run out..", LogType.CLIENT);
+                    _logger.Debug("Tried to join thread from within thread, letting thread run out..");
                 }
             }
             if (_socket != null)
@@ -170,16 +169,16 @@ namespace Arrowgene.Services.Network.Tcp.Client
         private Socket CreateSocket()
         {
             Socket socket;
-            Logger.Write("Creating Socket...", LogType.CLIENT);
+            _logger.Info("{0} Creating Socket...", Name);
             if (RemoteIpAddress.AddressFamily == AddressFamily.InterNetworkV6)
             {
                 socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
-                Logger.Write("Created Socket (IPv6)", LogType.CLIENT);
+                _logger.Info("{0} Created Socket (IPv6)", Name);
             }
             else
             {
                 socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                Logger.Write("Created Socket (IPv4)", LogType.CLIENT);
+                _logger.Info("{0} Created Socket (IPv4)", Name);
             }
             return socket;
         }
@@ -190,13 +189,13 @@ namespace Arrowgene.Services.Network.Tcp.Client
             _readThread = new Thread(ReadProcess);
             _readThread.Name = Name;
             _readThread.Start();
-            Logger.Write("Client connected", LogType.CLIENT);
+            _logger.Info("{0} connected", Name);
             OnConnected();
         }
 
         private void ReadProcess()
         {
-            Logger.Write("Reading thread started.", LogType.CLIENT);
+            _logger.Info("{0} started.", Name);
             _isConnected = true;
             while (_isConnected)
             {
@@ -216,11 +215,11 @@ namespace Arrowgene.Services.Network.Tcp.Client
                     {
                         if (!_socket.Connected)
                         {
-                            Logger.Write(String.Format("Client error: {0}", e.Message), LogType.ERROR);
+                            _logger.Error("{0} {1}", Name, e.Message);
                         }
                         else
                         {
-                            Logger.Write(String.Format("Failed to receive packet: {0}", e.Message), LogType.ERROR);
+                            _logger.Exception(e);
                         }
                         Disconnect();
                     }
@@ -229,7 +228,7 @@ namespace Arrowgene.Services.Network.Tcp.Client
                 }
                 Thread.Sleep(SocketPollTimeout);
             }
-            Logger.Write("Reading thread ended.", LogType.CLIENT);
+            _logger.Info("{0} ended.", Name);
         }
 
         protected virtual void OnClientReceivedPacket(IBuffer payload)

@@ -24,13 +24,10 @@
 
 namespace Arrowgene.Services.Logging
 {
-    public enum LogType
+    public enum LogLevel
     {
-        NONE,
-        ERROR,
-        INFO,
-        CLIENT,
-        SERVER,
-        PACKET
+        Info,
+        Debug,
+        Error
     }
 }

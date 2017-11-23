@@ -22,19 +22,16 @@
  * SOFTWARE.
  */
 
-using Arrowgene.Services.Buffers;
 
 namespace Arrowgene.Services.Network.Tcp.Client
 {
     using System;
     using System.Net;
-    using Logging;
 
     public interface ITcpClient
     {
         IPAddress RemoteIpAddress { get; }
         int Port { get; }
-        ILogger Logger { get; }
         event EventHandler<DisconnectedEventArgs> Disconnected;
         event EventHandler<ConnectedEventArgs> Connected;
         event EventHandler<ReceivedPacketEventArgs> ReceivedPacket;

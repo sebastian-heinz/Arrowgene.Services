@@ -35,6 +35,8 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
 
     public class AsyncEventServer : TcpServer
     {
+        private const string ThreadName = "AsyncEventServer";
+
         private int _maxConnections;
         private int _numSimultaneouslyWriteOperations;
         private int _bufferSize;
@@ -47,11 +49,13 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
         private Semaphore _maxNumberAcceptedClients;
         private Semaphore _maxNumberWriteOperations;
         private SocketAsyncEventArgs _acceptEventArg;
+        private ILogger _logger;
 
 
         public AsyncEventServer(IPAddress ipAddress, int port, IClientEventConsumer clientEventConsumer, ILogger logger)
             : base(ipAddress, port, clientEventConsumer, logger)
         {
+            _logger = LogProvider.GetLogger(this);
             Configure(new AsyncEventSettings());
         }
 
@@ -91,7 +95,8 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
                 _writePool.Push(writeEventArgs);
             }
             _thread = new Thread(Run);
-            _thread.Name = "AsyncEventServer";
+            _thread.Name = ThreadName;
+            _thread.IsBackground = true;
             _thread.Start();
         }
 
@@ -99,23 +104,21 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
         {
             if (_thread != null)
             {
-                Logger.Write("Shutting server thread down...", LogType.CLIENT);
+                _logger.Info("Shutting {0} down...", ThreadName);
                 if (Thread.CurrentThread != _thread)
                 {
                     if (_thread.Join(1000))
                     {
-                        Logger.Write("server thread ended clean.", LogType.CLIENT);
+                        _logger.Info("{0} ended.", ThreadName);
                     }
                     else
                     {
-                        Logger.Write(String.Format("Exceeded thread join timeout of {0}ms, aborting thread...", 1000), LogType.CLIENT);
-                        _thread.Abort();
+                        _logger.Error("Exceeded thread join timeout of {0}ms, could not close {1}.", 1000, ThreadName);
                     }
                 }
                 else
                 {
-                    Logger.Write("Tried to join thread from within thread, letting thread run out..", LogType.CLIENT);
-                    _thread.Abort();
+                    _logger.Debug("Tried to join thread from within thread, letting thread run out..");
                 }
             }
             if (_listenSocket != null)
@@ -129,7 +132,6 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
         {
             if (!client.Socket.Connected)
             {
-                Logger.Write("SendData:Socket is not connected");
                 return;
             }
             _maxNumberWriteOperations.WaitOne();
@@ -170,7 +172,6 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
             {
                 SocketAsyncEventArgs readEventArgs = _readPool.Pop();
                 AsyncEventClient client = new AsyncEventClient(acceptEventArg.AcceptSocket, this);
-                Logger.Write("ProcessAccept::NEW CLIENT");
                 readEventArgs.UserToken = client;
                 ClientEventConsumer.OnClientConnected(client);
                 StartReceive(readEventArgs);
@@ -194,11 +195,10 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
             {
                 willRaiseEvent = client.Socket.ReceiveAsync(readEventArgs);
             }
-            catch (ObjectDisposedException ex)
+            catch (ObjectDisposedException)
             {
                 CloseClientSocket(client);
                 ReleaseRead(readEventArgs);
-                Logger.Write("StartReceive:Socket was disposed");
                 return;
             }
             if (!willRaiseEvent)
@@ -247,11 +247,10 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
             {
                 willRaiseEvent = token.Client.Socket.SendAsync(writeEventArgs);
             }
-            catch (ObjectDisposedException ex)
+            catch (ObjectDisposedException)
             {
                 CloseClientSocket(token.Client);
                 ReleaseWrite(writeEventArgs);
-                Logger.Write("StartSend:Socket was disposed");
                 return;
             }
             if (!willRaiseEvent)
@@ -305,7 +304,6 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
         {
             if (client.IsAlive)
             {
-                Logger.Write("CloseClientSocket");
                 client.Close();
                 ClientEventConsumer.OnClientDisconnected(client);
             }
