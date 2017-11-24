@@ -52,8 +52,8 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
         private readonly ILogger _logger;
 
 
-        public AsyncEventServer(IPAddress ipAddress, int port, IClientEventConsumer clientEventConsumer, ILogger logger)
-            : base(ipAddress, port, clientEventConsumer, logger)
+        public AsyncEventServer(IPAddress ipAddress, int port, IClientEventConsumer clientEventConsumer)
+            : base(ipAddress, port, clientEventConsumer)
         {
             _logger = LogProvider.GetLogger(this);
             Configure(new AsyncEventSettings());

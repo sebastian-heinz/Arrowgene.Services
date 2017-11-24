@@ -37,7 +37,7 @@ namespace Arrowgene.Services.Logging
         void Error(string message, params object[] args);
         void Exception(Exception exception);
 
-        ILogger Produce(string name);
+        ILogger Produce(string identity, string zone = null);
 
         event EventHandler<LogWriteEventArgs> LogWrite;
     }

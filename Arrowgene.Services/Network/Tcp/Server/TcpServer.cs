@@ -26,13 +26,12 @@
 namespace Arrowgene.Services.Network.Tcp.Server
 {
     using System.Net;
-    using Logging;
     using Exceptions;
     using EventConsumer;
 
     public abstract class TcpServer : ITcpServer
     {
-        protected TcpServer(IPAddress ipAddress, int port, IClientEventConsumer clientEventConsumer, ILogger logger)
+        protected TcpServer(IPAddress ipAddress, int port, IClientEventConsumer clientEventConsumer)
         {
             if (ipAddress == null)
                 throw new InvalidParameterException("IPAddress is null");
@@ -40,16 +39,11 @@ namespace Arrowgene.Services.Network.Tcp.Server
             if (port <= 0 || port > 65535)
                 throw new InvalidParameterException(string.Format("Port({0}) invalid", port));
 
-            if (logger == null)
-                throw new InvalidParameterException("Logger is null");
-
             IpAddress = ipAddress;
             Port = port;
-            Logger = logger;
             ClientEventConsumer = clientEventConsumer;
         }
 
-        public ILogger Logger { get; }
         public IPAddress IpAddress { get; }
         public int Port { get; }
 

@@ -3,6 +3,7 @@ Arrowgene.Services
 Arrowgene.Services aids in creating a Server with multiple Clients.
 
 ## Table of contents
+- [Requirements](#requirements)
 - [Building](#building)
 - [Project](#project)
   - [Buffers](#buffers)
@@ -10,13 +11,17 @@ Arrowgene.Services aids in creating a Server with multiple Clients.
   - [Network](#network)
 - [Links](#links)
 
+## Requirements
+- NetStandard 2.0
 
 ## Building
-`dotnet restore`
-`dotnet build`
+```
+dotnet restore
+dotnet build
+```
 
 ## Project
-NETStandard2.0
+
 
 ### [Buffers](./Arrowgene.Services/Buffers)
 Methods to read from a byte array.
@@ -31,3 +36,4 @@ Sever and client implementations to handle network traffic.
 
 - NuGet (https://www.nuget.org/packages/Arrowgene.Services/)
 - CLI Tools Help (https://docs.microsoft.com/en-us/dotnet/core/tools/?tabs=netcore2x)
+- NetCore 2.0 (https://www.microsoft.com/net/download/windows)

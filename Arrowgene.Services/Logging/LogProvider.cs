@@ -53,19 +53,19 @@ namespace Arrowgene.Services.Logging
 
         public static ILogger GetLogger(Type type)
         {
-            return GetLogger(type.FullName);
+            return GetLogger(type.FullName, type.Name);
         }
 
-        public static ILogger GetLogger(string name)
+        public static ILogger GetLogger(string identity, string zone = null)
         {
             ILogger logger;
             lock (Lock)
             {
-                if (!Loggers.TryGetValue(name, out logger))
+                if (!Loggers.TryGetValue(identity, out logger))
                 {
-                    logger = _producer.Produce(name);
+                    logger = _producer.Produce(identity, zone);
                     logger.LogWrite += LoggerOnLogWrite;
-                    Loggers.Add(name, logger);
+                    Loggers.Add(identity, logger);
                 }
             }
             return logger;

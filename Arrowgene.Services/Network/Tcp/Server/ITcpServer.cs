@@ -26,15 +26,9 @@
 namespace Arrowgene.Services.Network.Tcp.Server
 {
     using System.Net;
-    using Logging;
 
     public interface ITcpServer
     {
-        /// <summary>
-        /// Logging instance where logs get written to.
-        /// </summary>
-        ILogger Logger { get; }
-
         /// <summary>
         /// <see cref="System.Net.IPAddress"/> for listening.
         /// </summary>

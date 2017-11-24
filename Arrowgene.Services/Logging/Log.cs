@@ -29,15 +29,18 @@ namespace Arrowgene.Services.Logging
 
     public class Log
     {
-        public Log(LogLevel logLevel, string text, string loggerName = null)
+        public Log(LogLevel logLevel, string text, string loggerIdentity = null, string zone = null)
         {
             Text = text;
             LogLevel = logLevel;
             DateTime = DateTime.Now;
-            LoggerName = loggerName;
+            LoggerIdentity = loggerIdentity;
+            Zone = zone ?? "";
         }
 
-        public string LoggerName { get; }
+        public string LoggerIdentity { get; }
+
+        public string Zone { get; }
 
         public string Text { get; }
 
@@ -47,7 +50,17 @@ namespace Arrowgene.Services.Logging
 
         public override string ToString()
         {
-            return string.Format("{0:yyyy-MM-dd HH:mm:ss} - {1}: {2}:: {3}", DateTime, LogLevel, LoggerName, Text);
+            string log = "{0:yyyy-MM-dd HH:mm:ss} - {1}";
+            if (string.IsNullOrEmpty(Zone))
+            {
+                log += "{2}:";
+            }
+            else
+            {
+                log += " - {2}:";
+            }
+            log += " {3}";
+            return string.Format(log, DateTime, LogLevel, Zone, Text);
         }
     }
 }

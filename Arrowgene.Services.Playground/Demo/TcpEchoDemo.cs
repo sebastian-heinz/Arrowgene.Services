@@ -17,17 +17,23 @@
 
         public TcpEchoDemo()
         {
+            LogProvider.LogWrite += LogProviderOnLogWrite;
+
             Start();
-            Console.WriteLine("Echo Demo: Press any key to exit...");
+            Console.WriteLine("Demo: Press any key to exit...");
             Console.ReadKey();
             Stop();
+        }
+
+        private void LogProviderOnLogWrite(object sender, LogWriteEventArgs logWriteEventArgs)
+        {
+            Console.WriteLine(logWriteEventArgs.Log);
         }
 
         public void Start()
         {
             _consumer = new BlockingQueueEventConsumer();
-            _server = new AsyncEventServer(IPAddress.Any, 2345, _consumer, new Logger("ServerLogger"));
-            _server.Logger.LogWrite += Logger_LogWrite_Server;
+            _server = new AsyncEventServer(IPAddress.Any, 2345, _consumer);
             _server.Start();
 
             _consumerThread = new Thread(HandleEvents);
@@ -51,7 +57,7 @@
             ClientEvent clientEvent = null;
             while (_isRunning)
             {
-                Console.WriteLine(string.Format("Client Events: {0}", _consumer.ClientEvents.Count));
+                Console.WriteLine(string.Format("Demo: Client Events: {0}", _consumer.ClientEvents.Count));
                 try
                 {
                     clientEvent = _consumer.ClientEvents.Take();
@@ -79,12 +85,7 @@
                     }
                 }
             }
-            Console.WriteLine("Handler exited");
-        }
-
-        private void Logger_LogWrite_Server(object sender, LogWriteEventArgs e)
-        {
-            Console.WriteLine(string.Format("Server Log: {0}", e.Log.Text));
+            Console.WriteLine("Demo: Handler exited");
         }
     }
 }
