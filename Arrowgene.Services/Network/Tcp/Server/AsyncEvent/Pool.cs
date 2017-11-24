@@ -28,13 +28,13 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
     using System;
     using System.Collections.Generic;
 
-    class Pool<T>
+    public class Pool<T>
     {
-        Stack<T> m_pool;
+        private readonly Stack<T> _pool;
 
         public Pool(int capacity)
         {
-            m_pool = new Stack<T>(capacity);
+            _pool = new Stack<T>(capacity);
         }
 
         public void Push(T item)
@@ -43,23 +43,18 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
             {
                 throw new ArgumentNullException("Items added to a SocketAsyncEventArgsPool cannot be null");
             }
-            lock (m_pool)
+            lock (_pool)
             {
-                m_pool.Push(item);
+                _pool.Push(item);
             }
         }
 
         public T Pop()
         {
-            lock (m_pool)
+            lock (_pool)
             {
-                return m_pool.Pop();
+                return _pool.Pop();
             }
-        }
-
-        public int Count
-        {
-            get { return m_pool.Count; }
         }
     }
 }

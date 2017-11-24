@@ -22,17 +22,14 @@
  * SOFTWARE.
  */
 
+
 namespace Arrowgene.Services.Logging
 {
     using System;
 
     public class Log
     {
-        public Log(LogLevel logLevel, string text) : this(logLevel, text, null)
-        {
-        }
-
-        public Log(LogLevel logLevel, string text, string loggerName)
+        public Log(LogLevel logLevel, string text, string loggerName = null)
         {
             Text = text;
             LogLevel = logLevel;
@@ -50,7 +47,7 @@ namespace Arrowgene.Services.Logging
 
         public override string ToString()
         {
-            return String.Format("{0:yyyy-MM-dd HH:mm:ss} - {1}: {2}:: {3}", DateTime, LogLevel, LoggerName, Text);
+            return string.Format("{0:yyyy-MM-dd HH:mm:ss} - {1}: {2}:: {3}", DateTime, LogLevel, LoggerName, Text);
         }
     }
 }

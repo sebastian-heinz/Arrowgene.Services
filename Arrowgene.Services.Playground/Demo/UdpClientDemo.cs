@@ -30,7 +30,7 @@
 
         private void Client_ReceivedPacket(object sender, ReceivedUdpPacketEventArgs e)
         {
-            Console.WriteLine("UdpDemo::EchoServer_ReceivedPacket: received: " + e.Size + "bytes from " + e.RemoteIPEndPoint.ToString());
+            Console.WriteLine("UdpDemo::EchoServer_ReceivedPacket: received: " + e.Size + "bytes from " + e.RemoteIpEndPoint.ToString());
             this.received = true;
         }
     }

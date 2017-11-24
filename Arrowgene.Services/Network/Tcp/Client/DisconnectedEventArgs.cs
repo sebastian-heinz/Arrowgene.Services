@@ -22,6 +22,10 @@
  * SOFTWARE.
  */
 
+
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
 namespace Arrowgene.Services.Network.Tcp.Client
 {
     using System;

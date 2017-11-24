@@ -27,55 +27,31 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
 {
     public class WriteToken
     {
-        public byte[] Data
-        {
-            get => _data;
-        }
-
-        public AsyncEventClient Client
-        {
-            get => _client;
-        }
-
-        public int TransferredCount
-        {
-            get => _transferredCount;
-        }
-
-        public int OutstandingCount
-        {
-            get => _outstandingCount;
-        }
-
-        private byte[] _data;
-        private AsyncEventClient _client;
-        private int _transferredCount;
-        private int _outstandingCount;
-
-        public WriteToken()
-        {
-        }
+        public byte[] Data { get; private set; }
+        public AsyncEventClient Client { get; private set; }
+        public int TransferredCount { get; private set; }
+        public int OutstandingCount { get; private set; }
 
         public void Assign(AsyncEventClient client, byte[] data)
         {
-            _client = client;
-            _data = data;
-            _outstandingCount = data.Length;
-            _transferredCount = 0;
+            Client = client;
+            Data = data;
+            OutstandingCount = data.Length;
+            TransferredCount = 0;
         }
 
         public void Update(int transferredCount)
         {
-            _transferredCount += transferredCount;
-            _outstandingCount -= transferredCount;
+            TransferredCount += transferredCount;
+            OutstandingCount -= transferredCount;
         }
 
         public void Reset()
         {
-            _client = null;
-            _data = null;
-            _outstandingCount = 0;
-            _transferredCount = 0;
+            Client = null;
+            Data = null;
+            OutstandingCount = 0;
+            TransferredCount = 0;
         }
     }
 }

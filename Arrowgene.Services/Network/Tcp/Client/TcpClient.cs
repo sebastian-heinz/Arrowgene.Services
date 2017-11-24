@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+
 namespace Arrowgene.Services.Network.Tcp.Client
 {
     using System;
@@ -34,19 +35,19 @@ namespace Arrowgene.Services.Network.Tcp.Client
 
     public class TcpClient : ITcpClient
     {
-        private const String TCP_CLIENT = "Tcp Client";
+        private const string DefaultName = "Tcp Client";
 
         private volatile bool _isConnected;
-        private int _pollTimeout;
-        private int _bufferSize;
-        private ILogger _logger;
+        private readonly int _pollTimeout;
+        private readonly int _bufferSize;
+        private readonly ILogger _logger;
         private Socket _socket;
         private Thread _readThread;
 
-        public IBufferProvider BufferProvider { get; set; }
-        public int SocketPollTimeout { get; set; }
-        public int ThreadJoinTimeout { get; set; }
-        public string Name { get; set; }
+        public IBufferProvider BufferProvider { get; }
+        public int SocketPollTimeout { get; }
+        public int ThreadJoinTimeout { get; }
+        public string Name { get; }
         public IPAddress RemoteIpAddress { get; private set; }
         public int Port { get; private set; }
 
@@ -58,16 +59,16 @@ namespace Arrowgene.Services.Network.Tcp.Client
 
         public TcpClient()
         {
-            BufferProvider = new BBuffer();
+            BufferProvider = new ArrayBuffer();
             _logger = LogProvider.GetLogger(this);
             SocketPollTimeout = 100;
-            Name = TCP_CLIENT;
+            Name = DefaultName;
             ThreadJoinTimeout = 1000;
             _pollTimeout = 10;
             _bufferSize = 1024;
         }
 
-        public void Connect(String remoteIpAddress, int serverPort, TimeSpan timeout)
+        public void Connect(string remoteIpAddress, int serverPort, TimeSpan timeout)
         {
             Connect(IPAddress.Parse(remoteIpAddress), serverPort, timeout);
         }
@@ -78,7 +79,7 @@ namespace Arrowgene.Services.Network.Tcp.Client
             {
                 if (remoteIpAddress == null || serverPort <= 0)
                 {
-                    throw new InvalidParameterException(String.Format("IpAddress({0}) or Port({1}) invalid", remoteIpAddress, serverPort));
+                    throw new InvalidParameterException(string.Format("IpAddress({0}) or Port({1}) invalid", remoteIpAddress, serverPort));
                 }
                 RemoteIpAddress = remoteIpAddress;
                 Port = serverPort;
@@ -98,7 +99,7 @@ namespace Arrowgene.Services.Network.Tcp.Client
                             }
                             else
                             {
-                                String errTimeout = "Client connection timed out.";
+                                const string errTimeout = "Client connection timed out.";
                                 _logger.Error(errTimeout);
                                 socket.Close();
                                 OnConnectError(errTimeout, RemoteIpAddress, Port, timeout);
@@ -112,7 +113,7 @@ namespace Arrowgene.Services.Network.Tcp.Client
                     }
                     else
                     {
-                        String errConnect = "Client could not connect.";
+                        const string errConnect = "Client could not connect.";
                         _logger.Error(errConnect);
                         OnConnectError(errConnect, RemoteIpAddress, Port, timeout);
                     }
@@ -125,7 +126,7 @@ namespace Arrowgene.Services.Network.Tcp.Client
             }
             else
             {
-                String errConnected = "Client is already connected.";
+                const string errConnected = "Client is already connected.";
                 _logger.Error(errConnected);
                 OnConnectError(errConnected, RemoteIpAddress, Port, timeout);
             }
@@ -202,10 +203,10 @@ namespace Arrowgene.Services.Network.Tcp.Client
                 if (_socket.Poll(_pollTimeout, SelectMode.SelectRead))
                 {
                     byte[] buffer = new byte[_bufferSize];
-                    int bytesReceived;
                     IBuffer payload = BufferProvider.Provide();
                     try
                     {
+                        int bytesReceived;
                         while (_socket.Available > 0 && (bytesReceived = _socket.Receive(buffer, 0, _bufferSize, SocketFlags.None)) > 0)
                         {
                             payload.WriteBytes(buffer, 0, bytesReceived);

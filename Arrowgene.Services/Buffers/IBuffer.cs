@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+
 namespace Arrowgene.Services.Buffers
 {
     public interface IBuffer
@@ -35,11 +36,6 @@ namespace Arrowgene.Services.Buffers
         /// Gets or Sets the cursor position.
         /// </summary>
         int Position { get; set; }
-
-        /// <summary>
-        /// Gets or Sets the byte order.
-        /// </summary>
-        Endianness Endianness { get; set; }
 
         /// <summary>
         /// Set the cursor to the beginning of the buffer.

@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+
 namespace Arrowgene.Services.Logging
 {
     using System;
@@ -31,10 +32,9 @@ namespace Arrowgene.Services.Logging
     {
         public LogWriteEventArgs(Log log)
         {
-            this.Log = log;
+            Log = log;
         }
 
-
-        public Log Log { get; set; }
+        public Log Log { get; }
     }
 }

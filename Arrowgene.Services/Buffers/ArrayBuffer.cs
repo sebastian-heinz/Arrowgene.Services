@@ -22,49 +22,47 @@
  * SOFTWARE.
  */
 
+
 namespace Arrowgene.Services.Buffers
 {
     using System;
     using System.Text;
 
-    public class BBuffer : Buffer
+    public class ArrayBuffer : Buffer
     {
-        private const int BUFFER_SIZE = 1024;
+        private const int BufferSize = 1024;
 
         private byte[] _buffer;
         private int _size;
         private int _currentPos;
 
-        public BBuffer()
+        public ArrayBuffer()
         {
-            _buffer = new byte[BUFFER_SIZE];
+            _buffer = new byte[BufferSize];
             _size = 0;
             _currentPos = 0;
         }
 
-        public BBuffer(int len)
+        public ArrayBuffer(int len)
         {
             _buffer = new byte[len];
             _size = 0;
             _currentPos = 0;
         }
 
-        public BBuffer(byte[] data)
+        public ArrayBuffer(byte[] data)
         {
             _buffer = data;
             _size = _buffer.Length;
             _currentPos = 0;
         }
 
-        public override int Size
-        {
-            get { return _size; }
-        }
+        public override int Size => _size;
 
         public override int Position
         {
-            get { return _currentPos; }
-            set { SetCurrentPos(value); }
+            get => _currentPos;
+            set => SetCurrentPos(value);
         }
 
         public override void SetPositionStart()
@@ -79,17 +77,17 @@ namespace Arrowgene.Services.Buffers
 
         public override IBuffer Clone(int offset, int length)
         {
-            return new BBuffer(GetBytes(offset, length));
+            return new ArrayBuffer(GetBytes(offset, length));
         }
 
         public override IBuffer Provide()
         {
-            return new BBuffer();
+            return new ArrayBuffer();
         }
 
         public override IBuffer Provide(byte[] buffer)
         {
-            return new BBuffer(buffer);
+            return new ArrayBuffer(buffer);
         }
 
         public override byte[] GetAllBytes()
@@ -310,7 +308,7 @@ namespace Arrowgene.Services.Buffers
             int bLength = _buffer.Length;
             if (length + _currentPos >= bLength)
             {
-                int newSize = length + bLength + BUFFER_SIZE;
+                int newSize = length + bLength + BufferSize;
                 ExtendBuffer(newSize);
             }
         }
@@ -320,7 +318,7 @@ namespace Arrowgene.Services.Buffers
             int bLength = _buffer.Length;
             if (position >= bLength)
             {
-                int newSize = position + bLength + BUFFER_SIZE;
+                int newSize = position + bLength + BufferSize;
                 ExtendBuffer(newSize);
             }
             UpdateSizeForPosition(position);
@@ -332,7 +330,7 @@ namespace Arrowgene.Services.Buffers
             int tLength = offset + length;
             if (tLength >= bLength)
             {
-                int newSize = tLength + BUFFER_SIZE;
+                int newSize = tLength + BufferSize;
                 ExtendBuffer(newSize);
             }
         }

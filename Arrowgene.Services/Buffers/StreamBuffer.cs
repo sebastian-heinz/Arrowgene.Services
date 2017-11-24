@@ -22,42 +22,43 @@
  * SOFTWARE.
  */
 
+
 namespace Arrowgene.Services.Buffers
 {
     using System.IO;
 
-    public class ByteBuffer : Buffer
+    public class StreamBuffer : Buffer
     {
-        private MemoryStream _memoryStream;
-        private BinaryWriter _binaryWriter;
-        private BinaryReader _binaryReader;
+        private readonly MemoryStream _memoryStream;
+        private readonly BinaryWriter _binaryWriter;
+        private readonly BinaryReader _binaryReader;
 
-        public ByteBuffer()
+        public StreamBuffer()
         {
             _memoryStream = new MemoryStream();
             _binaryReader = new BinaryReader(_memoryStream);
             _binaryWriter = new BinaryWriter(_memoryStream);
         }
 
-        public ByteBuffer(byte[] buffer) : this()
+        public StreamBuffer(byte[] buffer) : this()
         {
             _binaryWriter.Write(buffer);
             SetPositionStart();
         }
 
-        public ByteBuffer(byte[] buffer, int index, int count) : this()
+        public StreamBuffer(byte[] buffer, int index, int count) : this()
         {
             _binaryWriter.Write(buffer, index, count);
             SetPositionStart();
         }
 
-        public ByteBuffer(string filePath) : this()
+        public StreamBuffer(string filePath) : this()
         {
-            int bufferSize = 1024;
+            const int bufferSize = 1024;
             byte[] buffer = new byte[bufferSize];
             using (FileStream fileStream = File.OpenRead(filePath))
             {
-                int read = 0;
+                int read;
                 while ((read = fileStream.Read(buffer, 0, bufferSize)) > 0)
                 {
                     _binaryWriter.Write(buffer, 0, read);
@@ -66,18 +67,15 @@ namespace Arrowgene.Services.Buffers
             SetPositionStart();
         }
 
-        public override int Size
-        {
-            get { return (int) _memoryStream.Length; }
-        }
+        public override int Size => (int) _memoryStream.Length;
 
         public override int Position
         {
-            get { return (int) _memoryStream.Position; }
-            set { _memoryStream.Position = value; }
+            get => (int) _memoryStream.Position;
+            set => _memoryStream.Position = value;
         }
 
-        public override void SetPositionStart()
+        public sealed override void SetPositionStart()
         {
             Position = 0;
         }
@@ -89,17 +87,17 @@ namespace Arrowgene.Services.Buffers
 
         public override IBuffer Clone(int offset, int length)
         {
-            return new ByteBuffer(GetBytes(offset, length));
+            return new StreamBuffer(GetBytes(offset, length));
         }
-        
+
         public override IBuffer Provide()
         {
-            return new ByteBuffer();
+            return new StreamBuffer();
         }
 
         public override IBuffer Provide(byte[] buffer)
         {
-            return new ByteBuffer(buffer);
+            return new StreamBuffer(buffer);
         }
 
         public override byte[] GetAllBytes()
@@ -164,9 +162,9 @@ namespace Arrowgene.Services.Buffers
 
         public override void WriteString(string value)
         {
-            for (int i = 0; i < value.Length; i++)
+            foreach (char c in value)
             {
-                _binaryWriter.Write((byte) value[i]);
+                _binaryWriter.Write((byte) c);
             }
         }
 
@@ -279,7 +277,7 @@ namespace Arrowgene.Services.Buffers
                     byte b = _binaryReader.ReadByte();
                     if (b > 0)
                     {
-                        s = s + ((char) b);
+                        s = s + (char) b;
                     }
                 }
             }

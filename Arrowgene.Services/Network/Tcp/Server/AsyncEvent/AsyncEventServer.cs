@@ -49,7 +49,7 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
         private Semaphore _maxNumberAcceptedClients;
         private Semaphore _maxNumberWriteOperations;
         private SocketAsyncEventArgs _acceptEventArg;
-        private ILogger _logger;
+        private readonly ILogger _logger;
 
 
         public AsyncEventServer(IPAddress ipAddress, int port, IClientEventConsumer clientEventConsumer, ILogger logger)
@@ -72,7 +72,7 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
             ClientEventConsumer.OnStart();
             _acceptEventArg = new SocketAsyncEventArgs();
             _acceptEventArg.Completed += Accept_Completed;
-            _bufferManager = new BufferManager((_bufferSize * _maxConnections) + (_bufferSize * _numSimultaneouslyWriteOperations), _bufferSize);
+            _bufferManager = new BufferManager(_bufferSize * _maxConnections + _bufferSize * _numSimultaneouslyWriteOperations, _bufferSize);
             _readPool = new Pool<SocketAsyncEventArgs>(_maxConnections);
             _writePool = new Pool<SocketAsyncEventArgs>(_numSimultaneouslyWriteOperations);
             _maxNumberAcceptedClients = new Semaphore(_maxConnections, _maxConnections);

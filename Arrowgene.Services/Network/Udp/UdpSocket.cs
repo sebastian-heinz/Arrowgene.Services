@@ -4,13 +4,13 @@
  * Copyright (c) 2018 Sebastian Heinz <sebastian.heinz.gt@googlemail.com>
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
+ * of software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  * 
- * The above copyright notice and this permission notice shall be included in all
+ * The above copyright notice and permission notice shall be included in all
  * copies or substantial portions of the Software.
  * 
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 
 namespace Arrowgene.Services.Network.Udp
 {
@@ -40,25 +41,25 @@ namespace Arrowgene.Services.Network.Udp
     {
         /// <summary>
         /// Defines the maximum size to be received or send,
-        /// drops requests exceeding this limit.
+        /// drops requests exceeding limit.
         /// </summary>
-        public const int MAX_PAYLOAD_SIZE_BYTES = 384;
+        public const int MaxPayloadSizeBytes = 384;
 
-        private Socket socket;
-        private byte[] buffer;
-        private Thread udpThread;
-        private bool receive;
-        private bool isBound;
+        private readonly Socket _socket;
+        private readonly byte[] _buffer;
+        private Thread _udpThread;
+        private bool _receive;
+        private bool _isBound;
 
         /// <summary>
         /// Creates a new instance of <see cref="UdpSocket"/>
         /// </summary>
         public UdpSocket()
         {
-            this.isBound = false;
-            this.receive = false;
-            this.buffer = new byte[MAX_PAYLOAD_SIZE_BYTES];
-            this.socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            _isBound = false;
+            _receive = false;
+            _buffer = new byte[MaxPayloadSizeBytes];
+            _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         }
 
         /// <summary>
@@ -69,25 +70,25 @@ namespace Arrowgene.Services.Network.Udp
         /// <summary>
         /// Listen for incomming data and start receiving
         /// </summary>
-        /// <param name="remoteEP"></param>
-        public void StartListen(IPEndPoint remoteEP)
+        /// <param name="remoteEp"></param>
+        public void StartListen(IPEndPoint remoteEp)
         {
-            if (!this.isBound)
+            if (!_isBound)
             {
-                this.socket.Bind(remoteEP);
-                this.isBound = true;
+                _socket.Bind(remoteEp);
+                _isBound = true;
             }
-            this.StartReceive();
+            StartReceive();
         }
 
         /// <summary>
         /// Send data to an destination
         /// </summary>
         /// <param name="buffer"></param>
-        /// <param name="remoteEP"></param>
-        public void Send(byte[] buffer, EndPoint remoteEP)
+        /// <param name="remoteEp"></param>
+        public void Send(byte[] buffer, EndPoint remoteEp)
         {
-            this.SendTo(buffer, remoteEP);
+            SendTo(buffer, remoteEp);
         }
 
         /// <summary>
@@ -97,7 +98,7 @@ namespace Arrowgene.Services.Network.Udp
         /// <param name="port"></param>
         public void SendBroadcast(byte[] buffer, int port)
         {
-            this.SendToBroadcast(buffer, port);
+            SendToBroadcast(buffer, port);
         }
 
         /// <summary>
@@ -105,7 +106,7 @@ namespace Arrowgene.Services.Network.Udp
         /// </summary>
         public void StartReceive()
         {
-            this.StartReceiveThread();
+            StartReceiveThread();
         }
 
         /// <summary>
@@ -113,22 +114,22 @@ namespace Arrowgene.Services.Network.Udp
         /// </summary>
         public void StopReceive()
         {
-            this.receive = false;
+            _receive = false;
 
-            if (this.udpThread != null)
+            if (_udpThread != null)
             {
-                if (Thread.CurrentThread != this.udpThread)
+                if (Thread.CurrentThread != _udpThread)
                 {
-                    int waitTimeout = 1000;
+                    const int waitTimeout = 1000;
 
-                    if (this.udpThread.Join(waitTimeout))
+                    if (_udpThread.Join(waitTimeout))
                     {
                         Debug.WriteLine(string.Format("UDPBase::Stop: Udp thread ended clean.", waitTimeout));
                     }
                     else
                     {
                         Debug.WriteLine(string.Format("UDPBase::Stop: Exceeded maximum timeout of {0} ms, aborting thread...", waitTimeout));
-                        this.udpThread.Abort();
+                        _udpThread.Abort();
                     }
                 }
                 else
@@ -143,67 +144,66 @@ namespace Arrowgene.Services.Network.Udp
         /// </summary>
         public void Dispose()
         {
-            this.StopReceive();
-            this.socket.Close();
+            StopReceive();
+            _socket.Close();
         }
 
         private void StartReceiveThread()
         {
-            if (!this.receive)
+            if (!_receive)
             {
-                this.receive = true;
-                this.udpThread = new Thread(Receive);
-                this.udpThread.Name = "UdpReceive";
-                this.udpThread.Start();
+                _receive = true;
+                _udpThread = new Thread(Receive);
+                _udpThread.Name = "UdpReceive";
+                _udpThread.Start();
             }
         }
 
         private void Receive()
         {
-            while (this.receive)
+            while (_receive)
             {
-                if (socket.Poll(10, SelectMode.SelectRead))
+                if (_socket.Poll(10, SelectMode.SelectRead))
                 {
-                    // Create EndPoint, Senders information will be written to this object.
+                    // Create EndPoint, Senders information will be written to object.
                     IPEndPoint sender = new IPEndPoint(IPAddress.Any, 0);
-                    EndPoint senderRemote = (EndPoint) sender;
+                    EndPoint senderRemote = sender;
 
-                    int read = this.socket.ReceiveFrom(this.buffer, 0, this.buffer.Length, SocketFlags.None, ref senderRemote);
+                    int read = _socket.ReceiveFrom(_buffer, 0, _buffer.Length, SocketFlags.None, ref senderRemote);
 
-                    IPEndPoint remoteIPEndPoint = (IPEndPoint) senderRemote;
+                    IPEndPoint remoteIpEndPoint = (IPEndPoint) senderRemote;
 
-                    IBuffer received = new ByteBuffer(this.buffer, 0, read);
-                    this.OnReceivedUDPPacket(read, received.GetAllBytes(), remoteIPEndPoint);
+                    IBuffer received = new StreamBuffer(_buffer, 0, read);
+                    OnReceivedUdpPacket(read, received.GetAllBytes(), remoteIpEndPoint);
                 }
             }
         }
 
-        private void SendTo(byte[] buffer, EndPoint remoteEP)
+        private void SendTo(byte[] buffer, EndPoint remoteEp)
         {
-            if (buffer.Length <= UdpSocket.MAX_PAYLOAD_SIZE_BYTES)
+            if (buffer.Length <= MaxPayloadSizeBytes)
             {
-                this.socket.SendTo(buffer, 0, buffer.Length, SocketFlags.None, remoteEP);
+                _socket.SendTo(buffer, 0, buffer.Length, SocketFlags.None, remoteEp);
             }
             else
             {
-                Debug.WriteLine(string.Format("UDPBase::SendTo: Exceeded maximum size of {0} byte", MAX_PAYLOAD_SIZE_BYTES));
+                Debug.WriteLine(string.Format("UDPBase::SendTo: Exceeded maximum size of {0} byte", MaxPayloadSizeBytes));
             }
         }
 
         private void SendToBroadcast(byte[] buffer, int port)
         {
-            this.socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, true);
-            this.socket.SendTo(buffer, 0, buffer.Length, SocketFlags.None, new IPEndPoint(IPAddress.Broadcast, port));
-            this.socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, false);
+            _socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, true);
+            _socket.SendTo(buffer, 0, buffer.Length, SocketFlags.None, new IPEndPoint(IPAddress.Broadcast, port));
+            _socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, false);
         }
 
-        private void OnReceivedUDPPacket(int receivedBytesCount, byte[] received, IPEndPoint remoteIPEndPoint)
+        private void OnReceivedUdpPacket(int receivedBytesCount, byte[] received, IPEndPoint remoteIpEndPoint)
         {
-            EventHandler<ReceivedUdpPacketEventArgs> receivedBroadcast = this.ReceivedPacket;
-
-            if (received != null)
+            EventHandler<ReceivedUdpPacketEventArgs> receivedBroadcast = ReceivedPacket;
+            if (receivedBroadcast != null)
             {
-                ReceivedUdpPacketEventArgs receivedProxyPacketEventArgs = new ReceivedUdpPacketEventArgs(receivedBytesCount, received, remoteIPEndPoint);
+                ReceivedUdpPacketEventArgs receivedProxyPacketEventArgs = new ReceivedUdpPacketEventArgs(receivedBytesCount, received, remoteIpEndPoint);
                 receivedBroadcast(this, receivedProxyPacketEventArgs);
             }
         }

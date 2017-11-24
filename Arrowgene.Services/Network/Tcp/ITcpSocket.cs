@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+
 namespace Arrowgene.Services.Network.Tcp
 {
     public interface ITcpSocket

@@ -23,6 +23,8 @@
  */
 
 
+// ReSharper disable EventNeverSubscribedTo.Global
+
 namespace Arrowgene.Services.Network.Tcp.Client
 {
     using System;

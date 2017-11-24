@@ -22,47 +22,27 @@
  * SOFTWARE.
  */
 
+
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
 namespace Arrowgene.Services.Network.Udp
 {
-    using Buffers;
     using System;
     using System.Net;
 
 
     public class ReceivedUdpPacketEventArgs : EventArgs
     {
-        private IBuffer readableBuffer;
-
-
-        public ReceivedUdpPacketEventArgs(int size, byte[] received, IPEndPoint remoteIPEndPoint)
+        public ReceivedUdpPacketEventArgs(int size, byte[] received, IPEndPoint remoteIpEndPoint)
         {
-            this.Size = size;
-            this.Received = received;
-            this.RemoteIPEndPoint = remoteIPEndPoint;
+            Size = size;
+            Received = received;
+            RemoteIpEndPoint = remoteIpEndPoint;
         }
 
-
-        public IBuffer ReadableBuffer
-        {
-            get { return this.GetReadableBuffer(); }
-        }
-
-
-        public IPEndPoint RemoteIPEndPoint { get; private set; }
-
-
-        public byte[] Received { get; private set; }
-
-
-        public int Size { get; private set; }
-
-        private IBuffer GetReadableBuffer()
-        {
-            if (this.readableBuffer == null)
-            {
-                readableBuffer = new ByteBuffer(this.Received);
-            }
-            return this.readableBuffer;
-        }
+        public IPEndPoint RemoteIpEndPoint { get; }
+        public byte[] Received { get; }
+        public int Size { get; }
     }
 }

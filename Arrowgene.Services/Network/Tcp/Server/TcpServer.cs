@@ -25,7 +25,6 @@
 
 namespace Arrowgene.Services.Network.Tcp.Server
 {
-    using System;
     using System.Net;
     using Logging;
     using Exceptions;
@@ -33,17 +32,16 @@ namespace Arrowgene.Services.Network.Tcp.Server
 
     public abstract class TcpServer : ITcpServer
     {
-        public TcpServer(IPAddress ipAddress, int port, IClientEventConsumer clientEventConsumer, ILogger logger)
+        protected TcpServer(IPAddress ipAddress, int port, IClientEventConsumer clientEventConsumer, ILogger logger)
         {
             if (ipAddress == null)
                 throw new InvalidParameterException("IPAddress is null");
 
             if (port <= 0 || port > 65535)
-                throw new InvalidParameterException(String.Format("Port({0}) invalid", port));
+                throw new InvalidParameterException(string.Format("Port({0}) invalid", port));
 
             if (logger == null)
                 throw new InvalidParameterException("Logger is null");
-
 
             IpAddress = ipAddress;
             Port = port;
@@ -51,32 +49,13 @@ namespace Arrowgene.Services.Network.Tcp.Server
             ClientEventConsumer = clientEventConsumer;
         }
 
-        /// <summary>
-        /// Current logging instance where logs get written to.
-        /// </summary>
         public ILogger Logger { get; }
-
-        /// <summary>
-        /// Servers <see cref="System.Net.IPAddress"/>.
-        /// </summary>
         public IPAddress IpAddress { get; }
-
-        /// <summary>
-        /// Servers port.
-        /// </summary>
         public int Port { get; }
 
         protected IClientEventConsumer ClientEventConsumer { get; }
 
-        /// <summary>
-        /// Start accepting connections,
-        /// Creates a new <see cref="Arrowgene.Services.Logging.Logger"/> instance if none is set.
-        /// </summary>
         public abstract void Start();
-
-        /// <summary>
-        /// Stops the server.
-        /// </summary>
         public abstract void Stop();
     }
 }

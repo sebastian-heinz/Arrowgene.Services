@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+
 namespace Arrowgene.Services.Logging
 {
     using System;
@@ -29,15 +30,15 @@ namespace Arrowgene.Services.Logging
     public interface ILogger
     {
         void Write(Log log);
-        void Write(LogLevel logLevel,string message, params object[] args);
-        
+        void Write(LogLevel logLevel, string message, params object[] args);
+
         void Info(string message, params object[] args);
         void Debug(string message, params object[] args);
         void Error(string message, params object[] args);
         void Exception(Exception exception);
 
         ILogger Produce(string name);
-        
+
         event EventHandler<LogWriteEventArgs> LogWrite;
     }
 }

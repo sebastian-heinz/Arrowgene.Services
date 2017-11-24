@@ -35,7 +35,7 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
         public Socket Socket { get; }
         public bool IsAlive { get; private set; }
 
-        private AsyncEventServer _server;
+        private readonly AsyncEventServer _server;
 
         public AsyncEventClient(Socket socket, AsyncEventServer server)
         {
@@ -56,6 +56,7 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
             {
                 Socket.Shutdown(SocketShutdown.Send);
             }
+            // ReSharper disable once EmptyGeneralCatchClause
             catch (Exception)
             {
             }

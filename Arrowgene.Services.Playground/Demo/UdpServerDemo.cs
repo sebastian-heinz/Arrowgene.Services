@@ -27,9 +27,9 @@
 
         private void EchoServer_ReceivedPacket(object sender, ReceivedUdpPacketEventArgs e)
         {
-            Console.WriteLine("UdpDemoServer::EchoServer_ReceivedPacket: received: " + e.Size + "bytes from " + e.RemoteIPEndPoint.ToString());
+            Console.WriteLine("UdpDemoServer::EchoServer_ReceivedPacket: received: " + e.Size + "bytes from " + e.RemoteIpEndPoint.ToString());
             UdpSocket echoServer = sender as UdpSocket;
-            echoServer.Send(new byte[20], e.RemoteIPEndPoint);
+            echoServer.Send(new byte[20], e.RemoteIpEndPoint);
             this.received = true;
         }
     }

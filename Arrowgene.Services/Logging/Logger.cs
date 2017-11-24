@@ -31,9 +31,9 @@ namespace Arrowgene.Services.Logging
     {
         public event EventHandler<LogWriteEventArgs> LogWrite;
 
-        private string _name;
-        private object _lock;
-        private Dictionary<int, Log> _logs;
+        private readonly string _name;
+        private readonly object _lock;
+        private readonly Dictionary<int, Log> _logs;
         private volatile int _currentId;
 
         public Logger(string name)
@@ -60,7 +60,7 @@ namespace Arrowgene.Services.Logging
 
         public void Write(LogLevel logLevel, string message, params object[] args)
         {
-            String msg = String.Format(message, args);
+            string msg = string.Format(message, args);
             Log log = new Log(logLevel, msg, _name);
             Write(log);
         }

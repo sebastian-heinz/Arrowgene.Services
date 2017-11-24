@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+
 namespace Arrowgene.Services.Buffers
 {
     using System;
@@ -31,7 +32,6 @@ namespace Arrowgene.Services.Buffers
     {
         public abstract int Size { get; }
         public abstract int Position { get; set; }
-        public virtual Endianness Endianness { get; set; }
         public abstract void SetPositionStart();
         public abstract void SetPositionEnd();
         public abstract IBuffer Clone(int offset, int length);
