@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+
 namespace Arrowgene.Services.Logging
 {
     using System;
@@ -29,7 +30,7 @@ namespace Arrowgene.Services.Logging
 
     public static class LogProvider
     {
-        private static readonly Dictionary<Type, ILogger> Loggers = new Dictionary<Type, ILogger>();
+        private static readonly Dictionary<string, ILogger> Loggers = new Dictionary<string, ILogger>();
         private static readonly object Lock = new object();
         private static ILogger _producer = new Logger("Producer");
 
@@ -52,15 +53,19 @@ namespace Arrowgene.Services.Logging
 
         public static ILogger GetLogger(Type type)
         {
+            return GetLogger(type.FullName);
+        }
+
+        public static ILogger GetLogger(string name)
+        {
             ILogger logger;
             lock (Lock)
             {
-                if (!Loggers.TryGetValue(type, out logger))
+                if (!Loggers.TryGetValue(name, out logger))
                 {
-                    string name = type.FullName;
                     logger = _producer.Produce(name);
                     logger.LogWrite += LoggerOnLogWrite;
-                    Loggers.Add(type, logger);
+                    Loggers.Add(name, logger);
                 }
             }
             return logger;
