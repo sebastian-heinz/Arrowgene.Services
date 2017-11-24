@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 API_KEY=""
 VERSION="1.3.0"
 
