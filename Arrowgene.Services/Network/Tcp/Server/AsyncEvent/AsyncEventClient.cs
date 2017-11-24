@@ -23,13 +23,11 @@
  */
 
 
+using System;
+using System.Net.Sockets;
+
 namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
 {
-    using System;
-    using System.Net.Sockets;
-    using Tcp;
-
-
     public class AsyncEventClient : ITcpSocket
     {
         public Socket Socket { get; }

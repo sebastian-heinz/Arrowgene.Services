@@ -23,11 +23,10 @@
  */
 
 
+using System;
+
 namespace Arrowgene.Services.Logging
 {
-    using System;
-
-
     public class LogWriteEventArgs : EventArgs
     {
         public LogWriteEventArgs(Log log)

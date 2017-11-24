@@ -23,11 +23,11 @@
  */
 
 
+using System;
+using System.Collections.Generic;
+
 namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
 {
-    using System;
-    using System.Collections.Generic;
-
     public class Pool<T>
     {
         private readonly Stack<T> _pool;

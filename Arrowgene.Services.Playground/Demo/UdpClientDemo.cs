@@ -1,10 +1,10 @@
-﻿namespace Arrowgene.Services.Playground.Demo
-{
-    using Network.Udp;
-    using System;
-    using System.Net;
-    using System.Threading;
+﻿using System;
+using System.Net;
+using System.Threading;
+using Arrowgene.Services.Network.Udp;
 
+namespace Arrowgene.Services.Playground.Demo
+{
     public class UdpClientDemo
     {
         private const int Port = 15000;

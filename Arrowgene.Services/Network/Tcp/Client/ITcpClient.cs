@@ -25,11 +25,11 @@
 
 // ReSharper disable EventNeverSubscribedTo.Global
 
+using System;
+using System.Net;
+
 namespace Arrowgene.Services.Network.Tcp.Client
 {
-    using System;
-    using System.Net;
-
     public interface ITcpClient
     {
         IPAddress RemoteIpAddress { get; }

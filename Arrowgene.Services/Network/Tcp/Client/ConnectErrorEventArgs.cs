@@ -26,11 +26,11 @@
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
+using System;
+using System.Net;
+
 namespace Arrowgene.Services.Network.Tcp.Client
 {
-    using System;
-    using System.Net;
-
     public class ConnectErrorEventArgs : EventArgs
     {
         public ConnectErrorEventArgs(string reason, IPAddress serverIpAddress, int serverPort, TimeSpan timeout)

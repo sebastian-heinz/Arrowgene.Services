@@ -23,10 +23,11 @@
  */
 
 
+using System;
+using System.IO;
+
 namespace Arrowgene.Services.Buffers
 {
-    using System.IO;
-
     public class StreamBuffer : Buffer
     {
         private readonly MemoryStream _memoryStream;
@@ -117,12 +118,12 @@ namespace Arrowgene.Services.Buffers
 
         public override void WriteBytes(byte[] source, int srcOffset, int length)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public override void WriteBytes(byte[] source, int srcOffset, int dstOffset, int count)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public override void WriteByte(byte value)

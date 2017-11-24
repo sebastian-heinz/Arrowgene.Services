@@ -23,16 +23,15 @@
  */
 
 
+using System;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using Arrowgene.Services.Logging;
+using Arrowgene.Services.Network.Tcp.Server.EventConsumer;
+
 namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
 {
-    using System;
-    using System.Net;
-    using System.Net.Sockets;
-    using System.Threading;
-    using Logging;
-    using Server;
-    using EventConsumer;
-
     public class AsyncEventServer : TcpServer
     {
         private const string ThreadName = "AsyncEventServer";
@@ -179,11 +178,15 @@ namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
             }
             else
             {
-                if (acceptEventArg.SocketError == SocketError.OperationAborted)
+                switch (acceptEventArg.SocketError)
                 {
-                    // Server shut down.
+                    case SocketError.OperationAborted:
+                        // Server shut down.
+                        break;
+                    default:
+                        _logger.Error(acceptEventArg.SocketError.ToString());
+                        break;
                 }
-                Console.WriteLine(acceptEventArg.SocketError);
             }
         }
 

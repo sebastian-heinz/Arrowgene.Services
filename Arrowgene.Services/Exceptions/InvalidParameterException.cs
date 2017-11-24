@@ -23,11 +23,11 @@
  */
 
 
+using System;
+using System.Runtime.Serialization;
+
 namespace Arrowgene.Services.Exceptions
 {
-    using System;
-    using System.Runtime.Serialization;
-
     public class InvalidParameterException : Exception
     {
         public InvalidParameterException()

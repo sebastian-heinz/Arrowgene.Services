@@ -23,10 +23,10 @@
  */
 
 
+using System;
+
 namespace Arrowgene.Services.Logging
 {
-    using System;
-
     public interface ILogger
     {
         void Write(Log log);

@@ -23,11 +23,11 @@
  */
 
 
+using System;
+using System.Collections.Generic;
+
 namespace Arrowgene.Services.Logging
 {
-    using System;
-    using System.Collections.Generic;
-
     public static class LogProvider
     {
         private static readonly Dictionary<string, ILogger> Loggers = new Dictionary<string, ILogger>();

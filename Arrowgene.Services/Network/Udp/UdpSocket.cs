@@ -23,15 +23,15 @@
  */
 
 
+using System;
+using System.Diagnostics;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using Arrowgene.Services.Buffers;
+
 namespace Arrowgene.Services.Network.Udp
 {
-    using System;
-    using System.Diagnostics;
-    using System.Net;
-    using System.Net.Sockets;
-    using System.Threading;
-    using Buffers;
-
     /// <summary>
     /// Class for handling udp sending and receiving of packets.
     /// Call <see cref="StartReceive"/> before sending any data, to be able to receive a response.

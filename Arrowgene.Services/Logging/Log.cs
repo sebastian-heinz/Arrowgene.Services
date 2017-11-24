@@ -23,10 +23,10 @@
  */
 
 
+using System;
+
 namespace Arrowgene.Services.Logging
 {
-    using System;
-
     public class Log
     {
         public Log(LogLevel logLevel, string text, string loggerIdentity = null, string zone = null)

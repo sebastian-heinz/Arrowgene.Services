@@ -23,11 +23,11 @@
  */
 
 
+using System.Collections.Generic;
+using System.Net.Sockets;
+
 namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
 {
-    using System.Collections.Generic;
-    using System.Net.Sockets;
-
     public class BufferManager
     {
         private readonly int _numBytes;

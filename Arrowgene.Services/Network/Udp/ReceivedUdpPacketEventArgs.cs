@@ -26,12 +26,11 @@
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
+using System;
+using System.Net;
+
 namespace Arrowgene.Services.Network.Udp
 {
-    using System;
-    using System.Net;
-
-
     public class ReceivedUdpPacketEventArgs : EventArgs
     {
         public ReceivedUdpPacketEventArgs(int size, byte[] received, IPEndPoint remoteIpEndPoint)

@@ -23,11 +23,11 @@
  */
 
 
+using System;
+using System.Text;
+
 namespace Arrowgene.Services.Buffers
 {
-    using System;
-    using System.Text;
-
     public class ArrayBuffer : Buffer
     {
         private const int BufferSize = 1024;

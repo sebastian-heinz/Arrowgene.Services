@@ -1,14 +1,17 @@
-﻿namespace Arrowgene.Services.Playground.Demo
-{
-    using Buffers;
-    using System;
-    using System.Net;
-    using Logging;
-    using Network.Tcp.Client;
-    using Network.Tcp.Server;
-    using Network.Tcp.Server.AsyncEvent;
-    using Network.Tcp.Server.EventConsumer.EventHandler;
+﻿using System;
+using System.Net;
+using Arrowgene.Services.Buffers;
+using Arrowgene.Services.Logging;
+using Arrowgene.Services.Network.Tcp.Client;
+using Arrowgene.Services.Network.Tcp.Server;
+using Arrowgene.Services.Network.Tcp.Server.AsyncEvent;
+using Arrowgene.Services.Network.Tcp.Server.EventConsumer.EventHandler;
+using ConnectedEventArgs = Arrowgene.Services.Network.Tcp.Client.ConnectedEventArgs;
+using DisconnectedEventArgs = Arrowgene.Services.Network.Tcp.Client.DisconnectedEventArgs;
+using ReceivedPacketEventArgs = Arrowgene.Services.Network.Tcp.Client.ReceivedPacketEventArgs;
 
+namespace Arrowgene.Services.Playground.Demo
+{
     public class TcpConnectionDemo
     {
         public TcpConnectionDemo()
@@ -48,7 +51,7 @@
             Console.WriteLine(logWriteEventArgs.Log);
         }
 
-        private void Cli_ClientReceivedPacket(object sender, Network.Tcp.Client.ReceivedPacketEventArgs e)
+        private void Cli_ClientReceivedPacket(object sender, ReceivedPacketEventArgs e)
         {
             IBuffer data = e.Data;
             Console.WriteLine(string.Format("Demo: Client: received packet Size:{0}", data.Size));
@@ -61,12 +64,12 @@
             e.Socket.Send(new byte[10]);
         }
 
-        private void Cli_Disconnected(object sender, Network.Tcp.Client.DisconnectedEventArgs disconnectedEventArgs)
+        private void Cli_Disconnected(object sender, DisconnectedEventArgs disconnectedEventArgs)
         {
             Console.WriteLine("Demo: Client Disconnected");
         }
 
-        private void Cli_Connected(object sender, Network.Tcp.Client.ConnectedEventArgs connectedEventArgs)
+        private void Cli_Connected(object sender, ConnectedEventArgs connectedEventArgs)
         {
             Console.WriteLine("Demo: Client Connected");
         }

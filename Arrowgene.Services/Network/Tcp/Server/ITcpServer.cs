@@ -23,10 +23,10 @@
  */
 
 
+using System.Net;
+
 namespace Arrowgene.Services.Network.Tcp.Server
 {
-    using System.Net;
-
     public interface ITcpServer
     {
         /// <summary>

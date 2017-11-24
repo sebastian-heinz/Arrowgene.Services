@@ -26,10 +26,10 @@
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
+using System;
+
 namespace Arrowgene.Services.Network.Tcp.Client
 {
-    using System;
-
     public class DisconnectedEventArgs : EventArgs
     {
         public DisconnectedEventArgs(ITcpClient client)

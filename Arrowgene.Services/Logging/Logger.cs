@@ -22,11 +22,11 @@
  * SOFTWARE.
  */
 
+using System;
+using System.Collections.Generic;
+
 namespace Arrowgene.Services.Logging
 {
-    using System;
-    using System.Collections.Generic;
-
     public class Logger : ILogger
     {
         public event EventHandler<LogWriteEventArgs> LogWrite;

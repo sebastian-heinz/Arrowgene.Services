@@ -1,13 +1,13 @@
-﻿namespace Arrowgene.Services.Playground.Demo
-{
-    using System;
-    using System.Net;
-    using System.Threading;
-    using Logging;
-    using Network.Tcp.Server;
-    using Network.Tcp.Server.AsyncEvent;
-    using Network.Tcp.Server.EventConsumer.BlockingQueue;
+﻿using System;
+using System.Net;
+using System.Threading;
+using Arrowgene.Services.Logging;
+using Arrowgene.Services.Network.Tcp.Server;
+using Arrowgene.Services.Network.Tcp.Server.AsyncEvent;
+using Arrowgene.Services.Network.Tcp.Server.EventConsumer.BlockingQueue;
 
+namespace Arrowgene.Services.Playground.Demo
+{
     public class TcpEchoDemo
     {
         private volatile bool _isRunning;

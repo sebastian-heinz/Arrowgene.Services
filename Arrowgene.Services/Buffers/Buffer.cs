@@ -23,11 +23,11 @@
  */
 
 
+using System;
+using System.Text;
+
 namespace Arrowgene.Services.Buffers
 {
-    using System;
-    using System.Text;
-
     public abstract class Buffer : IBuffer, IBufferProvider, ICloneable
     {
         public abstract int Size { get; }

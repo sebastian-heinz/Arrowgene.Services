@@ -23,16 +23,16 @@
  */
 
 
+using System;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using Arrowgene.Services.Buffers;
+using Arrowgene.Services.Exceptions;
+using Arrowgene.Services.Logging;
+
 namespace Arrowgene.Services.Network.Tcp.Client
 {
-    using System;
-    using System.Net;
-    using System.Net.Sockets;
-    using Buffers;
-    using Logging;
-    using System.Threading;
-    using Exceptions;
-
     public class TcpClient : ITcpClient
     {
         private const string DefaultName = "Tcp Client";

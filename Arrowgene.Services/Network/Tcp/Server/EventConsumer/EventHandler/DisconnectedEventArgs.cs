@@ -23,10 +23,10 @@
  */
 
 
+using System;
+
 namespace Arrowgene.Services.Network.Tcp.Server.EventConsumer.EventHandler
 {
-    using System;
-
     public class DisconnectedEventArgs : EventArgs
     {
         public DisconnectedEventArgs(ITcpSocket socket)

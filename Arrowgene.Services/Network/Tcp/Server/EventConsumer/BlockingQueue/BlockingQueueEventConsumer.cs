@@ -23,10 +23,10 @@
  */
 
 
+using System.Collections.Concurrent;
+
 namespace Arrowgene.Services.Network.Tcp.Server.EventConsumer.BlockingQueue
 {
-    using System.Collections.Concurrent;
-
     public class BlockingQueueEventConsumer : IClientEventConsumer
     {
         public BlockingCollection<ClientEvent> ClientEvents;

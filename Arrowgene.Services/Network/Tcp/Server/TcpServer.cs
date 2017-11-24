@@ -23,12 +23,12 @@
  */
 
 
+using System.Net;
+using Arrowgene.Services.Exceptions;
+using Arrowgene.Services.Network.Tcp.Server.EventConsumer;
+
 namespace Arrowgene.Services.Network.Tcp.Server
 {
-    using System.Net;
-    using Exceptions;
-    using EventConsumer;
-
     public abstract class TcpServer : ITcpServer
     {
         protected TcpServer(IPAddress ipAddress, int port, IClientEventConsumer clientEventConsumer)
