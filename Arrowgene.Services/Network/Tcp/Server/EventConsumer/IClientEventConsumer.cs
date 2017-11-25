@@ -23,17 +23,14 @@
  */
 
 
-using System;
-
-namespace Arrowgene.Services.Logging
+namespace Arrowgene.Services.Network.Tcp.Server.EventConsumer
 {
-    public class LogWriteEventArgs : EventArgs
+    public interface IClientEventConsumer
     {
-        public LogWriteEventArgs(Log log)
-        {
-            Log = log;
-        }
-
-        public Log Log { get; }
+        void OnStart();
+        void OnReceivedPacket(ITcpSocket socket, byte[] data);
+        void OnClientDisconnected(ITcpSocket socket);
+        void OnClientConnected(ITcpSocket socket);
+        void OnStop();
     }
 }

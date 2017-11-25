@@ -25,15 +25,18 @@
 
 using System;
 
-namespace Arrowgene.Services.Logging
+namespace Arrowgene.Services.Network.Tcp.Server.EventConsumer.EventHandler
 {
-    public class LogWriteEventArgs : EventArgs
+    public class ReceivedPacketEventArgs : EventArgs
     {
-        public LogWriteEventArgs(Log log)
+        public ReceivedPacketEventArgs(ITcpSocket socket, byte[] data)
         {
-            Log = log;
+            Socket = socket;
+            Data = data;
         }
 
-        public Log Log { get; }
+        public ITcpSocket Socket { get; }
+
+        public byte[] Data { get; }
     }
 }

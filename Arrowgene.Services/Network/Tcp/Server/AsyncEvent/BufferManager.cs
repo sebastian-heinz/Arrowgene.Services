@@ -23,44 +23,55 @@
  */
 
 
-using System;
+using System.Collections.Generic;
+using System.Net.Sockets;
 
-namespace Arrowgene.Services.Logging
+namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
 {
-    public class Log
+    public class BufferManager
     {
-        public Log(LogLevel logLevel, string text, string loggerIdentity = null, string zone = null)
+        private readonly int _numBytes;
+        private readonly int _bufferSize;
+        private readonly Stack<int> _freeIndexPool;
+
+        private int _currentIndex;
+        private byte[] _buffer;
+
+        public BufferManager(int totalBytes, int bufferSize)
         {
-            Text = text;
-            LogLevel = logLevel;
-            DateTime = DateTime.Now;
-            LoggerIdentity = loggerIdentity;
-            Zone = zone ?? "";
+            _numBytes = totalBytes;
+            _currentIndex = 0;
+            _bufferSize = bufferSize;
+            _freeIndexPool = new Stack<int>();
         }
 
-        public string LoggerIdentity { get; }
-
-        public string Zone { get; }
-
-        public string Text { get; }
-
-        public LogLevel LogLevel { get; }
-
-        public DateTime DateTime { get; }
-
-        public override string ToString()
+        public void InitBuffer()
         {
-            string log = "{0:yyyy-MM-dd HH:mm:ss} - {1}";
-            if (string.IsNullOrEmpty(Zone))
+            _buffer = new byte[_numBytes];
+        }
+
+        public bool SetBuffer(SocketAsyncEventArgs args)
+        {
+            if (_freeIndexPool.Count > 0)
             {
-                log += "{2}:";
+                args.SetBuffer(_buffer, _freeIndexPool.Pop(), _bufferSize);
             }
             else
             {
-                log += " - {2}:";
+                if (_numBytes - _bufferSize < _currentIndex)
+                {
+                    return false;
+                }
+                args.SetBuffer(_buffer, _currentIndex, _bufferSize);
+                _currentIndex += _bufferSize;
             }
-            log += " {3}";
-            return string.Format(log, DateTime, LogLevel, Zone, Text);
+            return true;
+        }
+
+        public void FreeBuffer(SocketAsyncEventArgs args)
+        {
+            _freeIndexPool.Push(args.Offset);
+            args.SetBuffer(null, 0, 0);
         }
     }
 }

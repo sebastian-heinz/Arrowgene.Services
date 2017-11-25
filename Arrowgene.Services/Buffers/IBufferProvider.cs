@@ -23,17 +23,11 @@
  */
 
 
-using System;
-
-namespace Arrowgene.Services.Logging
+namespace Arrowgene.Services.Buffers
 {
-    public class LogWriteEventArgs : EventArgs
+    public interface IBufferProvider
     {
-        public LogWriteEventArgs(Log log)
-        {
-            Log = log;
-        }
-
-        public Log Log { get; }
+        IBuffer Provide();
+        IBuffer Provide(byte[] buffer);
     }
 }

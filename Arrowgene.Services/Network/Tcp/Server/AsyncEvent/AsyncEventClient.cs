@@ -24,16 +24,41 @@
 
 
 using System;
+using System.Net.Sockets;
 
-namespace Arrowgene.Services.Logging
+namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
 {
-    public class LogWriteEventArgs : EventArgs
+    public class AsyncEventClient : ITcpSocket
     {
-        public LogWriteEventArgs(Log log)
+        public Socket Socket { get; }
+        public bool IsAlive { get; private set; }
+
+        private readonly AsyncEventServer _server;
+
+        public AsyncEventClient(Socket socket, AsyncEventServer server)
         {
-            Log = log;
+            IsAlive = true;
+            _server = server;
+            Socket = socket;
         }
 
-        public Log Log { get; }
+        public void Send(byte[] data)
+        {
+            _server.SendData(this, data);
+        }
+
+        public void Close()
+        {
+            IsAlive = false;
+            try
+            {
+                Socket.Shutdown(SocketShutdown.Send);
+            }
+            // ReSharper disable once EmptyGeneralCatchClause
+            catch (Exception)
+            {
+            }
+            Socket.Close();
+        }
     }
 }

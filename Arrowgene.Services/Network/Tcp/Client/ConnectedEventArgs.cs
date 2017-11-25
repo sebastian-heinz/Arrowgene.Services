@@ -23,17 +23,20 @@
  */
 
 
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
 using System;
 
-namespace Arrowgene.Services.Logging
+namespace Arrowgene.Services.Network.Tcp.Client
 {
-    public class LogWriteEventArgs : EventArgs
+    public class ConnectedEventArgs : EventArgs
     {
-        public LogWriteEventArgs(Log log)
+        public ConnectedEventArgs(ITcpClient client)
         {
-            Log = log;
+            Client = client;
         }
 
-        public Log Log { get; }
+        public ITcpClient Client { get; }
     }
 }

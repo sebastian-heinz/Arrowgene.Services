@@ -27,13 +27,18 @@ using System;
 
 namespace Arrowgene.Services.Logging
 {
-    public class LogWriteEventArgs : EventArgs
+    public interface ILogger
     {
-        public LogWriteEventArgs(Log log)
-        {
-            Log = log;
-        }
+        void Write(Log log);
+        void Write(LogLevel logLevel, string message, params object[] args);
 
-        public Log Log { get; }
+        void Info(string message, params object[] args);
+        void Debug(string message, params object[] args);
+        void Error(string message, params object[] args);
+        void Exception(Exception exception);
+
+        ILogger Produce(string identity, string zone = null);
+
+        event EventHandler<LogWriteEventArgs> LogWrite;
     }
 }

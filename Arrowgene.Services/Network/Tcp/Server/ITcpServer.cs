@@ -23,17 +23,31 @@
  */
 
 
-using System;
+using System.Net;
 
-namespace Arrowgene.Services.Logging
+namespace Arrowgene.Services.Network.Tcp.Server
 {
-    public class LogWriteEventArgs : EventArgs
+    public interface ITcpServer
     {
-        public LogWriteEventArgs(Log log)
-        {
-            Log = log;
-        }
+        /// <summary>
+        /// <see cref="System.Net.IPAddress"/> for listening.
+        /// </summary>
+        IPAddress IpAddress { get; }
 
-        public Log Log { get; }
+        /// <summary>
+        /// Server port.
+        /// </summary>
+        int Port { get; }
+
+        /// <summary>
+        /// Start accepting connections,
+        /// Creates a new <see cref="Arrowgene.Services.Logging.Logger"/> instance if none is set.
+        /// </summary>
+        void Start();
+
+        /// <summary>
+        /// Stops the server.
+        /// </summary>
+        void Stop();
     }
 }

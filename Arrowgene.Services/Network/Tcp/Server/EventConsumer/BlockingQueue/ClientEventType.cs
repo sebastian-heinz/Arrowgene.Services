@@ -23,17 +23,12 @@
  */
 
 
-using System;
-
-namespace Arrowgene.Services.Logging
+namespace Arrowgene.Services.Network.Tcp.Server.EventConsumer.BlockingQueue
 {
-    public class LogWriteEventArgs : EventArgs
+    public enum ClientEventType
     {
-        public LogWriteEventArgs(Log log)
-        {
-            Log = log;
-        }
-
-        public Log Log { get; }
+        Connected,
+        ReceivedData,
+        Disconnected
     }
 }

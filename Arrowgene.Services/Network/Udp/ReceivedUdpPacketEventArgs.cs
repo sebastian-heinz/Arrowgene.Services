@@ -23,17 +23,25 @@
  */
 
 
-using System;
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
-namespace Arrowgene.Services.Logging
+using System;
+using System.Net;
+
+namespace Arrowgene.Services.Network.Udp
 {
-    public class LogWriteEventArgs : EventArgs
+    public class ReceivedUdpPacketEventArgs : EventArgs
     {
-        public LogWriteEventArgs(Log log)
+        public ReceivedUdpPacketEventArgs(int size, byte[] received, IPEndPoint remoteIpEndPoint)
         {
-            Log = log;
+            Size = size;
+            Received = received;
+            RemoteIpEndPoint = remoteIpEndPoint;
         }
 
-        public Log Log { get; }
+        public IPEndPoint RemoteIpEndPoint { get; }
+        public byte[] Received { get; }
+        public int Size { get; }
     }
 }

@@ -23,17 +23,33 @@
  */
 
 
-using System;
+using System.Net;
+using Arrowgene.Services.Exceptions;
+using Arrowgene.Services.Network.Tcp.Server.EventConsumer;
 
-namespace Arrowgene.Services.Logging
+namespace Arrowgene.Services.Network.Tcp.Server
 {
-    public class LogWriteEventArgs : EventArgs
+    public abstract class TcpServer : ITcpServer
     {
-        public LogWriteEventArgs(Log log)
+        protected TcpServer(IPAddress ipAddress, int port, IClientEventConsumer clientEventConsumer)
         {
-            Log = log;
+            if (ipAddress == null)
+                throw new InvalidParameterException("IPAddress is null");
+
+            if (port <= 0 || port > 65535)
+                throw new InvalidParameterException(string.Format("Port({0}) invalid", port));
+
+            IpAddress = ipAddress;
+            Port = port;
+            ClientEventConsumer = clientEventConsumer;
         }
 
-        public Log Log { get; }
+        public IPAddress IpAddress { get; }
+        public int Port { get; }
+
+        protected IClientEventConsumer ClientEventConsumer { get; }
+
+        public abstract void Start();
+        public abstract void Stop();
     }
 }

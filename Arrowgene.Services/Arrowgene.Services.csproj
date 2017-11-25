@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;net46;net20</TargetFrameworks>
-        <Title>Arrowgene.Services</Title>
-        <Company>Arrowgene</Company>
-        <Copyright>Copyright © 2017 Arrowgene</Copyright>
-        <Version>$(Version)</Version>
-        <Authors>sebastian-heinz</Authors>
-        <Description>Arrowgene.Services aids in creating a server with multiple clients.</Description>
-        <PackageProjectUrl>https://github.com/Arrowgene/Arrowgene.Services</PackageProjectUrl>
-        <PackageTags>game,server,client,socket,network</PackageTags>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Title>Arrowgene.Services</Title>
+    <Company>Arrowgene</Company>
+    <Copyright>Copyright © 2017 Arrowgene</Copyright>
+    <Version>$(Version)</Version>
+    <Authors>sebastian-heinz</Authors>
+    <Description>Arrowgene.Services aids in creating a server with multiple clients.</Description>
+    <PackageProjectUrl>https://github.com/Arrowgene/Arrowgene.Services</PackageProjectUrl>
+    <PackageTags>game,server,client,socket,network</PackageTags>
+  </PropertyGroup>
 </Project>

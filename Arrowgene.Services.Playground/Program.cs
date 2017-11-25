@@ -1,25 +1,15 @@
-﻿namespace Arrowgene.Services.Playground
-{
-    using Arrowgene.Services.Playground.Demo;
-    using System;
+﻿using Arrowgene.Services.Playground.Demo;
 
+namespace Arrowgene.Services.Playground
+{
     public class Program
     {
         public static void Main(string[] args)
         {
-            // new GetMacAddressDemo();
-            // new HttpServerDemo();
-            // new HttpTunneClientDemo();
-            // new HttpTunnelServerDemo();
-            new ManagedTCPConnectionDemo();
-            // new PortScanDemo();
-            // new ProxyDemo();
-            // new TcpConnectionDemo();
             // new UdpServerDemo();
             // new UdpClientDemo();
-
-            Console.WriteLine("Press any key to exit..");
-            Console.ReadKey();
+            new TcpEchoDemo();
+            // new TcpConnectionDemo();
         }
     }
 }

@@ -23,17 +23,35 @@
  */
 
 
-using System;
-
-namespace Arrowgene.Services.Logging
+namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
 {
-    public class LogWriteEventArgs : EventArgs
+    public class WriteToken
     {
-        public LogWriteEventArgs(Log log)
+        public byte[] Data { get; private set; }
+        public AsyncEventClient Client { get; private set; }
+        public int TransferredCount { get; private set; }
+        public int OutstandingCount { get; private set; }
+
+        public void Assign(AsyncEventClient client, byte[] data)
         {
-            Log = log;
+            Client = client;
+            Data = data;
+            OutstandingCount = data.Length;
+            TransferredCount = 0;
         }
 
-        public Log Log { get; }
+        public void Update(int transferredCount)
+        {
+            TransferredCount += transferredCount;
+            OutstandingCount -= transferredCount;
+        }
+
+        public void Reset()
+        {
+            Client = null;
+            Data = null;
+            OutstandingCount = 0;
+            TransferredCount = 0;
+        }
     }
 }

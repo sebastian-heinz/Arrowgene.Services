@@ -23,17 +23,11 @@
  */
 
 
-using System;
-
-namespace Arrowgene.Services.Logging
+namespace Arrowgene.Services.Network.Tcp
 {
-    public class LogWriteEventArgs : EventArgs
+    public interface ITcpSocket
     {
-        public LogWriteEventArgs(Log log)
-        {
-            Log = log;
-        }
-
-        public Log Log { get; }
+        void Send(byte[] payload);
+        void Close();
     }
 }

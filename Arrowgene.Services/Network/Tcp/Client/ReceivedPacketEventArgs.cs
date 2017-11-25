@@ -23,17 +23,24 @@
  */
 
 
-using System;
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
-namespace Arrowgene.Services.Logging
+using System;
+using Arrowgene.Services.Buffers;
+
+namespace Arrowgene.Services.Network.Tcp.Client
 {
-    public class LogWriteEventArgs : EventArgs
+    public class ReceivedPacketEventArgs : EventArgs
     {
-        public LogWriteEventArgs(Log log)
+        public ReceivedPacketEventArgs(ITcpClient client, IBuffer data)
         {
-            Log = log;
+            Client = client;
+            Data = data;
         }
 
-        public Log Log { get; }
+        public ITcpClient Client { get; }
+
+        public IBuffer Data { get; }
     }
 }

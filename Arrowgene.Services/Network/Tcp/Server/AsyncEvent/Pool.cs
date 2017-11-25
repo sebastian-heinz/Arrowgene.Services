@@ -24,16 +24,37 @@
 
 
 using System;
+using System.Collections.Generic;
 
-namespace Arrowgene.Services.Logging
+namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
 {
-    public class LogWriteEventArgs : EventArgs
+    public class Pool<T>
     {
-        public LogWriteEventArgs(Log log)
+        private readonly Stack<T> _pool;
+
+        public Pool(int capacity)
         {
-            Log = log;
+            _pool = new Stack<T>(capacity);
         }
 
-        public Log Log { get; }
+        public void Push(T item)
+        {
+            if (item == null)
+            {
+                throw new ArgumentNullException("Items added to a SocketAsyncEventArgsPool cannot be null");
+            }
+            lock (_pool)
+            {
+                _pool.Push(item);
+            }
+        }
+
+        public T Pop()
+        {
+            lock (_pool)
+            {
+                return _pool.Pop();
+            }
+        }
     }
 }

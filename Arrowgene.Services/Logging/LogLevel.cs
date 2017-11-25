@@ -22,18 +22,12 @@
  * SOFTWARE.
  */
 
-
-using System;
-
 namespace Arrowgene.Services.Logging
 {
-    public class LogWriteEventArgs : EventArgs
+    public enum LogLevel
     {
-        public LogWriteEventArgs(Log log)
-        {
-            Log = log;
-        }
-
-        public Log Log { get; }
+        Info,
+        Debug,
+        Error
     }
 }

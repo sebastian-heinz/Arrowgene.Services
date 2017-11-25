@@ -23,17 +23,23 @@
  */
 
 
+// ReSharper disable EventNeverSubscribedTo.Global
+
 using System;
+using System.Net;
 
-namespace Arrowgene.Services.Logging
+namespace Arrowgene.Services.Network.Tcp.Client
 {
-    public class LogWriteEventArgs : EventArgs
+    public interface ITcpClient
     {
-        public LogWriteEventArgs(Log log)
-        {
-            Log = log;
-        }
-
-        public Log Log { get; }
+        IPAddress RemoteIpAddress { get; }
+        int Port { get; }
+        event EventHandler<DisconnectedEventArgs> Disconnected;
+        event EventHandler<ConnectedEventArgs> Connected;
+        event EventHandler<ReceivedPacketEventArgs> ReceivedPacket;
+        event EventHandler<ConnectErrorEventArgs> ConnectError;
+        void Connect(IPAddress serverIpAddress, int serverPort, TimeSpan timeout);
+        void Disconnect();
+        void Send(byte[] payload);
     }
 }

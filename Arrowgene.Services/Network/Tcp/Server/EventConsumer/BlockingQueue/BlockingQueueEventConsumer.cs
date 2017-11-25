@@ -23,17 +23,42 @@
  */
 
 
-using System;
+using System.Collections.Concurrent;
 
-namespace Arrowgene.Services.Logging
+namespace Arrowgene.Services.Network.Tcp.Server.EventConsumer.BlockingQueue
 {
-    public class LogWriteEventArgs : EventArgs
+    public class BlockingQueueEventConsumer : IClientEventConsumer
     {
-        public LogWriteEventArgs(Log log)
+        public BlockingCollection<ClientEvent> ClientEvents;
+
+
+        public BlockingQueueEventConsumer()
         {
-            Log = log;
+            OnStart();
         }
 
-        public Log Log { get; }
+        public void OnStart()
+        {
+            ClientEvents = new BlockingCollection<ClientEvent>();
+        }
+
+        public void OnReceivedPacket(ITcpSocket socket, byte[] data)
+        {
+            ClientEvents.Add(new ClientEvent(socket, ClientEventType.ReceivedData, data));
+        }
+
+        public void OnClientDisconnected(ITcpSocket socket)
+        {
+            ClientEvents.Add(new ClientEvent(socket, ClientEventType.Disconnected));
+        }
+
+        public void OnClientConnected(ITcpSocket socket)
+        {
+            ClientEvents.Add(new ClientEvent(socket, ClientEventType.Connected));
+        }
+
+        public void OnStop()
+        {
+        }
     }
 }

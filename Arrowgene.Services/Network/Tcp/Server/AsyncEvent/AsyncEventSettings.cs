@@ -23,17 +23,23 @@
  */
 
 
-using System;
+// ReSharper disable MemberCanBePrivate.Global
 
-namespace Arrowgene.Services.Logging
+namespace Arrowgene.Services.Network.Tcp.Server.AsyncEvent
 {
-    public class LogWriteEventArgs : EventArgs
+    public class AsyncEventSettings
     {
-        public LogWriteEventArgs(Log log)
-        {
-            Log = log;
-        }
+        public int MaxConnections { get; set; }
+        public int NumSimultaneouslyWriteOperations { get; set; }
+        public int BufferSize { get; set; }
+        public int Backlog { get; set; }
 
-        public Log Log { get; }
+        public AsyncEventSettings()
+        {
+            BufferSize = 2000;
+            MaxConnections = 100;
+            NumSimultaneouslyWriteOperations = 100;
+            Backlog = 5;
+        }
     }
 }
