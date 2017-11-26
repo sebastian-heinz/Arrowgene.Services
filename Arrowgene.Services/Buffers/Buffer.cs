@@ -128,5 +128,10 @@ namespace Arrowgene.Services.Buffers
         {
             return Clone();
         }
+
+        public override string ToString()
+        {
+            return string.Format("Size:{0} Position:{1}", Size, Position);
+        }
     }
 }

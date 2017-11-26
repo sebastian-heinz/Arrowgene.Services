@@ -23,7 +23,6 @@
  */
 
 
-using System;
 using System.IO;
 
 namespace Arrowgene.Services.Buffers
@@ -118,12 +117,13 @@ namespace Arrowgene.Services.Buffers
 
         public override void WriteBytes(byte[] source, int srcOffset, int length)
         {
-            throw new NotImplementedException();
+            _memoryStream.Write(source, srcOffset, length);
         }
 
         public override void WriteBytes(byte[] source, int srcOffset, int dstOffset, int count)
         {
-            throw new NotImplementedException();
+            _memoryStream.Position = dstOffset;
+            _memoryStream.Write(source, srcOffset, count);
         }
 
         public override void WriteByte(byte value)
@@ -270,7 +270,6 @@ namespace Arrowgene.Services.Buffers
         public override string ReadString(int length)
         {
             string s = string.Empty;
-
             for (int i = 0; i < length; i++)
             {
                 if (_memoryStream.Position < _memoryStream.Length)

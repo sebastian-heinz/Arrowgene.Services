@@ -116,7 +116,7 @@ namespace Arrowgene.Services.Buffers
         {
             ExtendBufferForOffsetIfNecessary(dstOffset, count);
             System.Buffer.BlockCopy(source, srcOffset, _buffer, dstOffset, count);
-            _currentPos += count;
+            _currentPos = dstOffset + count;
             UpdateSizeForPosition(_currentPos);
         }
 
