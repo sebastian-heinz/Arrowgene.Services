@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Threading;
-using Arrowgene.Services.Network.Udp;
+using Arrowgene.Services.Networking.Udp;
 
 namespace Arrowgene.Services.Playground.Demo
 {

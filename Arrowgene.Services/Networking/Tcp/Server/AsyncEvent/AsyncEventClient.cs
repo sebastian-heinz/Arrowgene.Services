@@ -1,4 +1,4 @@
-/*
+﻿/*
  * MIT License
  * 
  * Copyright (c) 2018 Sebastian Heinz <sebastian.heinz.gt@googlemail.com>
@@ -24,52 +24,41 @@
 
 
 using System;
-using System.Collections.Generic;
+using System.Net.Sockets;
 
-namespace Arrowgene.Services.Messages
+namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
 {
-    public class MessageHandler<TT> : IMessageSerializer
+    public class AsyncEventClient : ITcpSocket
     {
-        private Dictionary<int, IMessageHandle<TT>> _handles;
-        private IMessageSerializer _serializer;
+        public Socket Socket { get; }
+        public bool IsAlive { get; private set; }
 
-        public MessageHandler(IMessageSerializer serializer)
+        private readonly AsyncEventServer _server;
+
+        public AsyncEventClient(Socket socket, AsyncEventServer server)
         {
-            _handles = new Dictionary<int, IMessageHandle<TT>>();
-            _serializer = serializer;
+            IsAlive = true;
+            _server = server;
+            Socket = socket;
         }
 
-        public MessageHandler() : this(new BinaryFormatterSerializer())
+        public void Send(byte[] data)
         {
-        }
-        
-        public byte[] Serialize(Message message)
-        {
-            return _serializer.Serialize(message);
+            _server.SendData(this, data);
         }
 
-        public Message Deserialize(byte[] data)
+        public void Close()
         {
-            return _serializer.Deserialize(data);
-        }
-
-        public void Handle(byte[] data, TT token)
-        {
-            object deserialized = _serializer.Deserialize(data);
-            Message message = (Message) deserialized;
-            if (_handles.ContainsKey(message.Id))
+            IsAlive = false;
+            try
             {
-                _handles[message.Id].Process(message, token);
+                Socket.Shutdown(SocketShutdown.Send);
             }
-        }
-
-        public void AddHandle(IMessageHandle<TT> handle)
-        {
-            if (_handles.ContainsKey(handle.Id))
+            // ReSharper disable once EmptyGeneralCatchClause
+            catch (Exception)
             {
-                throw new Exception(string.Format("Handle for id: {0} already defined.", handle.Id));
             }
-            _handles.Add(handle.Id, handle);
+            Socket.Close();
         }
     }
 }

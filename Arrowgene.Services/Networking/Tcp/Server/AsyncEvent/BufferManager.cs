@@ -1,4 +1,4 @@
-/*
+﻿/*
  * MIT License
  * 
  * Copyright (c) 2018 Sebastian Heinz <sebastian.heinz.gt@googlemail.com>
@@ -23,53 +23,55 @@
  */
 
 
-using System;
 using System.Collections.Generic;
+using System.Net.Sockets;
 
-namespace Arrowgene.Services.Messages
+namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
 {
-    public class MessageHandler<TT> : IMessageSerializer
+    public class BufferManager
     {
-        private Dictionary<int, IMessageHandle<TT>> _handles;
-        private IMessageSerializer _serializer;
+        private readonly int _numBytes;
+        private readonly int _bufferSize;
+        private readonly Stack<int> _freeIndexPool;
 
-        public MessageHandler(IMessageSerializer serializer)
+        private int _currentIndex;
+        private byte[] _buffer;
+
+        public BufferManager(int totalBytes, int bufferSize)
         {
-            _handles = new Dictionary<int, IMessageHandle<TT>>();
-            _serializer = serializer;
+            _numBytes = totalBytes;
+            _currentIndex = 0;
+            _bufferSize = bufferSize;
+            _freeIndexPool = new Stack<int>();
         }
 
-        public MessageHandler() : this(new BinaryFormatterSerializer())
+        public void InitBuffer()
         {
-        }
-        
-        public byte[] Serialize(Message message)
-        {
-            return _serializer.Serialize(message);
+            _buffer = new byte[_numBytes];
         }
 
-        public Message Deserialize(byte[] data)
+        public bool SetBuffer(SocketAsyncEventArgs args)
         {
-            return _serializer.Deserialize(data);
-        }
-
-        public void Handle(byte[] data, TT token)
-        {
-            object deserialized = _serializer.Deserialize(data);
-            Message message = (Message) deserialized;
-            if (_handles.ContainsKey(message.Id))
+            if (_freeIndexPool.Count > 0)
             {
-                _handles[message.Id].Process(message, token);
+                args.SetBuffer(_buffer, _freeIndexPool.Pop(), _bufferSize);
             }
+            else
+            {
+                if (_numBytes - _bufferSize < _currentIndex)
+                {
+                    return false;
+                }
+                args.SetBuffer(_buffer, _currentIndex, _bufferSize);
+                _currentIndex += _bufferSize;
+            }
+            return true;
         }
 
-        public void AddHandle(IMessageHandle<TT> handle)
+        public void FreeBuffer(SocketAsyncEventArgs args)
         {
-            if (_handles.ContainsKey(handle.Id))
-            {
-                throw new Exception(string.Format("Handle for id: {0} already defined.", handle.Id));
-            }
-            _handles.Add(handle.Id, handle);
+            _freeIndexPool.Push(args.Offset);
+            args.SetBuffer(null, 0, 0);
         }
     }
 }

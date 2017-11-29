@@ -1,4 +1,4 @@
-/*
+﻿/*
  * MIT License
  * 
  * Copyright (c) 2018 Sebastian Heinz <sebastian.heinz.gt@googlemail.com>
@@ -23,53 +23,42 @@
  */
 
 
-using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 
-namespace Arrowgene.Services.Messages
+namespace Arrowgene.Services.Networking.Tcp.Server.EventConsumer.BlockingQueue
 {
-    public class MessageHandler<TT> : IMessageSerializer
+    public class BlockingQueueEventConsumer : IServerEventConsumer
     {
-        private Dictionary<int, IMessageHandle<TT>> _handles;
-        private IMessageSerializer _serializer;
+        public BlockingCollection<ClientEvent> ClientEvents;
 
-        public MessageHandler(IMessageSerializer serializer)
+
+        public BlockingQueueEventConsumer()
         {
-            _handles = new Dictionary<int, IMessageHandle<TT>>();
-            _serializer = serializer;
+            OnStart();
         }
 
-        public MessageHandler() : this(new BinaryFormatterSerializer())
+        public void OnStart()
         {
-        }
-        
-        public byte[] Serialize(Message message)
-        {
-            return _serializer.Serialize(message);
+            ClientEvents = new BlockingCollection<ClientEvent>();
         }
 
-        public Message Deserialize(byte[] data)
+        public void OnReceivedPacket(ITcpSocket socket, byte[] data)
         {
-            return _serializer.Deserialize(data);
+            ClientEvents.Add(new ClientEvent(socket, ClientEventType.ReceivedData, data));
         }
 
-        public void Handle(byte[] data, TT token)
+        public void OnClientDisconnected(ITcpSocket socket)
         {
-            object deserialized = _serializer.Deserialize(data);
-            Message message = (Message) deserialized;
-            if (_handles.ContainsKey(message.Id))
-            {
-                _handles[message.Id].Process(message, token);
-            }
+            ClientEvents.Add(new ClientEvent(socket, ClientEventType.Disconnected));
         }
 
-        public void AddHandle(IMessageHandle<TT> handle)
+        public void OnClientConnected(ITcpSocket socket)
         {
-            if (_handles.ContainsKey(handle.Id))
-            {
-                throw new Exception(string.Format("Handle for id: {0} already defined.", handle.Id));
-            }
-            _handles.Add(handle.Id, handle);
+            ClientEvents.Add(new ClientEvent(socket, ClientEventType.Connected));
+        }
+
+        public void OnStop()
+        {
         }
     }
 }

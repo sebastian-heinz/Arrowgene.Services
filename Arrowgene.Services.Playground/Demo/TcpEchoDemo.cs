@@ -2,9 +2,9 @@
 using System.Net;
 using System.Threading;
 using Arrowgene.Services.Logging;
-using Arrowgene.Services.Network.Tcp.Server;
-using Arrowgene.Services.Network.Tcp.Server.AsyncEvent;
-using Arrowgene.Services.Network.Tcp.Server.EventConsumer.BlockingQueue;
+using Arrowgene.Services.Networking.Tcp.Server;
+using Arrowgene.Services.Networking.Tcp.Server.AsyncEvent;
+using Arrowgene.Services.Networking.Tcp.Server.EventConsumer.BlockingQueue;
 
 namespace Arrowgene.Services.Playground.Demo
 {

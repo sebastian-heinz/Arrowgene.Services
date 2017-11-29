@@ -1,4 +1,4 @@
-/*
+﻿/*
  * MIT License
  * 
  * Copyright (c) 2018 Sebastian Heinz <sebastian.heinz.gt@googlemail.com>
@@ -26,50 +26,35 @@
 using System;
 using System.Collections.Generic;
 
-namespace Arrowgene.Services.Messages
+namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
 {
-    public class MessageHandler<TT> : IMessageSerializer
+    public class Pool<T>
     {
-        private Dictionary<int, IMessageHandle<TT>> _handles;
-        private IMessageSerializer _serializer;
+        private readonly Stack<T> _pool;
 
-        public MessageHandler(IMessageSerializer serializer)
+        public Pool(int capacity)
         {
-            _handles = new Dictionary<int, IMessageHandle<TT>>();
-            _serializer = serializer;
+            _pool = new Stack<T>(capacity);
         }
 
-        public MessageHandler() : this(new BinaryFormatterSerializer())
+        public void Push(T item)
         {
-        }
-        
-        public byte[] Serialize(Message message)
-        {
-            return _serializer.Serialize(message);
-        }
-
-        public Message Deserialize(byte[] data)
-        {
-            return _serializer.Deserialize(data);
-        }
-
-        public void Handle(byte[] data, TT token)
-        {
-            object deserialized = _serializer.Deserialize(data);
-            Message message = (Message) deserialized;
-            if (_handles.ContainsKey(message.Id))
+            if (item == null)
             {
-                _handles[message.Id].Process(message, token);
+                throw new ArgumentNullException("Items added to a SocketAsyncEventArgsPool cannot be null");
+            }
+            lock (_pool)
+            {
+                _pool.Push(item);
             }
         }
 
-        public void AddHandle(IMessageHandle<TT> handle)
+        public T Pop()
         {
-            if (_handles.ContainsKey(handle.Id))
+            lock (_pool)
             {
-                throw new Exception(string.Format("Handle for id: {0} already defined.", handle.Id));
+                return _pool.Pop();
             }
-            _handles.Add(handle.Id, handle);
         }
     }
 }
