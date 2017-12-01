@@ -49,7 +49,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.EventConsumer.EventHandler
         {
         }
 
-        public void OnReceivedPacket(ITcpSocket socket, byte[] data)
+        public void OnReceivedData(ITcpSocket socket, byte[] data)
         {
             EventHandler<ReceivedPacketEventArgs> receivedPacket = ReceivedPacket;
             if (receivedPacket != null)

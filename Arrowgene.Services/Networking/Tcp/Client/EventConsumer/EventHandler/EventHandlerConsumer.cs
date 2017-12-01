@@ -42,7 +42,7 @@ namespace Arrowgene.Services.Networking.Tcp.Client.EventConsumer.EventHandler
         {
         }
 
-        public void OnReceivedPacket(ITcpClient client, byte[] data)
+        public void OnReceivedData(ITcpClient client, byte[] data)
         {
             EventHandler<ReceivedPacketEventArgs> receivedPacket = ReceivedPacket;
             if (receivedPacket != null)

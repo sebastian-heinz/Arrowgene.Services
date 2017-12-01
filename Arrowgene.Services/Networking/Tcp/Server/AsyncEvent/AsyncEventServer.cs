@@ -222,7 +222,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
             {
                 byte[] data = new byte[readEventArgs.BytesTransferred];
                 Buffer.BlockCopy(readEventArgs.Buffer, readEventArgs.Offset, data, 0, readEventArgs.BytesTransferred);
-                EventConsumer.OnReceivedPacket(client, data);
+                EventConsumer.OnReceivedData(client, data);
                 StartReceive(readEventArgs);
             }
             else

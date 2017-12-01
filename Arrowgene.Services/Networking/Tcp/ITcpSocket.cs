@@ -27,7 +27,7 @@ namespace Arrowgene.Services.Networking.Tcp
 {
     public interface ITcpSocket
     {
-        void Send(byte[] payload);
+        void Send(byte[] data);
         void Close();
     }
 }

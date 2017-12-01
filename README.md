@@ -50,18 +50,48 @@ instead of the default functionality for every aspect of the library.
 This is an overview of the default pipeline that describes how data is transformed, send, received and recovered.
 
 
+Minimal Tcp/Client server pipeline where the library only handles the transportation.
+It is not necessary to use the library on both ends, 
+it can be used for the server side only or as a client to connect to a remote host.
 ```
-  (Extended Client/Server)     (Extended Message)  (Implemented Protocol)                              
-             |                         |                      |           
-             v                         |                      |                                                                              
-   {TcpClient/TcpServer}               |                      |                   
-             |                         |                      |                                              
-             v                         V                      V                                                 
-     [IClient/IServer] ==========> {Message} ==========> [IProtocol] => (Transport Medium) => [IProtocol] => {Message} => [IServer/IClient]
+                                                               @@@@@  
+                                                           @@@@@   @@@@@  
+                ┌───────────────────────────────┐     @@@@@   @@@@@  @@@@@  
+     ==|data|==>@ [IClient/IServer] ==|data|==> @══════╗@@@              @@@@@  
+                └───────────────────────────────┘   @@@║@            @@@@@  @@@@@  
+                                                 @@@@  ║  Internet       @@@@@  
+                ┌───────────────────────────────┐  @@@@║@                   @@@@@  
+     <==|data|==@ [IClient/IServer] <==|data|== @══════╝@@  @@@@@  @@@@@  @@@@@  
+                └───────────────────────────────┘     @@@@@  @@@@@   @@@@@  
+                                                          @@@@@    @@@@@  
+```
 
-(Concrete Implementation)
-{Abstract Class}
-[Interface]
+Use a protocol to send objects directly:
+```
+                                                                                     @@@@@  
+                                                                                 @@@@@   @@@@@  
+                ┌───────────────────────────────────────────────────────┐     @@@@@   @@@@@  @@@@@  
+   ==|object|==>@ [IProtocol] ==|Data|==> [IClient/IServer] ==|Data|==> @══════╗@@@              @@@@@  
+                └───────────────────────────────────────────────────────┘   @@@║@            @@@@@  @@@@@  
+                                                                         @@@@  ║  Internet       @@@@@  
+                ┌───────────────────────────────────────────────────────┐  @@@@║@                   @@@@@  
+   <==|object|==@ [IProtocol] <==|Data|== [IClient/IServer] <==|Data|== @══════╝@@  @@@@@  @@@@@  @@@@@  
+                └───────────────────────────────────────────────────────┘     @@@@@  @@@@@   @@@@@  
+                                                                                @@@@@    @@@@@  
+```
+
+Use the provided message protocol that allows to define message handler:
+```
+                                                                                                           @@@@@  
+                                                                                                       @@@@@   @@@@@  
+                              ┌─────────────────────────────────────────────────────────────┐     @@@@@   @@@@@  @@@@@  
+                ==|Message|==>@ [MessageProtocol] ==|Data|==> [IClient/IServer] ==|Data|==> @══════╗@@@              @@@@@  
+                              └─────────────────────────────────────────────────────────────┘   @@@║@            @@@@@  @@@@@  
+                                                                                             @@@@  ║  Internet       @@@@@  
+    ┌───────────────────────────────────────────────────────────────────────────────────────┐  @@@@║@                   @@@@@  
+    │ [MessageHandler] <==|Message|== [IProtocol] <==|Data|== [IClient/IServer] <==|Data|== @══════╝@@  @@@@@  @@@@@  @@@@@  
+    └───────────────────────────────────────────────────────────────────────────────────────┘     @@@@@  @@@@@   @@@@@  
+                                                                                                      @@@@@    @@@@@  
 ```
 
 It is possible to customize each part, and remove parts. 

@@ -42,7 +42,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.EventConsumer.BlockingQueue
             ClientEvents = new BlockingCollection<ClientEvent>();
         }
 
-        public void OnReceivedPacket(ITcpSocket socket, byte[] data)
+        public void OnReceivedData(ITcpSocket socket, byte[] data)
         {
             ClientEvents.Add(new ClientEvent(socket, ClientEventType.ReceivedData, data));
         }

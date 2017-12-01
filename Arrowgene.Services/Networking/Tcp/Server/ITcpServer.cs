@@ -29,25 +29,9 @@ namespace Arrowgene.Services.Networking.Tcp.Server
 {
     public interface ITcpServer
     {
-        /// <summary>
-        /// <see cref="System.Net.IPAddress"/> for listening.
-        /// </summary>
         IPAddress IpAddress { get; }
-
-        /// <summary>
-        /// Server port.
-        /// </summary>
         int Port { get; }
-
-        /// <summary>
-        /// Start accepting connections,
-        /// Creates a new <see cref="Arrowgene.Services.Logging.Logger"/> instance if none is set.
-        /// </summary>
         void Start();
-
-        /// <summary>
-        /// Stops the server.
-        /// </summary>
         void Stop();
     }
 }

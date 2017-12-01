@@ -31,7 +31,7 @@ namespace Arrowgene.Services.Networking.Tcp.Client.EventConsumer
     public interface IClientEventConsumer
     {
         void OnStart();
-        void OnReceivedPacket(ITcpClient client, byte[] data);
+        void OnReceivedData(ITcpClient client, byte[] data);
         void OnClientDisconnected(ITcpClient client);
         void OnClientConnected(ITcpClient client);
         void OnConnectError(ITcpClient client, string reason, IPAddress serverIpAddress, int serverPort, TimeSpan timeout);

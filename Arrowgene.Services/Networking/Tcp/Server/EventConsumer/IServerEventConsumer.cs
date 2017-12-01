@@ -28,7 +28,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.EventConsumer
     public interface IServerEventConsumer
     {
         void OnStart();
-        void OnReceivedPacket(ITcpSocket socket, byte[] data);
+        void OnReceivedData(ITcpSocket socket, byte[] data);
         void OnClientDisconnected(ITcpSocket socket);
         void OnClientConnected(ITcpSocket socket);
         void OnStop();

@@ -220,7 +220,7 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
                         Disconnect();
                     }
                     payload.SetPositionStart();
-                    EventConsumer.OnReceivedPacket(this, payload.GetAllBytes());
+                    EventConsumer.OnReceivedData(this, payload.GetAllBytes());
                 }
                 Thread.Sleep(SocketPollTimeout);
             }
