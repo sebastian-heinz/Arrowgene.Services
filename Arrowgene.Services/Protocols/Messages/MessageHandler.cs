@@ -26,49 +26,52 @@
 using System;
 using System.Collections.Generic;
 
-namespace Arrowgene.Services.Messages
+namespace Arrowgene.Services.Protocols.Messages
 {
-    public class MessageHandler<TT> : IMessageSerializer
+    public class MessageHandler<T>
     {
-        private Dictionary<int, IMessageHandle<TT>> _handles;
-        private IMessageSerializer _serializer;
+        private Dictionary<int, IMessageHandle<T>> _handles;
+        private IProtocol<List<Message>> _protocol;
 
-        public MessageHandler(IMessageSerializer serializer)
+        public MessageHandler(IProtocol<List<Message>> protocol)
         {
-            _handles = new Dictionary<int, IMessageHandle<TT>>();
-            _serializer = serializer;
+            _handles = new Dictionary<int, IMessageHandle<T>>();
+            _protocol = protocol;
         }
 
-        public MessageHandler() : this(new BinaryFormatterSerializer())
+        public MessageHandler() : this(new MessageProtocol())
         {
-        }
-        
-        public byte[] Serialize(Message message)
-        {
-            return _serializer.Serialize(message);
         }
 
-        public Message Deserialize(byte[] data)
+        public byte[] Create(Message message)
         {
-            return _serializer.Deserialize(data);
+            return _protocol.Serialize(new List<Message> {message});
         }
 
-        public void Handle(byte[] data, TT token)
+        public byte[] Create(List<Message> messages)
         {
-            object deserialized = _serializer.Deserialize(data);
-            Message message = (Message) deserialized;
-            if (_handles.ContainsKey(message.Id))
+            return _protocol.Serialize(messages);
+        }
+
+        public void Handle(byte[] data, T token)
+        {
+            List<Message> messages = _protocol.Deserialize(data);
+            foreach (Message message in messages)
             {
-                _handles[message.Id].Process(message, token);
+                if (_handles.ContainsKey(message.Id))
+                {
+                    _handles[message.Id].Process(message, token);
+                }
             }
         }
 
-        public void AddHandle(IMessageHandle<TT> handle)
+        public void AddHandle(IMessageHandle<T> handle)
         {
             if (_handles.ContainsKey(handle.Id))
             {
                 throw new Exception(string.Format("Handle for id: {0} already defined.", handle.Id));
             }
+            handle.SetHandler(this);
             _handles.Add(handle.Id, handle);
         }
     }

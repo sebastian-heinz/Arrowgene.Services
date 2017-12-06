@@ -23,16 +23,23 @@
  */
 
 
-namespace Arrowgene.Services.Messages
+namespace Arrowgene.Services.Protocols.Messages
 {
     public abstract class MessageHandle<TP, TT> : IMessageHandle<TT> where TP : Message
     {
+        protected MessageHandler<TT> Handler;
+        
         public abstract int Id { get; }
         protected abstract void Handle(TP message, TT token);
 
         public void Process(Message message, TT token)
         {
             Handle((TP) message, token);
+        }
+
+        public void SetHandler(MessageHandler<TT> handler)
+        {
+            Handler = handler;
         }
     }
 }

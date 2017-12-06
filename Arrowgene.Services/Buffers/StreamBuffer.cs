@@ -43,13 +43,11 @@ namespace Arrowgene.Services.Buffers
         public StreamBuffer(byte[] buffer) : this()
         {
             _binaryWriter.Write(buffer);
-            SetPositionStart();
         }
 
         public StreamBuffer(byte[] buffer, int index, int count) : this()
         {
             _binaryWriter.Write(buffer, index, count);
-            SetPositionStart();
         }
 
         public StreamBuffer(string filePath) : this()
@@ -64,7 +62,6 @@ namespace Arrowgene.Services.Buffers
                     _binaryWriter.Write(buffer, 0, read);
                 }
             }
-            SetPositionStart();
         }
 
         public override int Size => (int) _memoryStream.Length;

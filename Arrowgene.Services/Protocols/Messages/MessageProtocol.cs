@@ -1,104 +1,101 @@
-﻿using System;
-using System.Collections.Generic;
-using Arrowgene.Services.Messages;
+﻿/*
+ * MIT License
+ * 
+ * Copyright (c) 2018 Sebastian Heinz <sebastian.heinz.gt@googlemail.com>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
-namespace Arrowgene.Services.Protocols
+
+using System.Collections.Generic;
+using Arrowgene.Services.Buffers;
+
+namespace Arrowgene.Services.Protocols.Messages
 {
-    public class MessageProtocol
+    public class MessageProtocol : IProtocol<List<Message>>
     {
-        private const int HeaderSize = 8;
+        private const int HeaderSize = 4;
+
+        private BinaryFormatterSerializer<Message> _serializer;
 
         private int _currentLength;
-        private int _currentId;
-        private byte[] _currentBuffer;
+        private IBuffer _currentBuffer;
+        private bool _readLength;
 
-        private List<byte[]> Read(byte[] data)
+        public MessageProtocol()
         {
-            List<byte[]> results = new List<byte[]>();
-            if (_currentBuffer != null)
+            _serializer = new BinaryFormatterSerializer<Message>();
+        }
+
+        public byte[] Serialize(List<Message> messages)
+        {
+            IBuffer buffer = new StreamBuffer();
+            foreach (var message in messages)
             {
-                byte[] tmp = new byte[data.Length + _currentBuffer.Length];
-                Buffer.BlockCopy(_currentBuffer, 0, tmp, 0, _currentBuffer.Length);
-                Buffer.BlockCopy(data, 0, tmp, _currentBuffer.Length, data.Length);
-                data = tmp;
+                byte[] data = _serializer.Serialize(message);
+                buffer.WriteInt32(data.Length);
+                buffer.WriteBytes(data);
+            }
+            return buffer.GetAllBytes();
+        }
+
+        public List<Message> Deserialize(byte[] data)
+        {
+            List<Message> messages = new List<Message>();
+            if (_currentBuffer == null)
+            {
+                _currentBuffer = new StreamBuffer(data);
+                _currentBuffer.SetPositionStart();
             }
             else
             {
-                _currentLength = GetInt32(data, 0);
-                _currentId = GetInt32(data, 4);
+                _currentBuffer.SetPositionEnd();
+                _currentBuffer.WriteBytes(data);
+                _currentBuffer.SetPositionStart();
             }
-            if (_currentLength == data.Length)
+            while (_currentBuffer.Position < _currentBuffer.Size)
             {
-                results.Add(data);
-                _currentBuffer = null;
-            }
-            else if (_currentLength > data.Length)
-            {
-                _currentBuffer = data;
-            }
-            else if (_currentLength < data.Length)
-            {
-                bool read = true;
-                while (read)
+                if (_currentBuffer.Position + HeaderSize > _currentBuffer.Size)
                 {
-                    byte[] result = new byte[_currentLength];
-                    Buffer.BlockCopy(data, 0, result, 0, _currentLength);
-                    results.Add(result);
-                    int remaining = data.Length - _currentLength;
-                    byte[] tmp = new byte[remaining];
-                    Buffer.BlockCopy(data, _currentLength, tmp, 0, remaining);
-                    data = tmp;
-                    if (remaining >= HeaderSize)
-                    {
-                        _currentLength = GetInt32(data, 0);
-                        _currentId = GetInt32(data, 4);
-                        if (_currentLength == data.Length)
-                        {
-                            results.Add(data);
-                            _currentBuffer = null;
-                            read = false;
-                        }
-                        else if (_currentLength > data.Length)
-                        {
-                            _currentBuffer = data;
-                            read = false;
-                        }
-                    }
-                    else
-                    {
-                        _currentBuffer = data;
-                        read = false;
-                    }
+                    break;
                 }
+                int length;
+                if (_readLength)
+                {
+                    length = _currentLength;
+                }
+                else
+                {
+                    length = _currentBuffer.ReadInt32();
+                }
+                if (length > _currentBuffer.Size)
+                {
+                    _currentLength = length;
+                    _readLength = true;
+                    break;
+                }
+                _readLength = false;
+                byte[] messageBytes = _currentBuffer.ReadBytes(length);
+                Message message = _serializer.Deserialize(messageBytes);
+                messages.Add(message);
             }
-            return results;
-        }
-
-        public byte[] Write(byte[] data, Message message)
-        {
-            int length = data.Length + HeaderSize;
-            byte[] result = new byte[length];
-            WriteInt32(result, length, 0);
-            WriteInt32(result, message.Id, 4);
-            Buffer.BlockCopy(data, 0, result, 8, data.Length);
-            return result;
-        }
-
-        public int GetInt32(byte[] buffer, int offset)
-        {
-            int value = buffer[offset++] & 0xff;
-            value += (buffer[offset++] & 0xff) << 8;
-            value += (buffer[offset++] & 0xff) << 16;
-            value += (buffer[offset] & 0xff) << 24;
-            return value;
-        }
-
-        public void WriteInt32(byte[] buffer, int value, int offset)
-        {
-            buffer[offset++] = (byte) (value & 0xff);
-            buffer[offset++] = (byte) ((value & 0xff00) >> 8);
-            buffer[offset++] = (byte) ((value & 0xff0000) >> 16);
-            buffer[offset] = (byte) ((value & 0xff000000) >> 24);
+            return messages;
         }
     }
 }

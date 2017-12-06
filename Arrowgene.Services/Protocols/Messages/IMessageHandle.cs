@@ -23,11 +23,12 @@
  */
 
 
-namespace Arrowgene.Services.Messages
+namespace Arrowgene.Services.Protocols.Messages
 {
-    public interface IMessageHandle<TT>
+    public interface IMessageHandle<T>
     {
         int Id { get; }
-        void Process(Message message, TT token);
+        void Process(Message message, T token);
+        void SetHandler(MessageHandler<T> handler);
     }
 }

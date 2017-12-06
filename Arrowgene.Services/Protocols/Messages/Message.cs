@@ -23,8 +23,11 @@
  */
 
 
-namespace Arrowgene.Services.Messages
+using System;
+
+namespace Arrowgene.Services.Protocols.Messages
 {
+    [Serializable]
     public abstract class Message
     {
         public abstract int Id { get; }

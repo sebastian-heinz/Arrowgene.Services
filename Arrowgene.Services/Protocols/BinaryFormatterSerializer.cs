@@ -28,11 +28,11 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace Arrowgene.Services.Messages
+namespace Arrowgene.Services.Protocols
 {
-    public class BinaryFormatterSerializer : IMessageSerializer
+    public class BinaryFormatterSerializer<T>
     {
-        public byte[] Serialize(Message message)
+        public byte[] Serialize(T message)
         {
             byte[] serialized;
             using (MemoryStream stream = new MemoryStream())
@@ -53,13 +53,13 @@ namespace Arrowgene.Services.Messages
             return serialized;
         }
 
-        public Message Deserialize(byte[] data)
+        public T Deserialize(byte[] data)
         {
-            Message message;
+            T message;
             using (MemoryStream stream = new MemoryStream(data))
             {
                 IFormatter formatter = new BinaryFormatter();
-                message = (Message) formatter.Deserialize(stream);
+                message = (T) formatter.Deserialize(stream);
                 stream.Close();
             }
             return message;
