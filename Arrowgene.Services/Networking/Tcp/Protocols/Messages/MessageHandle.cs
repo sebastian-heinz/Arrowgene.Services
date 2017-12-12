@@ -1,4 +1,4 @@
-﻿/*
+/*
  * MIT License
  * 
  * Copyright (c) 2018 Sebastian Heinz <sebastian.heinz.gt@googlemail.com>
@@ -23,17 +23,16 @@
  */
 
 
-using System;
-
-namespace Arrowgene.Services.Networking.Tcp.Client.EventConsumer.EventHandler
+namespace Arrowgene.Services.Protocols.Messages
 {
-    public class DisconnectedEventArgs : EventArgs
+    public abstract class MessageHandle<TP, TT> : IMessageHandle<TT> where TP : Message
     {
-        public DisconnectedEventArgs(ITcpClient client)
-        {
-            Client = client;
-        }
+        public abstract int Id { get; }
+        protected abstract void Handle(TP message, TT token);
 
-        public ITcpClient Client { get; }
+        public void Process(Message message, TT token)
+        {
+            Handle((TP) message, token);
+        }
     }
 }

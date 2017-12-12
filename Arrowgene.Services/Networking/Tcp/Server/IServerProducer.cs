@@ -23,11 +23,10 @@
  */
 
 
-namespace Arrowgene.Services.Protocols
+namespace Arrowgene.Services.Networking.Tcp.Server
 {
-    public interface IProtocol<T>
+    public interface IServerProducer
     {
-        byte[] Serialize(T obj);
-        T Deserialize(byte[] data);
+        void Send(ITcpSocket socket, byte[] data);
     }
 }

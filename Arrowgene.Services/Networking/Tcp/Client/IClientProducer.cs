@@ -23,17 +23,10 @@
  */
 
 
-using System;
-
-namespace Arrowgene.Services.Networking.Tcp.Client.EventConsumer.EventHandler
+namespace Arrowgene.Services.Networking.Tcp.Client
 {
-    public class ConnectedEventArgs : EventArgs
+    public interface IClientProducer
     {
-        public ConnectedEventArgs(ITcpClient client)
-        {
-            Client = client;
-        }
-
-        public ITcpClient Client { get; }
+        void Send(byte[] payload);
     }
 }

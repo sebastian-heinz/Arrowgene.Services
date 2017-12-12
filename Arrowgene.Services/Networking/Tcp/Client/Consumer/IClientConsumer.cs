@@ -23,16 +23,18 @@
  */
 
 
+using System;
 using System.Net;
 
-namespace Arrowgene.Services.Networking.Tcp.Server
+namespace Arrowgene.Services.Networking.Tcp.Client.Consumer
 {
-    public interface ITcpServer
+    public interface IClientConsumer
     {
-        IPAddress IpAddress { get; }
-        int Port { get; }
-        void Start();
-        void Stop();
-        void Send(ITcpSocket socket, byte[] data);
+        void OnStart();
+        void OnReceivedData(ITcpClient client, byte[] data);
+        void OnClientDisconnected(ITcpClient client);
+        void OnClientConnected(ITcpClient client);
+        void OnConnectError(ITcpClient client, string reason, IPAddress serverIpAddress, int serverPort, TimeSpan timeout);
+        void OnStop();
     }
 }

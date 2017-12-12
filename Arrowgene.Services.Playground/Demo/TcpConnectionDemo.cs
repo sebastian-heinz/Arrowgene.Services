@@ -4,7 +4,7 @@ using Arrowgene.Services.Logging;
 using Arrowgene.Services.Networking.Tcp.Client.SyncReceive;
 using Arrowgene.Services.Networking.Tcp.Server.AsyncEvent;
 using ClientEvent = Arrowgene.Services.Networking.Tcp.Client.EventConsumer.EventHandler;
-using ServerEvent = Arrowgene.Services.Networking.Tcp.Server.EventConsumer.EventHandler;
+using ServerEvent = Arrowgene.Services.Networking.Tcp.Server.Consumer.EventHandler;
 
 namespace Arrowgene.Services.Playground.Demo
 {

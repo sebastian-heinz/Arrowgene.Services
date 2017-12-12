@@ -23,12 +23,17 @@
  */
 
 
-namespace Arrowgene.Services.Networking.Tcp.Server.EventConsumer.BlockingQueue
+using System;
+
+namespace Arrowgene.Services.Networking.Tcp.Server.Consumer.EventHandler
 {
-    public enum ClientEventType
+    public class DisconnectedEventArgs : EventArgs
     {
-        Connected,
-        ReceivedData,
-        Disconnected
+        public DisconnectedEventArgs(ITcpSocket socket)
+        {
+            Socket = socket;
+        }
+
+        public ITcpSocket Socket { get; }
     }
 }

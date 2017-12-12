@@ -28,7 +28,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using Arrowgene.Services.Logging;
-using Arrowgene.Services.Networking.Tcp.Server.EventConsumer;
+using Arrowgene.Services.Networking.Tcp.Server.Consumer;
 
 namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
 {
@@ -51,7 +51,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
         private readonly ILogger _logger;
 
 
-        public AsyncEventServer(IPAddress ipAddress, int port, IServerEventConsumer serverEventConsumer)
+        public AsyncEventServer(IPAddress ipAddress, int port, IServerConsumer serverEventConsumer)
             : base(ipAddress, port, serverEventConsumer)
         {
             _logger = LogProvider.GetLogger(this);
@@ -127,7 +127,15 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
             EventConsumer.OnStop();
         }
 
-        public void SendData(AsyncEventClient client, byte[] data)
+        public override void Send(ITcpSocket socket, byte[] data)
+        {
+            if (socket is AsyncEventClient client)
+            {
+                Send(client, data);
+            }
+        }
+
+        public void Send(AsyncEventClient client, byte[] data)
         {
             if (!client.Socket.Connected)
             {

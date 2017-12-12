@@ -26,9 +26,9 @@
 using System;
 using System.Net;
 
-namespace Arrowgene.Services.Networking.Tcp.Client.EventConsumer.EventHandler
+namespace Arrowgene.Services.Networking.Tcp.Client.Consumer.EventHandler
 {
-    public class EventHandlerConsumer : IClientEventConsumer
+    public class EventHandlerConsumer : IClientConsumer
     {
         public event EventHandler<DisconnectedEventArgs> ClientDisconnected;
 

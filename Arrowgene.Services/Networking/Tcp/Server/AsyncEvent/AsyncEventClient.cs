@@ -44,7 +44,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
 
         public void Send(byte[] data)
         {
-            _server.SendData(this, data);
+            _server.Send(this, data);
         }
 
         public void Close()

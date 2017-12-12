@@ -31,37 +31,17 @@ namespace Arrowgene.Services.Protocols.Messages
     public class MessageHandler<T>
     {
         private Dictionary<int, IMessageHandle<T>> _handles;
-        private IProtocol<List<Message>> _protocol;
 
-        public MessageHandler(IProtocol<List<Message>> protocol)
+        public MessageHandler()
         {
             _handles = new Dictionary<int, IMessageHandle<T>>();
-            _protocol = protocol;
         }
 
-        public MessageHandler() : this(new MessageProtocol())
+        public void Handle(Message message, T token)
         {
-        }
-
-        public byte[] Create(Message message)
-        {
-            return _protocol.Serialize(new List<Message> {message});
-        }
-
-        public byte[] Create(List<Message> messages)
-        {
-            return _protocol.Serialize(messages);
-        }
-
-        public void Handle(byte[] data, T token)
-        {
-            List<Message> messages = _protocol.Deserialize(data);
-            foreach (Message message in messages)
+            if (_handles.ContainsKey(message.Id))
             {
-                if (_handles.ContainsKey(message.Id))
-                {
-                    _handles[message.Id].Process(message, token);
-                }
+                _handles[message.Id].Process(message, token);
             }
         }
 
@@ -71,7 +51,6 @@ namespace Arrowgene.Services.Protocols.Messages
             {
                 throw new Exception(string.Format("Handle for id: {0} already defined.", handle.Id));
             }
-            handle.SetHandler(this);
             _handles.Add(handle.Id, handle);
         }
     }

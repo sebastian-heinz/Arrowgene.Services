@@ -2,7 +2,7 @@
 using System.Net;
 using Arrowgene.Services.Networking.Tcp;
 using Arrowgene.Services.Networking.Tcp.Server.AsyncEvent;
-using Arrowgene.Services.Networking.Tcp.Server.EventConsumer.EventHandler;
+using Arrowgene.Services.Networking.Tcp.Server.Consumer.EventHandler;
 using Arrowgene.Services.Protocols.Messages;
 
 namespace Arrowgene.Services.Playground.Demo.TcpMessageProtocol.Server

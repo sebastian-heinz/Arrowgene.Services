@@ -23,9 +23,9 @@
  */
 
 
-namespace Arrowgene.Services.Networking.Tcp.Server.EventConsumer
+namespace Arrowgene.Services.Networking.Tcp.Server.Consumer
 {
-    public interface IServerEventConsumer
+    public interface IServerConsumer
     {
         void OnStart();
         void OnReceivedData(ITcpSocket socket, byte[] data);

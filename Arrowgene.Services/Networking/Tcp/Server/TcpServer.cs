@@ -25,13 +25,13 @@
 
 using System.Net;
 using Arrowgene.Services.Exceptions;
-using Arrowgene.Services.Networking.Tcp.Server.EventConsumer;
+using Arrowgene.Services.Networking.Tcp.Server.Consumer;
 
 namespace Arrowgene.Services.Networking.Tcp.Server
 {
     public abstract class TcpServer : ITcpServer
     {
-        protected TcpServer(IPAddress ipAddress, int port, IServerEventConsumer eventConsumer)
+        protected TcpServer(IPAddress ipAddress, int port, IServerConsumer eventConsumer)
         {
             if (ipAddress == null)
                 throw new InvalidParameterException("IPAddress is null");
@@ -47,9 +47,10 @@ namespace Arrowgene.Services.Networking.Tcp.Server
         public IPAddress IpAddress { get; }
         public int Port { get; }
 
-        protected IServerEventConsumer EventConsumer { get; }
+        protected IServerConsumer EventConsumer { get; }
 
         public abstract void Start();
         public abstract void Stop();
+        public abstract void Send(ITcpSocket socket, byte[] data);
     }
 }

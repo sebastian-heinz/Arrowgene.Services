@@ -25,17 +25,17 @@
 
 using System;
 
-namespace Arrowgene.Services.Networking.Tcp.Server.EventConsumer.EventHandler
+namespace Arrowgene.Services.Networking.Tcp.Client.Consumer.EventHandler
 {
     public class ReceivedPacketEventArgs : EventArgs
     {
-        public ReceivedPacketEventArgs(ITcpSocket socket, byte[] data)
+        public ReceivedPacketEventArgs(ITcpClient client, byte[] data)
         {
-            Socket = socket;
+            Client = client;
             Data = data;
         }
 
-        public ITcpSocket Socket { get; }
+        public ITcpClient Client { get; }
 
         public byte[] Data { get; }
     }

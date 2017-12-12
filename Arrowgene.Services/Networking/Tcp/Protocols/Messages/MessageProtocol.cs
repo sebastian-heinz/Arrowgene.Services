@@ -25,73 +25,85 @@
 
 using System.Collections.Generic;
 using Arrowgene.Services.Buffers;
+using Arrowgene.Services.Networking.Tcp.Protocols;
+using Arrowgene.Services.Protocols.Messages;
 
 namespace Arrowgene.Services.Protocols.Messages
 {
-    public class MessageProtocol : IProtocol<List<Message>>
+    public class MessageProtocol<T> : IProtocol
     {
         private const int HeaderSize = 4;
 
         private BinaryFormatterSerializer<Message> _serializer;
-
-        private int _currentLength;
-        private IBuffer _currentBuffer;
-        private bool _readLength;
+        private Dictionary<T, MessageState<T>> _states;
 
         public MessageProtocol()
         {
             _serializer = new BinaryFormatterSerializer<Message>();
+            _states = new Dictionary<T, MessageState<T>>();
         }
 
-        public byte[] Serialize(List<Message> messages)
+        public byte[] Serialize(Message message)
         {
             IBuffer buffer = new StreamBuffer();
-            foreach (var message in messages)
-            {
-                byte[] data = _serializer.Serialize(message);
-                buffer.WriteInt32(data.Length);
-                buffer.WriteBytes(data);
-            }
+            byte[] data = _serializer.Serialize(message);
+            buffer.WriteInt32(data.Length);
+            buffer.WriteBytes(data);
             return buffer.GetAllBytes();
         }
-
-        public List<Message> Deserialize(byte[] data)
+        
+        public List<Message> Deserialize(byte[] data, T user)
         {
-            List<Message> messages = new List<Message>();
-            if (_currentBuffer == null)
+            MessageState<T> state;
+            if (_states.ContainsKey(user))
             {
-                _currentBuffer = new StreamBuffer(data);
-                _currentBuffer.SetPositionStart();
+                state = _states[user];
             }
             else
             {
-                _currentBuffer.SetPositionEnd();
-                _currentBuffer.WriteBytes(data);
-                _currentBuffer.SetPositionStart();
+                state = new MessageState<T>();
             }
-            while (_currentBuffer.Position < _currentBuffer.Size)
+            state.Data = data;
+            return Deserialize(state);
+        }
+
+        public List<Message> Deserialize(MessageState<T> state)
+        {
+            List<Message> messages = new List<Message>();
+            if (state.CurrentBuffer == null)
             {
-                if (_currentBuffer.Position + HeaderSize > _currentBuffer.Size)
+                state.CurrentBuffer = new StreamBuffer(state.Data);
+                state.CurrentBuffer.SetPositionStart();
+            }
+            else
+            {
+                state.CurrentBuffer.SetPositionEnd();
+                state.CurrentBuffer.WriteBytes(state.Data);
+                state.CurrentBuffer.SetPositionStart();
+            }
+            while (state.CurrentBuffer.Position < state.CurrentBuffer.Size)
+            {
+                if (state.CurrentBuffer.Position + HeaderSize > state.CurrentBuffer.Size)
                 {
                     break;
                 }
                 int length;
-                if (_readLength)
+                if (state.ReadLength)
                 {
-                    length = _currentLength;
+                    length = state.CurrentLength;
                 }
                 else
                 {
-                    length = _currentBuffer.ReadInt32();
+                    length = state.CurrentBuffer.ReadInt32();
+                    state.CurrentLength = length;
+                    state.ReadLength = true;
                 }
-                if (length > _currentBuffer.Size)
+                if (length > state.CurrentBuffer.Size)
                 {
-                    _currentLength = length;
-                    _readLength = true;
                     break;
                 }
-                _readLength = false;
-                byte[] messageBytes = _currentBuffer.ReadBytes(length);
+                state.ReadLength = false;
+                byte[] messageBytes = state.CurrentBuffer.ReadBytes(length);
                 Message message = _serializer.Deserialize(messageBytes);
                 messages.Add(message);
             }

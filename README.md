@@ -42,7 +42,6 @@ If the default implementation is used, there are two tasks required:
 The library provides the following default functionality for server and client:
 - Consumable events (Client Connected, Client Disconnected, Received Data)
 - Message routing ('message' -> 'handler method')
-- Handle nagle algorithm
 
 If required it is possible to supply a different implemenation
 for every aspect of the library, instead of the default functionality.

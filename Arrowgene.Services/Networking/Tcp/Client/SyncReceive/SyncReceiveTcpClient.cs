@@ -30,7 +30,7 @@ using System.Threading;
 using Arrowgene.Services.Buffers;
 using Arrowgene.Services.Exceptions;
 using Arrowgene.Services.Logging;
-using Arrowgene.Services.Networking.Tcp.Client.EventConsumer;
+using Arrowgene.Services.Networking.Tcp.Client.Consumer;
 
 namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
 {
@@ -52,7 +52,7 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
         public IPAddress RemoteIpAddress { get; private set; }
         public int Port { get; private set; }
 
-        public SyncReceiveTcpClient(IClientEventConsumer eventConsumer) : base(eventConsumer)
+        public SyncReceiveTcpClient(IClientConsumer eventConsumer) : base(eventConsumer)
         {
             BufferProvider = new ArrayBuffer();
             _logger = LogProvider.GetLogger(this);

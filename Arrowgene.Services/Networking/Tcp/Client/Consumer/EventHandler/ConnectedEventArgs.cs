@@ -24,17 +24,16 @@
 
 
 using System;
-using System.Net;
 
-namespace Arrowgene.Services.Networking.Tcp.Client.EventConsumer
+namespace Arrowgene.Services.Networking.Tcp.Client.Consumer.EventHandler
 {
-    public interface IClientEventConsumer
+    public class ConnectedEventArgs : EventArgs
     {
-        void OnStart();
-        void OnReceivedData(ITcpClient client, byte[] data);
-        void OnClientDisconnected(ITcpClient client);
-        void OnClientConnected(ITcpClient client);
-        void OnConnectError(ITcpClient client, string reason, IPAddress serverIpAddress, int serverPort, TimeSpan timeout);
-        void OnStop();
+        public ConnectedEventArgs(ITcpClient client)
+        {
+            Client = client;
+        }
+
+        public ITcpClient Client { get; }
     }
 }

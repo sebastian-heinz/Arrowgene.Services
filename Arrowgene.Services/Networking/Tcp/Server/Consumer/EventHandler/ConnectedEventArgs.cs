@@ -23,29 +23,17 @@
  */
 
 
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable UnusedAutoPropertyAccessor.Global
-
 using System;
-using System.Net;
 
-namespace Arrowgene.Services.Networking.Tcp.Client.EventConsumer.EventHandler
+namespace Arrowgene.Services.Networking.Tcp.Server.Consumer.EventHandler
 {
-    public class ConnectErrorEventArgs : EventArgs
+    public class ConnectedEventArgs : EventArgs
     {
-        public ConnectErrorEventArgs(ITcpClient client, string reason, IPAddress serverIpAddress, int serverPort, TimeSpan timeout)
+        public ConnectedEventArgs(ITcpSocket socket)
         {
-            Client = client;
-            Reason = reason;
-            ServerIpAddress = serverIpAddress;
-            ServerPort = serverPort;
-            Timeout = timeout;
+            Socket = socket;
         }
 
-        public ITcpClient Client { get; }
-        public string Reason { get; }
-        public IPAddress ServerIpAddress { get; }
-        public int ServerPort { get; }
-        public TimeSpan Timeout { get; }
+        public ITcpSocket Socket { get; }
     }
 }

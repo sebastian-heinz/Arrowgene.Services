@@ -23,42 +23,16 @@
  */
 
 
-using System.Collections.Concurrent;
+using Arrowgene.Services.Buffers;
 
-namespace Arrowgene.Services.Networking.Tcp.Server.EventConsumer.BlockingQueue
+namespace Arrowgene.Services.Protocols.Messages
 {
-    public class BlockingQueueEventConsumer : IServerEventConsumer
+    public class MessageState<T>
     {
-        public BlockingCollection<ClientEvent> ClientEvents;
-
-
-        public BlockingQueueEventConsumer()
-        {
-            OnStart();
-        }
-
-        public void OnStart()
-        {
-            ClientEvents = new BlockingCollection<ClientEvent>();
-        }
-
-        public void OnReceivedData(ITcpSocket socket, byte[] data)
-        {
-            ClientEvents.Add(new ClientEvent(socket, ClientEventType.ReceivedData, data));
-        }
-
-        public void OnClientDisconnected(ITcpSocket socket)
-        {
-            ClientEvents.Add(new ClientEvent(socket, ClientEventType.Disconnected));
-        }
-
-        public void OnClientConnected(ITcpSocket socket)
-        {
-            ClientEvents.Add(new ClientEvent(socket, ClientEventType.Connected));
-        }
-
-        public void OnStop()
-        {
-        }
+        public byte[] Data { get; set; }
+        public T Token { get; set; }
+        public int CurrentLength { get; set; }
+        public IBuffer CurrentBuffer { get; set; }
+        public bool ReadLength { get; set; }
     }
 }

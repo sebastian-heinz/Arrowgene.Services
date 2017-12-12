@@ -25,18 +25,18 @@
 
 using System;
 using System.Net;
-using Arrowgene.Services.Networking.Tcp.Client.EventConsumer;
+using Arrowgene.Services.Networking.Tcp.Client.Consumer;
 
 namespace Arrowgene.Services.Networking.Tcp.Client
 {
     public abstract class TcpClient : ITcpClient
     {
-        protected TcpClient(IClientEventConsumer eventConsumer)
+        protected TcpClient(IClientConsumer eventConsumer)
         {
             EventConsumer = eventConsumer;
         }
 
-        protected IClientEventConsumer EventConsumer { get; }
+        protected IClientConsumer EventConsumer { get; }
         public IPAddress RemoteIpAddress { get; }
         public int Port { get; }
 

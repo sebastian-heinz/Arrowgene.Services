@@ -23,19 +23,17 @@
  */
 
 
-namespace Arrowgene.Services.Networking.Tcp.Server.EventConsumer.BlockingQueue
-{
-    public class ClientEvent
-    {
-        public ClientEventType ClientEventType { get; }
-        public byte[] Data { get; }
-        public ITcpSocket Socket { get; }
+using System;
 
-        public ClientEvent(ITcpSocket socket, ClientEventType clientEventType, byte[] data = null)
+namespace Arrowgene.Services.Networking.Tcp.Client.Consumer.EventHandler
+{
+    public class DisconnectedEventArgs : EventArgs
+    {
+        public DisconnectedEventArgs(ITcpClient client)
         {
-            Socket = socket;
-            ClientEventType = clientEventType;
-            Data = data;
+            Client = client;
         }
+
+        public ITcpClient Client { get; }
     }
 }

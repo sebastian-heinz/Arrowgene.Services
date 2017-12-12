@@ -23,16 +23,42 @@
  */
 
 
-using System.Net;
+using System.Collections.Concurrent;
 
-namespace Arrowgene.Services.Networking.Tcp.Server
+namespace Arrowgene.Services.Networking.Tcp.Server.Consumer.BlockingQueue
 {
-    public interface ITcpServer
+    public class BlockingQueueEventConsumer : IServerConsumer
     {
-        IPAddress IpAddress { get; }
-        int Port { get; }
-        void Start();
-        void Stop();
-        void Send(ITcpSocket socket, byte[] data);
+        public BlockingCollection<ClientEvent> ClientEvents;
+
+
+        public BlockingQueueEventConsumer()
+        {
+            OnStart();
+        }
+
+        public void OnStart()
+        {
+            ClientEvents = new BlockingCollection<ClientEvent>();
+        }
+
+        public void OnReceivedData(ITcpSocket socket, byte[] data)
+        {
+            ClientEvents.Add(new ClientEvent(socket, ClientEventType.ReceivedData, data));
+        }
+
+        public void OnClientDisconnected(ITcpSocket socket)
+        {
+            ClientEvents.Add(new ClientEvent(socket, ClientEventType.Disconnected));
+        }
+
+        public void OnClientConnected(ITcpSocket socket)
+        {
+            ClientEvents.Add(new ClientEvent(socket, ClientEventType.Connected));
+        }
+
+        public void OnStop()
+        {
+        }
     }
 }

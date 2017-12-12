@@ -29,6 +29,5 @@ namespace Arrowgene.Services.Protocols.Messages
     {
         int Id { get; }
         void Process(Message message, T token);
-        void SetHandler(MessageHandler<T> handler);
     }
 }

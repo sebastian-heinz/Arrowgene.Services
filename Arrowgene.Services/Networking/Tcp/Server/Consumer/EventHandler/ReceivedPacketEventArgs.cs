@@ -25,15 +25,18 @@
 
 using System;
 
-namespace Arrowgene.Services.Networking.Tcp.Server.EventConsumer.EventHandler
+namespace Arrowgene.Services.Networking.Tcp.Server.Consumer.EventHandler
 {
-    public class DisconnectedEventArgs : EventArgs
+    public class ReceivedPacketEventArgs : EventArgs
     {
-        public DisconnectedEventArgs(ITcpSocket socket)
+        public ReceivedPacketEventArgs(ITcpSocket socket, byte[] data)
         {
             Socket = socket;
+            Data = data;
         }
 
         public ITcpSocket Socket { get; }
+
+        public byte[] Data { get; }
     }
 }

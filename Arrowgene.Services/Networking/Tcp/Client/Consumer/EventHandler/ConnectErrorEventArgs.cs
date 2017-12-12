@@ -1,4 +1,4 @@
-/*
+﻿/*
  * MIT License
  * 
  * Copyright (c) 2018 Sebastian Heinz <sebastian.heinz.gt@googlemail.com>
@@ -23,23 +23,29 @@
  */
 
 
-namespace Arrowgene.Services.Protocols.Messages
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
+using System;
+using System.Net;
+
+namespace Arrowgene.Services.Networking.Tcp.Client.Consumer.EventHandler
 {
-    public abstract class MessageHandle<TP, TT> : IMessageHandle<TT> where TP : Message
+    public class ConnectErrorEventArgs : EventArgs
     {
-        protected MessageHandler<TT> Handler;
-        
-        public abstract int Id { get; }
-        protected abstract void Handle(TP message, TT token);
-
-        public void Process(Message message, TT token)
+        public ConnectErrorEventArgs(ITcpClient client, string reason, IPAddress serverIpAddress, int serverPort, TimeSpan timeout)
         {
-            Handle((TP) message, token);
+            Client = client;
+            Reason = reason;
+            ServerIpAddress = serverIpAddress;
+            ServerPort = serverPort;
+            Timeout = timeout;
         }
 
-        public void SetHandler(MessageHandler<TT> handler)
-        {
-            Handler = handler;
-        }
+        public ITcpClient Client { get; }
+        public string Reason { get; }
+        public IPAddress ServerIpAddress { get; }
+        public int ServerPort { get; }
+        public TimeSpan Timeout { get; }
     }
 }
