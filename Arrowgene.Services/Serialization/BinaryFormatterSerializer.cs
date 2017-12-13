@@ -28,7 +28,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace Arrowgene.Services.Protocols
+namespace Arrowgene.Services.Serialization
 {
     public class BinaryFormatterSerializer<T>
     {

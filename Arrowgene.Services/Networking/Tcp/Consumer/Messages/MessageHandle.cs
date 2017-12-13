@@ -1,4 +1,4 @@
-﻿/*
+/*
  * MIT License
  * 
  * Copyright (c) 2018 Sebastian Heinz <sebastian.heinz.gt@googlemail.com>
@@ -23,12 +23,28 @@
  */
 
 
-namespace Arrowgene.Services.Networking.Tcp.Server.Consumer.BlockingQueue
+namespace Arrowgene.Services.Networking.Tcp.Consumer.Messages
 {
-    public enum ClientEventType
+    public abstract class MessageHandle<T> : IMessageHandle where T : Message
     {
-        Connected,
-        ReceivedData,
-        Disconnected
+        private IMessageSerializer _serializer;
+        public abstract int Id { get; }
+
+        protected abstract void Handle(T message, ITcpSocket socket);
+
+        protected byte[] Serialize(Message message)
+        {
+            return _serializer.Serialize(message);
+        }
+
+        public void Process(Message message, ITcpSocket socket)
+        {
+            Handle((T) message, socket);
+        }
+
+        public void SetMessageSerializer(IMessageSerializer serializer)
+        {
+            _serializer = serializer;
+        }
     }
 }

@@ -1,27 +1,23 @@
 ﻿using System;
 using Arrowgene.Services.Networking.Tcp.Client;
-using Arrowgene.Services.Networking.Tcp.Client.EventConsumer.EventHandler;
 using Arrowgene.Services.Networking.Tcp.Client.SyncReceive;
-using Arrowgene.Services.Playground.Demo.TcpMessageProtocol.Models;
-using Arrowgene.Services.Protocols.Messages;
+using Arrowgene.Services.Networking.Tcp.Consumer.Messages;
 
 namespace Arrowgene.Services.Playground.Demo.TcpMessageProtocol.Client
 {
     public class MpClient
     {
         private SyncReceiveTcpClient _client;
-        private MessageHandler<ITcpClient> _handler;
+        private IMessageSerializer _serializer;
 
         public MpClient()
         {
-            EventHandlerConsumer clientConsumer = new EventHandlerConsumer();
-            clientConsumer.ClientConnected += ClientConsumerOnClientConnected;
-            clientConsumer.ClientDisconnected += ClientConsumerOnClientDisconnected;
-            clientConsumer.ReceivedPacket += ClientConsumerOnReceivedPacket;
-            clientConsumer.ConnectError += ClientConsumerOnConnectError;
+            MessageConsumer clientConsumer = new MessageConsumer();
+            clientConsumer.AddHandle(new HandleLogin());
+            _serializer = clientConsumer;
+            
             _client = new SyncReceiveTcpClient(clientConsumer);
-            _handler = new MessageHandler<ITcpClient>();
-            _handler.AddHandle(new HandleLogin());
+            _client.ConnectError += ClientConsumerOnConnectError;
         }
 
         public void Connect()
@@ -31,33 +27,18 @@ namespace Arrowgene.Services.Playground.Demo.TcpMessageProtocol.Client
 
         public void Disconnect()
         {
-            _client.Disconnect();
+            _client.Close();
         }
 
         public void Send(Message message)
         {
-            byte[] data = _handler.Create(message);
+            byte[] data = _serializer.Serialize(message);
             _client.Send(data);
         }
 
         private void ClientConsumerOnConnectError(object sender, ConnectErrorEventArgs e)
         {
             Console.WriteLine("Client: Connect Error");
-        }
-
-        private void ClientConsumerOnReceivedPacket(object sender, ReceivedPacketEventArgs e)
-        {
-            _handler.Handle(e.Data, e.Client);
-        }
-
-        private void ClientConsumerOnClientDisconnected(object sender, DisconnectedEventArgs e)
-        {
-            Console.WriteLine("Client: Disconnected");
-        }
-
-        private void ClientConsumerOnClientConnected(object sender, ConnectedEventArgs e)
-        {
-            Console.WriteLine("Client: Connected");
         }
     }
 }

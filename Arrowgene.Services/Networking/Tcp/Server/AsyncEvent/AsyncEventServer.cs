@@ -28,7 +28,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using Arrowgene.Services.Logging;
-using Arrowgene.Services.Networking.Tcp.Server.Consumer;
+using Arrowgene.Services.Networking.Tcp.Consumer;
 
 namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
 {
@@ -51,8 +51,8 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
         private readonly ILogger _logger;
 
 
-        public AsyncEventServer(IPAddress ipAddress, int port, IServerConsumer serverEventConsumer)
-            : base(ipAddress, port, serverEventConsumer)
+        public AsyncEventServer(IPAddress ipAddress, int port, IConsumer consumer)
+            : base(ipAddress, port, consumer)
         {
             _logger = LogProvider.GetLogger(this);
             Configure(new AsyncEventSettings());
@@ -66,9 +66,29 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
             _backlog = settings.Backlog;
         }
 
-        public override void Start()
+        public override void Send(ITcpSocket socket, byte[] data)
         {
-            EventConsumer.OnStart();
+            if (socket is AsyncEventClient client)
+            {
+                Send(client, data);
+            }
+        }
+
+        public void Send(AsyncEventClient client, byte[] data)
+        {
+            if (!client.Socket.Connected)
+            {
+                return;
+            }
+            _maxNumberWriteOperations.WaitOne();
+            SocketAsyncEventArgs writeEventArgs = _writePool.Pop();
+            WriteToken token = (WriteToken) writeEventArgs.UserToken;
+            token.Assign(client, data);
+            StartSend(writeEventArgs);
+        }
+
+        protected override void OnStart()
+        {
             _acceptEventArg = new SocketAsyncEventArgs();
             _acceptEventArg.Completed += Accept_Completed;
             _bufferManager = new BufferManager(_bufferSize * _maxConnections + _bufferSize * _numSimultaneouslyWriteOperations, _bufferSize);
@@ -99,7 +119,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
             _thread.Start();
         }
 
-        public override void Stop()
+        protected override void OnStop()
         {
             if (_thread != null)
             {
@@ -124,28 +144,6 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
             {
                 _listenSocket.Close();
             }
-            EventConsumer.OnStop();
-        }
-
-        public override void Send(ITcpSocket socket, byte[] data)
-        {
-            if (socket is AsyncEventClient client)
-            {
-                Send(client, data);
-            }
-        }
-
-        public void Send(AsyncEventClient client, byte[] data)
-        {
-            if (!client.Socket.Connected)
-            {
-                return;
-            }
-            _maxNumberWriteOperations.WaitOne();
-            SocketAsyncEventArgs writeEventArgs = _writePool.Pop();
-            WriteToken token = (WriteToken) writeEventArgs.UserToken;
-            token.Assign(client, data);
-            StartSend(writeEventArgs);
         }
 
         private void Run()
@@ -180,7 +178,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
                 SocketAsyncEventArgs readEventArgs = _readPool.Pop();
                 AsyncEventClient client = new AsyncEventClient(acceptEventArg.AcceptSocket, this);
                 readEventArgs.UserToken = client;
-                EventConsumer.OnClientConnected(client);
+                OnClientConnected(client);
                 StartReceive(readEventArgs);
                 StartAccept();
             }
@@ -230,7 +228,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
             {
                 byte[] data = new byte[readEventArgs.BytesTransferred];
                 Buffer.BlockCopy(readEventArgs.Buffer, readEventArgs.Offset, data, 0, readEventArgs.BytesTransferred);
-                EventConsumer.OnReceivedData(client, data);
+                OnReceivedData(client, data);
                 StartReceive(readEventArgs);
             }
             else
@@ -316,7 +314,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
             if (client.IsAlive)
             {
                 client.Close();
-                EventConsumer.OnClientDisconnected(client);
+                OnClientDisconnected(client);
             }
         }
     }

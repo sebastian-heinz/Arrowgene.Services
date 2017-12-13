@@ -25,7 +25,7 @@
 
 using System;
 
-namespace Arrowgene.Services.Networking.Tcp.Server.Consumer.EventHandler
+namespace Arrowgene.Services.Networking.Tcp.Consumer.EventHandler
 {
     public class ConnectedEventArgs : EventArgs
     {

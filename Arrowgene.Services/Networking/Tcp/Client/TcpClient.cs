@@ -25,23 +25,52 @@
 
 using System;
 using System.Net;
-using Arrowgene.Services.Networking.Tcp.Client.Consumer;
+using Arrowgene.Services.Networking.Tcp.Consumer;
 
 namespace Arrowgene.Services.Networking.Tcp.Client
 {
     public abstract class TcpClient : ITcpClient
     {
-        protected TcpClient(IClientConsumer eventConsumer)
+        private readonly IConsumer _consumer;
+
+        protected TcpClient(IConsumer consumer)
         {
-            EventConsumer = eventConsumer;
+            _consumer = consumer;
         }
 
-        protected IClientConsumer EventConsumer { get; }
+        public event EventHandler<ConnectErrorEventArgs> ConnectError;
+
         public IPAddress RemoteIpAddress { get; }
         public int Port { get; }
 
         public abstract void Connect(IPAddress serverIpAddress, int serverPort, TimeSpan timeout);
-        public abstract void Disconnect();
+        public abstract void Close();
         public abstract void Send(byte[] payload);
+
+
+        protected void OnReceivedData(ITcpSocket socket, byte[] data)
+        {
+            _consumer.OnReceivedData(socket, data);
+        }
+
+        protected void OnClientDisconnected(ITcpSocket socket)
+        {
+            _consumer.OnClientDisconnected(socket);
+        }
+
+        protected void OnClientConnected(ITcpSocket socket)
+        {
+            _consumer.OnClientConnected(socket);
+        }
+
+        protected void OnConnectError(ITcpClient client, string reason, IPAddress serverIpAddress, int serverPort, TimeSpan timeout)
+        {
+            EventHandler<ConnectErrorEventArgs> connectError = ConnectError;
+            if (connectError != null)
+            {
+                ConnectErrorEventArgs connectErrorEventArgsEventArgs = new ConnectErrorEventArgs(client, reason, serverIpAddress, serverPort, timeout);
+                connectError(this, connectErrorEventArgsEventArgs);
+            }
+        }
     }
 }

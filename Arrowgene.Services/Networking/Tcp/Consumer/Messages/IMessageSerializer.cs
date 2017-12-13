@@ -23,17 +23,10 @@
  */
 
 
-using System;
-
-namespace Arrowgene.Services.Networking.Tcp.Client.Consumer.EventHandler
+namespace Arrowgene.Services.Networking.Tcp.Consumer.Messages
 {
-    public class DisconnectedEventArgs : EventArgs
+    public interface IMessageSerializer
     {
-        public DisconnectedEventArgs(ITcpClient client)
-        {
-            Client = client;
-        }
-
-        public ITcpClient Client { get; }
+        byte[] Serialize(Message message);
     }
 }

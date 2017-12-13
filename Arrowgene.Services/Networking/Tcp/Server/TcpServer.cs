@@ -25,13 +25,16 @@
 
 using System.Net;
 using Arrowgene.Services.Exceptions;
-using Arrowgene.Services.Networking.Tcp.Server.Consumer;
+using Arrowgene.Services.Networking.Tcp.Consumer;
+
 
 namespace Arrowgene.Services.Networking.Tcp.Server
 {
     public abstract class TcpServer : ITcpServer
     {
-        protected TcpServer(IPAddress ipAddress, int port, IServerConsumer eventConsumer)
+        private readonly IConsumer _consumer;
+
+        protected TcpServer(IPAddress ipAddress, int port, IConsumer consumer)
         {
             if (ipAddress == null)
                 throw new InvalidParameterException("IPAddress is null");
@@ -41,16 +44,41 @@ namespace Arrowgene.Services.Networking.Tcp.Server
 
             IpAddress = ipAddress;
             Port = port;
-            EventConsumer = eventConsumer;
+            _consumer = consumer;
         }
 
         public IPAddress IpAddress { get; }
         public int Port { get; }
 
-        protected IServerConsumer EventConsumer { get; }
-
-        public abstract void Start();
-        public abstract void Stop();
+        protected abstract void OnStart();
+        protected abstract void OnStop();
         public abstract void Send(ITcpSocket socket, byte[] data);
+
+        protected void OnReceivedData(ITcpSocket socket, byte[] data)
+        {
+            _consumer.OnReceivedData(socket, data);
+        }
+
+        protected void OnClientDisconnected(ITcpSocket socket)
+        {
+            _consumer.OnClientDisconnected(socket);
+        }
+
+        protected void OnClientConnected(ITcpSocket socket)
+        {
+            _consumer.OnClientConnected(socket);
+        }
+
+        public void Start()
+        {
+            _consumer.OnStart();
+            OnStart();
+        }
+
+        public void Stop()
+        {
+            OnStop();
+            _consumer.OnStop();
+        }
     }
 }

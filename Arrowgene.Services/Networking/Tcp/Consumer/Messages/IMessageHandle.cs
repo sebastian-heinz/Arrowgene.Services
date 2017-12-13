@@ -23,19 +23,12 @@
  */
 
 
-namespace Arrowgene.Services.Networking.Tcp.Server.Consumer.BlockingQueue
+namespace Arrowgene.Services.Networking.Tcp.Consumer.Messages
 {
-    public class ClientEvent
+    public interface IMessageHandle
     {
-        public ClientEventType ClientEventType { get; }
-        public byte[] Data { get; }
-        public ITcpSocket Socket { get; }
-
-        public ClientEvent(ITcpSocket socket, ClientEventType clientEventType, byte[] data = null)
-        {
-            Socket = socket;
-            ClientEventType = clientEventType;
-            Data = data;
-        }
+        int Id { get; }
+        void Process(Message message, ITcpSocket socket);
+        void SetMessageSerializer(IMessageSerializer serializer);
     }
 }

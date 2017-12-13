@@ -23,13 +23,12 @@
  */
 
 
-using System;
-
-namespace Arrowgene.Services.Protocols.Messages
+namespace Arrowgene.Services.Networking.Tcp.Consumer.BlockingQueue
 {
-    [Serializable]
-    public abstract class Message
+    public enum ClientEventType
     {
-        public abstract int Id { get; }
+        Connected,
+        ReceivedData,
+        Disconnected
     }
 }

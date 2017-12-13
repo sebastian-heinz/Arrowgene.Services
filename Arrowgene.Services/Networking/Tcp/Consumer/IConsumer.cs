@@ -1,4 +1,4 @@
-/*
+﻿/*
  * MIT License
  * 
  * Copyright (c) 2018 Sebastian Heinz <sebastian.heinz.gt@googlemail.com>
@@ -23,16 +23,14 @@
  */
 
 
-namespace Arrowgene.Services.Protocols.Messages
+namespace Arrowgene.Services.Networking.Tcp.Consumer
 {
-    public abstract class MessageHandle<TP, TT> : IMessageHandle<TT> where TP : Message
+    public interface IConsumer
     {
-        public abstract int Id { get; }
-        protected abstract void Handle(TP message, TT token);
-
-        public void Process(Message message, TT token)
-        {
-            Handle((TP) message, token);
-        }
+        void OnStart();
+        void OnReceivedData(ITcpSocket socket, byte[] data);
+        void OnClientDisconnected(ITcpSocket socket);
+        void OnClientConnected(ITcpSocket socket);
+        void OnStop();
     }
 }

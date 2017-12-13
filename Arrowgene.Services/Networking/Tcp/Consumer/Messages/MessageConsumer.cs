@@ -23,24 +23,36 @@
  */
 
 
+using System;
 using System.Collections.Generic;
 using Arrowgene.Services.Buffers;
-using Arrowgene.Services.Networking.Tcp.Protocols;
-using Arrowgene.Services.Protocols.Messages;
+using Arrowgene.Services.Serialization;
 
-namespace Arrowgene.Services.Protocols.Messages
+namespace Arrowgene.Services.Networking.Tcp.Consumer.Messages
 {
-    public class MessageProtocol<T> : IProtocol
+    public class MessageConsumer : IConsumer, IMessageSerializer
     {
         private const int HeaderSize = 4;
 
-        private BinaryFormatterSerializer<Message> _serializer;
-        private Dictionary<T, MessageState<T>> _states;
+        private readonly BinaryFormatterSerializer<Message> _serializer;
+        private readonly Dictionary<int, IMessageHandle> _handles;
+        private readonly Dictionary<ITcpSocket, MessageState> _serverStates;
 
-        public MessageProtocol()
+        public MessageConsumer()
         {
+            _handles = new Dictionary<int, IMessageHandle>();
             _serializer = new BinaryFormatterSerializer<Message>();
-            _states = new Dictionary<T, MessageState<T>>();
+            _serverStates = new Dictionary<ITcpSocket, MessageState>();
+        }
+
+        public void AddHandle(IMessageHandle handle)
+        {
+            if (_handles.ContainsKey(handle.Id))
+            {
+                throw new Exception(string.Format("Handle for id: {0} already defined.", handle.Id));
+            }
+            handle.SetMessageSerializer(this);
+            _handles.Add(handle.Id, handle);
         }
 
         public byte[] Serialize(Message message)
@@ -51,23 +63,51 @@ namespace Arrowgene.Services.Protocols.Messages
             buffer.WriteBytes(data);
             return buffer.GetAllBytes();
         }
-        
-        public List<Message> Deserialize(byte[] data, T user)
+
+        public void OnStart()
         {
-            MessageState<T> state;
-            if (_states.ContainsKey(user))
+            _serverStates.Clear();
+        }
+
+        public void OnReceivedData(ITcpSocket socket, byte[] data)
+        {
+            MessageState state;
+            if (_serverStates.ContainsKey(socket))
             {
-                state = _states[user];
+                state = _serverStates[socket];
             }
             else
             {
-                state = new MessageState<T>();
+                state = new MessageState();
             }
             state.Data = data;
-            return Deserialize(state);
+            List<Message> messages = Deserialize(state);
+            foreach (Message message in messages)
+            {
+                if (_handles.ContainsKey(message.Id))
+                {
+                    _handles[message.Id].Process(message, socket);
+                }
+            }
         }
 
-        public List<Message> Deserialize(MessageState<T> state)
+        public void OnClientDisconnected(ITcpSocket socket)
+        {
+            if (socket != null)
+            {
+                _serverStates.Remove(socket);
+            }
+        }
+
+        public void OnClientConnected(ITcpSocket socket)
+        {
+        }
+
+        public void OnStop()
+        {
+        }
+
+        private List<Message> Deserialize(MessageState state)
         {
             List<Message> messages = new List<Message>();
             if (state.CurrentBuffer == null)

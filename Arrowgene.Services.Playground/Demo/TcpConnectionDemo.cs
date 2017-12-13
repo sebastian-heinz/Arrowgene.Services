@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Net;
 using Arrowgene.Services.Logging;
+using Arrowgene.Services.Networking.Tcp.Client;
 using Arrowgene.Services.Networking.Tcp.Client.SyncReceive;
+using Arrowgene.Services.Networking.Tcp.Consumer.EventHandler;
 using Arrowgene.Services.Networking.Tcp.Server.AsyncEvent;
-using ClientEvent = Arrowgene.Services.Networking.Tcp.Client.EventConsumer.EventHandler;
-using ServerEvent = Arrowgene.Services.Networking.Tcp.Server.Consumer.EventHandler;
 
 namespace Arrowgene.Services.Playground.Demo
 {
@@ -14,19 +14,19 @@ namespace Arrowgene.Services.Playground.Demo
         {
             LogProvider.LogWrite += LogProviderOnLogWrite;
 
-            ServerEvent.EventHandlerConsumer serverConsumer = new ServerEvent.EventHandlerConsumer();
+            EventHandlerConsumer serverConsumer = new EventHandlerConsumer();
             serverConsumer.ClientConnected += ServerConsumerOnClientConnected;
             serverConsumer.ClientDisconnected += ServerConsumerOnClientDisconnected;
             serverConsumer.ReceivedPacket += ServerConsumerOnReceivedPacket;
             AsyncEventServer server = new AsyncEventServer(IPAddress.Any, 2345, serverConsumer);
             server.Start();
 
-            ClientEvent.EventHandlerConsumer clientConsumer = new ClientEvent.EventHandlerConsumer();
+            EventHandlerConsumer clientConsumer = new EventHandlerConsumer();
             clientConsumer.ClientConnected += ClientConsumerOnClientConnected;
             clientConsumer.ClientDisconnected += ClientConsumerOnClientDisconnected;
             clientConsumer.ReceivedPacket += ClientConsumerOnReceivedPacket;
-            clientConsumer.ConnectError += ClientConsumerOnConnectError;
             SyncReceiveTcpClient client = new SyncReceiveTcpClient(clientConsumer);
+            client.ConnectError += ClientConsumerOnConnectError;
 
 
             client.Connect(IPAddress.Parse("127.0.0.1"), 2345, TimeSpan.Zero);
@@ -37,46 +37,46 @@ namespace Arrowgene.Services.Playground.Demo
             Console.WriteLine("Demo: Press any key to disconnect.");
             Console.ReadKey();
 
-            client.Disconnect();
+            client.Close();
             server.Stop();
             Console.WriteLine("Demo: Press any key to exit.");
             Console.ReadKey();
         }
 
-        private void ServerConsumerOnReceivedPacket(object sender, ServerEvent.ReceivedPacketEventArgs e)
+        private void ServerConsumerOnReceivedPacket(object sender, ReceivedPacketEventArgs e)
         {
             byte[] received = e.Data;
             Console.WriteLine(string.Format("Demo: Server: received packet Size:{0}", received.Length));
             e.Socket.Send(new byte[10]);
         }
 
-        private void ServerConsumerOnClientDisconnected(object sender, ServerEvent.DisconnectedEventArgs e)
+        private void ServerConsumerOnClientDisconnected(object sender, DisconnectedEventArgs e)
         {
             Console.WriteLine(string.Format("Demo: Server: Client Disconnected ({0})", e.Socket));
         }
 
-        private void ServerConsumerOnClientConnected(object sender, ServerEvent.ConnectedEventArgs e)
+        private void ServerConsumerOnClientConnected(object sender, ConnectedEventArgs e)
         {
             Console.WriteLine(string.Format("Demo: Server: Client Connected ({0})", e.Socket));
         }
 
-        private void ClientConsumerOnConnectError(object sender, ClientEvent.ConnectErrorEventArgs e)
+        private void ClientConsumerOnConnectError(object sender, ConnectErrorEventArgs e)
         {
             throw new NotImplementedException();
         }
 
-        private void ClientConsumerOnReceivedPacket(object sender, ClientEvent.ReceivedPacketEventArgs e)
+        private void ClientConsumerOnReceivedPacket(object sender, ReceivedPacketEventArgs e)
         {
             byte[] data = e.Data;
             Console.WriteLine(string.Format("Demo: Client: received packet Size:{0}", data.Length));
         }
 
-        private void ClientConsumerOnClientDisconnected(object sender, ClientEvent.DisconnectedEventArgs e)
+        private void ClientConsumerOnClientDisconnected(object sender, DisconnectedEventArgs e)
         {
             Console.WriteLine("Demo: Client Connected");
         }
 
-        private void ClientConsumerOnClientConnected(object sender, ClientEvent.ConnectedEventArgs e)
+        private void ClientConsumerOnClientConnected(object sender, ConnectedEventArgs e)
         {
             Console.WriteLine("Demo: Client Disconnected");
         }

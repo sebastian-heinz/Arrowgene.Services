@@ -1,11 +1,11 @@
 ﻿using System;
 using Arrowgene.Services.Networking.Tcp;
+using Arrowgene.Services.Networking.Tcp.Consumer.Messages;
 using Arrowgene.Services.Playground.Demo.TcpMessageProtocol.Models;
-using Arrowgene.Services.Protocols.Messages;
 
 namespace Arrowgene.Services.Playground.Demo.TcpMessageProtocol.Server
 {
-    public class HandleLogin : MessageHandle<Login, ITcpSocket>
+    public class HandleLogin : MessageHandle<Login>
     {
         public override int Id => Login.LoginId;
 
@@ -13,13 +13,13 @@ namespace Arrowgene.Services.Playground.Demo.TcpMessageProtocol.Server
         {
         }
 
-        protected override void Handle(Login message, ITcpSocket token)
+        protected override void Handle(Login message, ITcpSocket socket)
         {
             Console.WriteLine(string.Format("Server: HandleLogin for {0} {1}", message.Name, message.Hash));
 
             // echo data back
-            byte[] data = Handler.Create(message);
-            token.Send(data);
+            byte[] data = Serialize(message);
+            socket.Send(data);
         }
     }
 }

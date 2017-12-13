@@ -23,14 +23,20 @@
  */
 
 
-namespace Arrowgene.Services.Networking.Tcp.Server.Consumer
+using System;
+
+namespace Arrowgene.Services.Networking.Tcp.Consumer.EventHandler
 {
-    public interface IServerConsumer
+    public class ReceivedPacketEventArgs : EventArgs
     {
-        void OnStart();
-        void OnReceivedData(ITcpSocket socket, byte[] data);
-        void OnClientDisconnected(ITcpSocket socket);
-        void OnClientConnected(ITcpSocket socket);
-        void OnStop();
+        public ReceivedPacketEventArgs(ITcpSocket socket, byte[] data)
+        {
+            Socket = socket;
+            Data = data;
+        }
+
+        public ITcpSocket Socket { get; }
+
+        public byte[] Data { get; }
     }
 }

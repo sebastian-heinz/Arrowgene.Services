@@ -23,16 +23,17 @@
  */
 
 
-using Arrowgene.Services.Buffers;
+using System;
 
-namespace Arrowgene.Services.Protocols.Messages
+namespace Arrowgene.Services.Networking.Tcp.Consumer.EventHandler
 {
-    public class MessageState<T>
+    public class DisconnectedEventArgs : EventArgs
     {
-        public byte[] Data { get; set; }
-        public T Token { get; set; }
-        public int CurrentLength { get; set; }
-        public IBuffer CurrentBuffer { get; set; }
-        public bool ReadLength { get; set; }
+        public DisconnectedEventArgs(ITcpSocket socket)
+        {
+            Socket = socket;
+        }
+
+        public ITcpSocket Socket { get; }
     }
 }

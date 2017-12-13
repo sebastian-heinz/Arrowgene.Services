@@ -23,20 +23,15 @@
  */
 
 
-using System;
+using Arrowgene.Services.Buffers;
 
-namespace Arrowgene.Services.Networking.Tcp.Server.Consumer.EventHandler
+namespace Arrowgene.Services.Networking.Tcp.Consumer.Messages
 {
-    public class ReceivedPacketEventArgs : EventArgs
+    public class MessageState
     {
-        public ReceivedPacketEventArgs(ITcpSocket socket, byte[] data)
-        {
-            Socket = socket;
-            Data = data;
-        }
-
-        public ITcpSocket Socket { get; }
-
-        public byte[] Data { get; }
+        public byte[] Data { get; set; }
+        public int CurrentLength { get; set; }
+        public IBuffer CurrentBuffer { get; set; }
+        public bool ReadLength { get; set; }
     }
 }

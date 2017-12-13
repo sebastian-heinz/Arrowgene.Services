@@ -30,7 +30,7 @@ using System.Threading;
 using Arrowgene.Services.Buffers;
 using Arrowgene.Services.Exceptions;
 using Arrowgene.Services.Logging;
-using Arrowgene.Services.Networking.Tcp.Client.Consumer;
+using Arrowgene.Services.Networking.Tcp.Consumer;
 
 namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
 {
@@ -52,7 +52,7 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
         public IPAddress RemoteIpAddress { get; private set; }
         public int Port { get; private set; }
 
-        public SyncReceiveTcpClient(IClientConsumer eventConsumer) : base(eventConsumer)
+        public SyncReceiveTcpClient(IConsumer consumer) : base(consumer)
         {
             BufferProvider = new ArrayBuffer();
             _logger = LogProvider.GetLogger(this);
@@ -97,7 +97,7 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
                                 const string errTimeout = "Client connection timed out.";
                                 _logger.Error(errTimeout);
                                 socket.Close();
-                                EventConsumer.OnConnectError(this, errTimeout, RemoteIpAddress, Port, timeout);
+                                OnConnectError(this, errTimeout, RemoteIpAddress, Port, timeout);
                             }
                         }
                         else
@@ -110,20 +110,20 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
                     {
                         const string errConnect = "Client could not connect.";
                         _logger.Error(errConnect);
-                        EventConsumer.OnConnectError(this, errConnect, RemoteIpAddress, Port, timeout);
+                        OnConnectError(this, errConnect, RemoteIpAddress, Port, timeout);
                     }
                 }
                 catch (Exception exception)
                 {
                     _logger.Exception(exception);
-                    EventConsumer.OnConnectError(this, exception.Message, RemoteIpAddress, Port, timeout);
+                    OnConnectError(this, exception.Message, RemoteIpAddress, Port, timeout);
                 }
             }
             else
             {
                 const string errConnected = "Client is already connected.";
                 _logger.Error(errConnected);
-                EventConsumer.OnConnectError(this, errConnected, RemoteIpAddress, Port, timeout);
+                OnConnectError(this, errConnected, RemoteIpAddress, Port, timeout);
             }
         }
 
@@ -132,7 +132,7 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
             _socket.Send(payload);
         }
 
-        public override void Disconnect()
+        public override void Close()
         {
             _isConnected = false;
             if (_readThread != null)
@@ -159,7 +159,7 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
             {
                 _socket.Close();
             }
-            EventConsumer.OnClientConnected(this);
+            OnClientDisconnected(this);
         }
 
         private Socket CreateSocket()
@@ -186,7 +186,7 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
             _readThread.Name = Name;
             _readThread.Start();
             _logger.Info("{0} connected", Name);
-            EventConsumer.OnClientConnected(this);
+            OnClientConnected(this);
         }
 
         private void ReadProcess()
@@ -217,10 +217,10 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
                         {
                             _logger.Exception(e);
                         }
-                        Disconnect();
+                        Close();
                     }
                     payload.SetPositionStart();
-                    EventConsumer.OnReceivedData(this, payload.GetAllBytes());
+                    OnReceivedData(this, payload.GetAllBytes());
                 }
                 Thread.Sleep(SocketPollTimeout);
             }

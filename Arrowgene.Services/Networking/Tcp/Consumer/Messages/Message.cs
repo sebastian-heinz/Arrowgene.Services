@@ -1,4 +1,4 @@
-/*
+﻿/*
  * MIT License
  * 
  * Copyright (c) 2018 Sebastian Heinz <sebastian.heinz.gt@googlemail.com>
@@ -24,34 +24,12 @@
 
 
 using System;
-using System.Collections.Generic;
 
-namespace Arrowgene.Services.Protocols.Messages
+namespace Arrowgene.Services.Networking.Tcp.Consumer.Messages
 {
-    public class MessageHandler<T>
+    [Serializable]
+    public abstract class Message
     {
-        private Dictionary<int, IMessageHandle<T>> _handles;
-
-        public MessageHandler()
-        {
-            _handles = new Dictionary<int, IMessageHandle<T>>();
-        }
-
-        public void Handle(Message message, T token)
-        {
-            if (_handles.ContainsKey(message.Id))
-            {
-                _handles[message.Id].Process(message, token);
-            }
-        }
-
-        public void AddHandle(IMessageHandle<T> handle)
-        {
-            if (_handles.ContainsKey(handle.Id))
-            {
-                throw new Exception(string.Format("Handle for id: {0} already defined.", handle.Id));
-            }
-            _handles.Add(handle.Id, handle);
-        }
+        public abstract int Id { get; }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using System;
-using Arrowgene.Services.Protocols.Messages;
+using Arrowgene.Services.Networking.Tcp.Consumer.Messages;
 
 namespace Arrowgene.Services.Playground.Demo.TcpMessageProtocol.Models
 {
