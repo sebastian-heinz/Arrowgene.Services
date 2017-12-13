@@ -1,6 +1,6 @@
 Arrowgene.Services
 ===
-Arrowgene.Services provides interfaces and implementations for data transfer and handling.
+Arrowgene.Services provides solutions for and around networking.
 
 ## Table of contents
 - [Requirements](#requirements)
@@ -12,7 +12,7 @@ Arrowgene.Services provides interfaces and implementations for data transfer and
   - [Logging](#logging)
   - [Messages](#messages)
   - [Network](#network)
-  - [Protocols](#protocols)
+  - [Tcp/Consumer](#tcpconsumer)
 - [Links](#links)
 
 ## Requirements
@@ -26,25 +26,20 @@ dotnet build
 
 ## Concept
 
-The main idea of this library is to provide a set of interfaces that work well with each other.
+The main focus of this library is to provide network transportation capabilities for data,
+management solutions for the transferred data and assembly or manipulation of data.
+
+- ITcpServer (listen, accept connections, read/send data)
+- ITcpClient (connect, read/send data)
+- IConsumer - Provide Consumable Events (OnClientConnected(), OnReceivedData(), OnClientDisconnected())
+- IBuffer - Ease working with byte[] by providing reading/writing functions (ReadInt(), ReadSingle(), WriteInt(int value) ...etc)
+
+These are the main Interfaces and building blocks. 
 A default implementation for each part is provided, which will allow a quick start, 
 so that the focus can be on the business logic instead of writing boiler plate code.
 If the core logic of a project that utilizes this library is stable, 
 one can shift the focus to provide own implementations for parts of the library
 that might not perform optimal for custom needs.
-
-In case of a TCP Server:
-
-If the default implementation is used, there are two tasks required:
-- Defining model classes for holding the data
-- Defining handleing classes to process the model classes
-
-The library provides the following default functionality for server and client:
-- Consumable events (Client Connected, Client Disconnected, Received Data)
-- Message routing ('message' -> 'handler method')
-
-If required it is possible to supply a different implemenation
-for every aspect of the library, instead of the default functionality.
 
 ## Pipeline
 
@@ -54,9 +49,12 @@ Minimal Tcp/Client server pipeline where the library only handles the transporta
 It is not necessary to use the library on both ends, 
 it can be used for the server side only or as a client to connect to a remote host.
 ```
-                                                               @@@@@  
-                                                           @@@@@   @@@@@  
-                ┌───────────────────────────────┐     @@@@@   @@@@@  @@@@@  
+
+
+                     [IConsumer]
+                          |                                     @@@@@  
+                          v                                @@@@@   @@@@@  
+                ┌─────────@─────────────────────┐     @@@@@   @@@@@  @@@@@  
      ==|data|==>@ [IClient/IServer] ==|data|==> @══════╗@@@              @@@@@  
                 └───────────────────────────────┘   @@@║@            @@@@@  @@@@@  
                                                  @@@@  ║  Internet       @@@@@  
@@ -65,39 +63,6 @@ it can be used for the server side only or as a client to connect to a remote ho
                 └───────────────────────────────┘     @@@@@  @@@@@   @@@@@  
                                                           @@@@@    @@@@@  
 ```
-
-Define a protocol to handle the serialization:
-```
-                                                                                     @@@@@  
-                                                                                 @@@@@   @@@@@  
-                ┌───────────────────────────────────────────────────────┐     @@@@@   @@@@@  @@@@@  
-   ==|object|==>@ [IProtocol] ==|Data|==> [IClient/IServer] ==|Data|==> @══════╗@@@              @@@@@  
-                └───────────────────────────────────────────────────────┘   @@@║@            @@@@@  @@@@@  
-                                                                         @@@@  ║  Internet       @@@@@  
-                ┌───────────────────────────────────────────────────────┐  @@@@║@                   @@@@@  
-   <==|object|==@ [IProtocol] <==|Data|== [IClient/IServer] <==|Data|== @══════╝@@  @@@@@  @@@@@  @@@@@  
-                └───────────────────────────────────────────────────────┘     @@@@@  @@@@@   @@@@@  
-                                                                                @@@@@    @@@@@  
-```
-
-Use the provided message protocol that allows to define message handler:
-```
-                                                                                                               @@@@@  
-                                                                                                           @@@@@   @@@@@  
-                                    ┌─────────────────────────────────────────────────────────────┐     @@@@@   @@@@@  @@@@@  
-                      ==|Message|==>@ [MessageProtocol] ==|Data|==> [IClient/IServer] ==|Data|==> @══════╗@@@              @@@@@  
-                                    └─────────────────────────────────────────────────────────────┘   @@@║@            @@@@@  @@@@@  
-                                                                                                   @@@@  ║  Internet       @@@@@  
-    ┌─────────────────────────────────────────────────────────────────────────────────────────────┐  @@@@║@                   @@@@@  
-    │ [MessageHandler] <==|Message|== [MessageProtocol] <==|Data|== [IClient/IServer] <==|Data|== @══════╝@@  @@@@@  @@@@@  @@@@@  
-    └─────────────────────────────────────────────────────────────────────────────────────────────┘     @@@@@  @@@@@   @@@@@  
-                                                                                                           @@@@@    @@@@@  
-```
-
-It is possible to customize each part, and remove parts. 
-This allowes to pick only parts of this library that you need.
-Most of the parts are interfaces or abstract classes, 
-so that custom solutions can be easly plugged in and out.
 
 ## Project
 
@@ -110,7 +75,7 @@ Provides logging with different log levels.
 ### [Networking](./Arrowgene.Services/Networking)    
 Sever and client implementations to handle network traffic.
 
-### [Protocols](./Arrowgene.Services/Protocols)    
+### [Tcp/Consumer](./Arrowgene.Services/Networking/Tcp/Consumer)    
 Reading and writing data.
  
 - [Messages](./Arrowgene.Services/Protocols/Messages)    

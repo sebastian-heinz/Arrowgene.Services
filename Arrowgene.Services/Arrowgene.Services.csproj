@@ -13,7 +13,4 @@
   <ItemGroup>
     <Compile Remove="Protocols\Message\MessageWriter.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Handler" />
-  </ItemGroup>
 </Project>
