@@ -87,13 +87,18 @@ namespace Arrowgene.Services.Buffers
             return Clone(Size);
         }
 
-        public virtual string ToHexString()
+        public virtual string ToHexString(char? seperator = null)
         {
             byte[] buffer = GetAllBytes();
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < buffer.Length; i++)
+            int len = buffer.Length;
+            for (int i = 0; i < len; i++)
             {
                 sb.Append(buffer[i].ToString("X2"));
+                if (seperator != null && i < len - 1)
+                {
+                    sb.Append(seperator);
+                }
             }
             return sb.ToString();
         }

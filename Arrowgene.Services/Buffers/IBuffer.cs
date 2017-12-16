@@ -193,7 +193,7 @@ namespace Arrowgene.Services.Buffers
         /// <summary>
         /// Hex representation of the buffer.
         /// </summary>
-        string ToHexString();
+        string ToHexString(char? seperator = null);
 
         /// <summary>
         /// Ascii representation of the buffer.
