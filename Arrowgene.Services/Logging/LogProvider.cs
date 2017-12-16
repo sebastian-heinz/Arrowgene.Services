@@ -51,7 +51,7 @@ namespace Arrowgene.Services.Logging
             return GetLogger(instance.GetType());
         }
         
-        public static ILogger GetLogger<T>(object instance) where T : ILogger
+        public static T GetLogger<T>(object instance) where T : ILogger
         {
             return GetLogger<T>(instance.GetType());
         }
