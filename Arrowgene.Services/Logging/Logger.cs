@@ -51,7 +51,11 @@ namespace Arrowgene.Services.Logging
             _currentId = 0;
         }
 
-        public ILogger Produce(string identity, string zone = null)
+        /// <summary>
+        /// Produces a new Instance of this class.
+        /// If this class is beeing extended it is crucial to override this method, and return the correct instance.
+        /// </summary>
+        public virtual ILogger Produce(string identity, string zone = null)
         {
             return new Logger(identity, zone);
         }
