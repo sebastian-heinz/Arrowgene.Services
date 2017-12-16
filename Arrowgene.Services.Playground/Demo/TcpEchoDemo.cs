@@ -17,7 +17,7 @@ namespace Arrowgene.Services.Playground.Demo
 
         public TcpEchoDemo()
         {
-            LogProvider.LogWrite += LogProviderOnLogWrite;
+            LogProvider.GlobalLogWrite += LogProviderOnLogWrite;
 
             Start();
             Console.WriteLine("Demo: Press any key to exit...");

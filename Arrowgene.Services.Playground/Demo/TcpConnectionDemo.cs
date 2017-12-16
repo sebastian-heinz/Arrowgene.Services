@@ -12,7 +12,7 @@ namespace Arrowgene.Services.Playground.Demo
     {
         public TcpConnectionDemo()
         {
-            LogProvider.LogWrite += LogProviderOnLogWrite;
+            LogProvider.GlobalLogWrite += LogProviderOnLogWrite;
 
             EventHandlerConsumer serverConsumer = new EventHandlerConsumer();
             serverConsumer.ClientConnected += ServerConsumerOnClientConnected;

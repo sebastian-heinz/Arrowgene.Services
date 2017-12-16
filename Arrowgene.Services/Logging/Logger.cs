@@ -37,6 +37,11 @@ namespace Arrowgene.Services.Logging
         private readonly Dictionary<int, Log> _logs;
         private volatile int _currentId;
 
+        public Logger() : this(null)
+        {
+            
+        }
+
         public Logger(string identity = null, string zone = null)
         {
             _zone = zone;

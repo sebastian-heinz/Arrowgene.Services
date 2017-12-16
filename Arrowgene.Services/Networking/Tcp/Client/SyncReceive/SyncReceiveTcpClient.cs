@@ -55,7 +55,7 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
         public SyncReceiveTcpClient(IConsumer consumer) : base(consumer)
         {
             BufferProvider = new ArrayBuffer();
-            _logger = LogProvider.GetLogger(this);
+            _logger = LogProvider<Logger>.GetLogger(this);
             SocketPollTimeout = 100;
             Name = DefaultName;
             ThreadJoinTimeout = 1000;

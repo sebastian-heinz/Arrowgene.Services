@@ -54,7 +54,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
         public AsyncEventServer(IPAddress ipAddress, int port, IConsumer consumer)
             : base(ipAddress, port, consumer)
         {
-            _logger = LogProvider.GetLogger(this);
+            _logger = LogProvider<Logger>.GetLogger(this);
             Configure(new AsyncEventSettings());
         }
 
