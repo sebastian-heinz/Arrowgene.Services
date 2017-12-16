@@ -43,10 +43,22 @@ namespace Arrowgene.Services.Networking.Tcp.Client
         public IPAddress RemoteIpAddress { get; }
         public int Port { get; }
 
-        public abstract void Connect(IPAddress serverIpAddress, int serverPort, TimeSpan timeout);
-        public abstract void Close();
         public abstract void Send(byte[] payload);
 
+        public void Connect(IPAddress serverIpAddress, int serverPort, TimeSpan timeout)
+        {
+            _consumer.OnStart();
+            OnConnect(serverIpAddress, serverPort, timeout);
+        }
+
+        public void Close()
+        {
+            OnClose();
+            _consumer.OnStop();
+        }
+
+        protected abstract void OnConnect(IPAddress serverIpAddress, int serverPort, TimeSpan timeout);
+        protected abstract void OnClose();
 
         protected void OnReceivedData(ITcpSocket socket, byte[] data)
         {

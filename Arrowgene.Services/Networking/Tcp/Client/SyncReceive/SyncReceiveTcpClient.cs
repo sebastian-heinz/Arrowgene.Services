@@ -62,13 +62,18 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
             _pollTimeout = 10;
             _bufferSize = 1024;
         }
+        
+        public override void Send(byte[] payload)
+        {
+            _socket.Send(payload);
+        }
 
         public void Connect(string remoteIpAddress, int serverPort, TimeSpan timeout)
         {
             Connect(IPAddress.Parse(remoteIpAddress), serverPort, timeout);
         }
 
-        public override void Connect(IPAddress remoteIpAddress, int serverPort, TimeSpan timeout)
+        protected override void OnConnect(IPAddress remoteIpAddress, int serverPort, TimeSpan timeout)
         {
             if (!_isConnected)
             {
@@ -127,12 +132,7 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
             }
         }
 
-        public override void Send(byte[] payload)
-        {
-            _socket.Send(payload);
-        }
-
-        public override void Close()
+        protected override void OnClose()
         {
             _isConnected = false;
             if (_readThread != null)
