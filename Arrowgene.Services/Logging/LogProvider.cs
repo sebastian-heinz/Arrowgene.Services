@@ -50,10 +50,20 @@ namespace Arrowgene.Services.Logging
         {
             return GetLogger(instance.GetType());
         }
+        
+        public static ILogger GetLogger<T>(object instance) where T : ILogger
+        {
+            return GetLogger<T>(instance.GetType());
+        }
 
         public static ILogger GetLogger(Type type)
         {
             return GetLogger(type.FullName, type.Name);
+        }
+
+        public static T GetLogger<T>(Type type) where T : ILogger
+        {
+            return GetLogger<T>(type.FullName, type.Name);
         }
 
         public static ILogger GetLogger(string identity, string zone = null)
@@ -69,6 +79,16 @@ namespace Arrowgene.Services.Logging
                 }
             }
             return logger;
+        }
+
+        public static T GetLogger<T>(string identity, string zone = null) where T : ILogger
+        {
+            ILogger logger = GetLogger(identity, zone);
+            if (!(logger is T))
+            {
+                throw new Exception("Call to 'GetLogger<T>' failed because the producer is not an instance of T. Use 'SetProducer()' to set the correct instance for T.");
+            }
+            return (T) logger;
         }
 
         private static void LoggerOnLogWrite(object sender, LogWriteEventArgs writeEventArgs)
