@@ -64,12 +64,12 @@ namespace Arrowgene.Services.Networking.Tcp.Consumer.Messages
             return buffer.GetAllBytes();
         }
 
-        public void OnStart()
+        public virtual void OnStart()
         {
             _serverStates.Clear();
         }
 
-        public void OnReceivedData(ITcpSocket socket, byte[] data)
+        public virtual void OnReceivedData(ITcpSocket socket, byte[] data)
         {
             MessageState state;
             if (_serverStates.ContainsKey(socket))
@@ -91,7 +91,7 @@ namespace Arrowgene.Services.Networking.Tcp.Consumer.Messages
             }
         }
 
-        public void OnClientDisconnected(ITcpSocket socket)
+        public virtual void OnClientDisconnected(ITcpSocket socket)
         {
             if (socket != null)
             {
@@ -99,11 +99,11 @@ namespace Arrowgene.Services.Networking.Tcp.Consumer.Messages
             }
         }
 
-        public void OnClientConnected(ITcpSocket socket)
+        public virtual void OnClientConnected(ITcpSocket socket)
         {
         }
 
-        public void OnStop()
+        public virtual void OnStop()
         {
         }
 
