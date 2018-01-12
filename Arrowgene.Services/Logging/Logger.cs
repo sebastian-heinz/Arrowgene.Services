@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Arrowgene.Services.Logging
 {
@@ -114,6 +115,37 @@ namespace Arrowgene.Services.Logging
                 tmp = new Dictionary<int, Log>(_logs);
             }
             return tmp;
+        }
+        
+        private string GetCallingMethodInfo()
+        {
+            return GetCallingMethodInfo(1);
+        }
+
+        private string GetCallingMethodInfo(int depth)
+        {
+            string result = "";
+            StackTrace trace = new StackTrace();
+            if (trace.FrameCount > 1)
+            {
+                if (trace.FrameCount < depth)
+                {
+                    depth = trace.FrameCount;
+                }
+
+                for (int i = 1; i < depth; i++)
+                {
+                    StackFrame frame = trace.GetFrame(i);
+                    result += GetCallingMethod(frame);
+                }
+            }
+
+            return result;
+        }
+
+        private string GetCallingMethod(StackFrame stackFrame)
+        {
+            return stackFrame.GetMethod().DeclaringType.FullName + "::" + stackFrame.GetMethod().Name;
         }
     }
 }
