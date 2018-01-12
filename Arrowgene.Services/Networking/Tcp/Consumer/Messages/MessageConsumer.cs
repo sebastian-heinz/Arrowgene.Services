@@ -51,6 +51,7 @@ namespace Arrowgene.Services.Networking.Tcp.Consumer.Messages
             {
                 throw new Exception(string.Format("Handle for id: {0} already defined.", handle.Id));
             }
+
             handle.SetMessageSerializer(this);
             _handles.Add(handle.Id, handle);
         }
@@ -80,6 +81,7 @@ namespace Arrowgene.Services.Networking.Tcp.Consumer.Messages
             {
                 state = new MessageState();
             }
+
             state.Data = data;
             List<Message> messages = Deserialize(state);
             foreach (Message message in messages)
@@ -88,6 +90,8 @@ namespace Arrowgene.Services.Networking.Tcp.Consumer.Messages
                 {
                     _handles[message.Id].Process(message, socket);
                 }
+
+                OnReceivedMessage(socket, message);
             }
         }
 
@@ -107,6 +111,10 @@ namespace Arrowgene.Services.Networking.Tcp.Consumer.Messages
         {
         }
 
+        public virtual void OnReceivedMessage(ITcpSocket socket, Message message)
+        {
+        }
+
         private List<Message> Deserialize(MessageState state)
         {
             List<Message> messages = new List<Message>();
@@ -121,12 +129,14 @@ namespace Arrowgene.Services.Networking.Tcp.Consumer.Messages
                 state.CurrentBuffer.WriteBytes(state.Data);
                 state.CurrentBuffer.SetPositionStart();
             }
+
             while (state.CurrentBuffer.Position < state.CurrentBuffer.Size)
             {
                 if (state.CurrentBuffer.Position + HeaderSize > state.CurrentBuffer.Size)
                 {
                     break;
                 }
+
                 int length;
                 if (state.ReadLength)
                 {
@@ -138,15 +148,18 @@ namespace Arrowgene.Services.Networking.Tcp.Consumer.Messages
                     state.CurrentLength = length;
                     state.ReadLength = true;
                 }
+
                 if (length > state.CurrentBuffer.Size)
                 {
                     break;
                 }
+
                 state.ReadLength = false;
                 byte[] messageBytes = state.CurrentBuffer.ReadBytes(length);
                 Message message = _serializer.Deserialize(messageBytes);
                 messages.Add(message);
             }
+
             return messages;
         }
     }
