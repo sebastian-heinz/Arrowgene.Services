@@ -30,6 +30,30 @@ namespace Arrowgene.Services.Buffers
 {
     public abstract class Buffer : IBuffer, IBufferProvider, ICloneable
     {
+        public static bool SwapNeeded(Endianness endianness)
+        {
+            return (BitConverter.IsLittleEndian && endianness == Endianness.Big)
+                   || (!BitConverter.IsLittleEndian && endianness == Endianness.Little);
+        }
+        
+        public static short SwapBytes(short i)
+        {
+            return (short)((i << 8) + ((ushort)i >> 8));
+        }
+        
+        public static uint SwapBytes(uint x)
+        {
+            x = (x >> 16) | (x << 16);
+            return ((x & 0xFF00FF00) >> 8) | ((x & 0x00FF00FF) << 8);
+        }
+
+        public static ulong SwapBytes(ulong x)
+        {
+            x = (x >> 32) | (x << 32);
+            x = ((x & 0xFFFF0000FFFF0000) >> 16) | ((x & 0x0000FFFF0000FFFF) << 16);
+            return ((x & 0xFF00FF00FF00FF00) >> 8) | ((x & 0x00FF00FF00FF00FF) << 8);
+        }
+        
         public abstract int Size { get; }
         public abstract int Position { get; set; }
         public abstract void SetPositionStart();
@@ -138,5 +162,6 @@ namespace Arrowgene.Services.Buffers
         {
             return string.Format("Size:{0} Position:{1}", Size, Position);
         }
+
     }
 }

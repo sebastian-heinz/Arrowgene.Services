@@ -23,6 +23,7 @@
  */
 
 
+using System;
 using System.IO;
 
 namespace Arrowgene.Services.Buffers
@@ -140,6 +141,15 @@ namespace Arrowgene.Services.Buffers
 
         public override void WriteInt16(short value)
         {
+            _binaryWriter.Write(value);
+        }
+        
+        public void WriteInt16(short value, Endianness endianness)
+        {
+            if (SwapNeeded(endianness))
+            {
+                value = SwapBytes(value);
+            }
             _binaryWriter.Write(value);
         }
 
