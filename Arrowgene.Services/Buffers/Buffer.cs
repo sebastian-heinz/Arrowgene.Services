@@ -145,7 +145,16 @@ namespace Arrowgene.Services.Buffers
             }
             return sb.ToString();
         }
-
+        
+        public void WriteInt16(short value, Endianness endianness)
+        {
+            if (SwapNeeded(endianness))
+            {
+                value = SwapBytes(value);
+            }
+            WriteInt16(value);
+        }
+        
         public string Dump()
         {
             return ToAsciiString(true) +
