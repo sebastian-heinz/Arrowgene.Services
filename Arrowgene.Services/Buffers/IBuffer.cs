@@ -86,6 +86,8 @@ namespace Arrowgene.Services.Buffers
 
         void WriteInt16(short value);
 
+        void WriteInt16(short value, Endianness endianness);
+
         void WriteInt16(int value);
 
         void WriteInt32(int value);
