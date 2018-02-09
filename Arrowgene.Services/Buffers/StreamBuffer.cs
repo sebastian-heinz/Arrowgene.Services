@@ -79,7 +79,7 @@ namespace Arrowgene.Services.Buffers
 
         public override void SetPositionEnd()
         {
-            Position = Size - 1;
+            Position = Size;
         }
 
         public override IBuffer Clone(int offset, int length)
