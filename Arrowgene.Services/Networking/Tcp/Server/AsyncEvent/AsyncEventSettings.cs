@@ -25,13 +25,23 @@
 
 // ReSharper disable MemberCanBePrivate.Global
 
+using System.Runtime.Serialization;
+
 namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
 {
+    [DataContract]
     public class AsyncEventSettings
     {
+        [DataMember]
         public int MaxConnections { get; set; }
+
+        [DataMember]
         public int NumSimultaneouslyWriteOperations { get; set; }
+
+        [DataMember]
         public int BufferSize { get; set; }
+
+        [DataMember]
         public int Backlog { get; set; }
 
         public AsyncEventSettings()
