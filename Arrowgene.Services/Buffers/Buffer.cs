@@ -24,6 +24,7 @@
 
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Arrowgene.Services.Buffers
@@ -35,12 +36,12 @@ namespace Arrowgene.Services.Buffers
             return (BitConverter.IsLittleEndian && endianness == Endianness.Big)
                    || (!BitConverter.IsLittleEndian && endianness == Endianness.Little);
         }
-        
+
         public static short SwapBytes(short i)
         {
-            return (short)((i << 8) + ((ushort)i >> 8));
+            return (short) ((i << 8) + ((ushort) i >> 8));
         }
-        
+
         public static uint SwapBytes(uint x)
         {
             x = (x >> 16) | (x << 16);
@@ -53,7 +54,7 @@ namespace Arrowgene.Services.Buffers
             x = ((x & 0xFFFF0000FFFF0000) >> 16) | ((x & 0x0000FFFF0000FFFF) << 16);
             return ((x & 0xFF00FF00FF00FF00) >> 8) | ((x & 0x00FF00FF00FF00FF) << 8);
         }
-        
+
         public abstract int Size { get; }
         public abstract int Position { get; set; }
         public abstract void SetPositionStart();
@@ -73,9 +74,6 @@ namespace Arrowgene.Services.Buffers
         public abstract void WriteInt16(int value);
         public abstract void WriteInt32(int value);
         public abstract void WriteFloat(float value);
-        public abstract void WriteString(string value);
-        public abstract void WriteFixedString(string value, int length);
-        public abstract void WriteCString(string value);
         public abstract byte ReadByte();
         public abstract byte GetByte(int offset);
         public abstract byte[] ReadBytes(int length);
@@ -86,10 +84,121 @@ namespace Arrowgene.Services.Buffers
         public abstract int ReadInt32();
         public abstract float GetFloat(int offset);
         public abstract float ReadFloat();
-        public abstract string GetString(int offset, int length);
-        public abstract string ReadString(int length);
-        public abstract string ReadCString();
-        public abstract string GetCString(int offset);
+
+        public virtual void WriteString(string value)
+        {
+            foreach (char c in value)
+            {
+                WriteByte((byte) c);
+            }
+        }
+
+        public virtual void WriteFixedString(string value, int length)
+        {
+            for (int i = 0; i < length; i++)
+            {
+                WriteByte((byte) value[i]);
+            }
+
+            int diff = length - value.Length;
+            if (diff > 0)
+            {
+                WriteBytes(new byte[diff]);
+            }
+        }
+
+        public virtual void WriteCString(string value)
+        {
+            WriteString(value);
+            WriteByte(0);
+        }
+
+        public virtual string GetString(int offset, int length)
+        {
+            int position = Position;
+            Position = offset;
+            string value = ReadString(length);
+            Position = position;
+            return value;
+        }
+
+        public virtual string ReadString(int length)
+        {
+            return ReadString(length, bytes =>
+            {
+                string s = string.Empty;
+                foreach (byte b in bytes)
+                {
+                    s += (char) b;
+                }
+
+                return s;
+            });
+        }
+
+        public virtual string ReadString(int length, Encoding encoding)
+        {
+            return ReadString(length, encoding.GetString);
+        }
+
+        public virtual string ReadString(int length, Func<byte[], string> converter)
+        {
+            byte[] bytes = ReadBytes(length);
+            return converter(bytes);
+        }
+
+        public virtual string GetCString(int offset)
+        {
+            int position = Position;
+            Position = offset;
+            string value = ReadCString();
+            Position = position;
+            return value;
+        }
+
+        public virtual byte[] ReadBytesZeroTerminated()
+        {
+            List<byte> readBytes = new List<byte>();
+            while (Position < Size)
+            {
+                byte b = ReadByte();
+                if (b > 0)
+                {
+                    readBytes.Add(b);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return readBytes.ToArray();
+        }
+
+        public virtual string ReadCString()
+        {
+            return ReadCString(bytes =>
+            {
+                string s = string.Empty;
+                foreach (byte b in bytes)
+                {
+                    s += (char) b;
+                }
+
+                return s;
+            });
+        }
+
+        public virtual string ReadCString(Encoding encoding)
+        {
+            return ReadCString(encoding.GetString);
+        }
+
+        public virtual string ReadCString(Func<byte[], string> converter)
+        {
+            byte[] bytes = ReadBytesZeroTerminated();
+            return converter(bytes);
+        }
 
         public virtual void WriteBuffer(IBuffer value, int offset, int length)
         {
@@ -124,6 +233,7 @@ namespace Arrowgene.Services.Buffers
                     sb.Append(seperator);
                 }
             }
+
             return sb.ToString();
         }
 
@@ -141,20 +251,23 @@ namespace Arrowgene.Services.Buffers
                 {
                     sb.Append("  ");
                 }
+
                 sb.Append(c);
             }
+
             return sb.ToString();
         }
-        
+
         public void WriteInt16(short value, Endianness endianness)
         {
             if (SwapNeeded(endianness))
             {
                 value = SwapBytes(value);
             }
+
             WriteInt16(value);
         }
-        
+
         public string Dump()
         {
             return ToAsciiString(true) +
@@ -171,6 +284,5 @@ namespace Arrowgene.Services.Buffers
         {
             return string.Format("Size:{0} Position:{1}", Size, Position);
         }
-
     }
 }

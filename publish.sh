@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 API_KEY=""
-VERSION="1.5.2"
+VERSION="1.6.0"
 
 #MSBUILD="/Library/Frameworks/Mono.framework/Versions/5.4.0/Commands/msbuild"
 #MSBUILD="msbuild"

@@ -23,7 +23,6 @@
  */
 
 
-using System;
 using System.IO;
 
 namespace Arrowgene.Services.Buffers
@@ -256,58 +255,5 @@ namespace Arrowgene.Services.Buffers
             return _binaryReader.ReadSingle();
         }
 
-        public override string GetString(int offset, int length)
-        {
-            int position = Position;
-            Position = offset;
-            string value = ReadString(length);
-            Position = position;
-            return value;
-        }
-
-        public override string ReadString(int length)
-        {
-            string s = string.Empty;
-            for (int i = 0; i < length; i++)
-            {
-                if (_memoryStream.Position < _memoryStream.Length)
-                {
-                    byte b = _binaryReader.ReadByte();
-                    if (b > 0)
-                    {
-                        s = s + (char) b;
-                    }
-                }
-            }
-            return s;
-        }
-
-        public override string ReadCString()
-        {
-            string s = string.Empty;
-            bool read = true;
-            while (_memoryStream.Position < _memoryStream.Length && read)
-            {
-                byte b = _binaryReader.ReadByte();
-                if (b > 0)
-                {
-                    s = s + (char) b;
-                }
-                else
-                {
-                    read = false;
-                }
-            }
-            return s;
-        }
-
-        public override string GetCString(int offset)
-        {
-            int position = Position;
-            Position = offset;
-            string value = ReadCString();
-            Position = position;
-            return value;
-        }
     }
 }

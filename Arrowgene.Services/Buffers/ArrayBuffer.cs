@@ -161,33 +161,6 @@ namespace Arrowgene.Services.Buffers
             throw new NotImplementedException();
         }
 
-        public override void WriteString(string value)
-        {
-            foreach (char c in value)
-            {
-                WriteByte(c);
-            }
-        }
-
-        public override void WriteFixedString(string value, int length)
-        {
-            for (int i = 0; i < length; i++)
-            {
-                WriteByte(value[i]);
-            }
-            int diff = length - value.Length;
-            if (diff > 0)
-            {
-                WriteBytes(new byte[diff]);
-            }
-        }
-
-        public override void WriteCString(string value)
-        {
-            WriteString(value);
-            WriteByte(0);
-        }
-
         public override byte ReadByte()
         {
             byte b = GetByte(_currentPos);
@@ -258,43 +231,6 @@ namespace Arrowgene.Services.Buffers
         public override float ReadFloat()
         {
             throw new NotImplementedException();
-        }
-
-        public override string GetString(int offset, int length)
-        {
-            StringBuilder sb = new StringBuilder();
-            if (offset + length <= _size)
-            {
-                for (int i = 0; i < length; i++)
-                {
-                    sb.Append((char) _buffer[offset++]);
-                }
-            }
-            return sb.ToString();
-        }
-
-        public override string ReadString(int length)
-        {
-            string str = GetString(_currentPos, length);
-            // Advance to skip read bytes
-            _currentPos += length;
-            return str;
-        }
-
-        public override string ReadCString()
-        {
-            string str = GetCString(_currentPos);
-            // Advance to skip read bytes
-            _currentPos += str.Length;
-            // Advance to skip the nul-byte
-            _currentPos++;
-            return str;
-        }
-
-        public override string GetCString(int offset)
-        {
-            int len = GetLengthTillNulTermination(offset);
-            return GetString(offset, len);
         }
 
         private void SetCurrentPos(int newCurrentPos)

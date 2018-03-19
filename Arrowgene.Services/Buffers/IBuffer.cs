@@ -127,6 +127,12 @@ namespace Arrowgene.Services.Buffers
         byte[] ReadBytes(int length);
 
         /// <summary>
+        /// Read bytes until end of stream or 0-byte.
+        /// Advances the cursor.
+        /// </summary>
+        byte[] ReadBytesZeroTerminated();
+        
+        /// <summary>
         /// Get bytes at specified offset.
         /// Doesn't advance the cursor.
         /// </summary>
