@@ -23,6 +23,9 @@
  */
 
 
+using System;
+using System.Text;
+
 namespace Arrowgene.Services.Buffers
 {
     public interface IBuffer
@@ -94,19 +97,9 @@ namespace Arrowgene.Services.Buffers
 
         void WriteFloat(float value);
 
-        void WriteString(string value);
-
-        void WriteFixedString(string value, int length);
-
         void WriteBuffer(IBuffer value);
 
         void WriteBuffer(IBuffer value, int offset, int length);
-
-        /// <summary>
-        /// Write a Nul-Terminated-String.
-        /// Advances the cursor.
-        /// </summary>
-        void WriteCString(string value);
 
         /// <summary>
         /// Read byte.
@@ -131,7 +124,7 @@ namespace Arrowgene.Services.Buffers
         /// Advances the cursor.
         /// </summary>
         byte[] ReadBytesZeroTerminated();
-        
+
         /// <summary>
         /// Get bytes at specified offset.
         /// Doesn't advance the cursor.
@@ -187,16 +180,71 @@ namespace Arrowgene.Services.Buffers
         string ReadString(int length);
 
         /// <summary>
+        /// Read a String with a specific length.
+        /// Advances the cursor.
+        /// </summary>
+        string ReadString(int length, Encoding encoding);
+
+        /// <summary>
+        /// Read a String with a specific length.
+        /// Advances the cursor.
+        /// </summary>
+        string ReadString(int length, Func<byte[], string> converter);
+
+        /// <summary>
+        /// Writes a string.
+        /// </summary>
+        void WriteString(string value);
+
+        /// <summary>
+        /// Writes a string.
+        /// </summary>   
+        void WriteString(string value, Encoding encoding);
+
+        /// <summary>
+        /// Writes a string.
+        /// </summary>    
+        void WriteString(string value, Func<string, byte[]> converter);
+
+        /// <summary>
+        /// Writes a string and fills the remaining length with 0-bytes.
+        /// </summary>
+        void WriteFixedString(string value, int length);
+
+        /// <summary>
+        /// Writes a string and fills the remaining length with 0-bytes.
+        /// </summary>
+        void WriteFixedString(string value, int length, Func<string, byte[]> converter);
+
+        /// <summary>
         /// Read a Nul-Terminated-String.
         /// Advances the cursor.
         /// </summary>
         string ReadCString();
 
         /// <summary>
+        /// Read a Nul-Terminated-String.
+        /// Advances the cursor.
+        /// </summary>
+        string ReadCString(Encoding encoding);
+
+        /// <summary>
+        /// Read a Nul-Terminated-String.
+        /// Advances the cursor.
+        /// </summary>
+        string ReadCString(Func<byte[], string> converter);
+
+        /// <summary>
         /// Get a Nul-Terminated-String from a specified offset.
         /// Doesn't advance the cursor.
         /// </summary>
         string GetCString(int offset);
+
+        /// <summary>
+        /// Write a Nul-Terminated-String.
+        /// Advances the cursor.
+        /// </summary>
+        void WriteCString(string value);
 
         /// <summary>
         /// Hex representation of the buffer.

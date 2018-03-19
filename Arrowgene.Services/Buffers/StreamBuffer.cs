@@ -158,33 +158,6 @@ namespace Arrowgene.Services.Buffers
             _binaryWriter.Write(value);
         }
 
-        public override void WriteString(string value)
-        {
-            foreach (char c in value)
-            {
-                _binaryWriter.Write((byte) c);
-            }
-        }
-
-        public override void WriteFixedString(string value, int length)
-        {
-            for (int i = 0; i < length; i++)
-            {
-                _binaryWriter.Write((byte) value[i]);
-            }
-            int diff = length - value.Length;
-            if (diff > 0)
-            {
-                _binaryWriter.Write(new byte[diff]);
-            }
-        }
-
-        public override void WriteCString(string value)
-        {
-            WriteString(value);
-            WriteByte(0);
-        }
-
         public override byte ReadByte()
         {
             return _binaryReader.ReadByte();
@@ -254,6 +227,5 @@ namespace Arrowgene.Services.Buffers
         {
             return _binaryReader.ReadSingle();
         }
-
     }
 }

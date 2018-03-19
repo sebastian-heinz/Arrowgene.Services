@@ -87,24 +87,56 @@ namespace Arrowgene.Services.Buffers
 
         public virtual void WriteString(string value)
         {
-            foreach (char c in value)
+            WriteString(value, str =>
             {
-                WriteByte((byte) c);
+                List<byte> bytes = new List<byte>();
+                foreach (char c in value)
+                {
+                    bytes.Add((byte) c);
+                }
+
+                return bytes.ToArray();
+            });
+        }
+
+        public virtual void WriteString(string value, Encoding encoding)
+        {
+            WriteString(value, encoding.GetBytes);
+        }
+
+        public virtual void WriteString(string value, Func<string, byte[]> converter)
+        {
+            byte[] bytes = converter(value);
+            WriteBytes(bytes);
+        }
+
+        public virtual void WriteFixedString(string value, int length, Func<string, byte[]> converter)
+        {
+            byte[] bytes = converter(value);
+            for (int i = 0; i < length; i++)
+            {
+                WriteByte(bytes[i]);
+            }
+
+            int diff = length - bytes.Length;
+            if (diff > 0)
+            {
+                WriteBytes(new byte[diff]);
             }
         }
 
         public virtual void WriteFixedString(string value, int length)
         {
-            for (int i = 0; i < length; i++)
+            WriteString(value, str =>
             {
-                WriteByte((byte) value[i]);
-            }
+                List<byte> bytes = new List<byte>();
+                foreach (char c in value)
+                {
+                    bytes.Add((byte) c);
+                }
 
-            int diff = length - value.Length;
-            if (diff > 0)
-            {
-                WriteBytes(new byte[diff]);
-            }
+                return bytes.ToArray();
+            });
         }
 
         public virtual void WriteCString(string value)
