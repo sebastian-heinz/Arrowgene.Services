@@ -144,6 +144,18 @@ namespace Arrowgene.Services.Buffers
             WriteString(value);
             WriteByte(0);
         }
+        
+        public virtual void WriteCString(string value, Encoding encoding)
+        {
+            WriteString(value, encoding);
+            WriteByte(0);
+        }
+        
+        public virtual void WriteCString(string value, Func<string, byte[]> converter)
+        {
+            WriteString(value, converter);
+            WriteByte(0);
+        }
 
         public virtual string GetString(int offset, int length)
         {
@@ -184,6 +196,20 @@ namespace Arrowgene.Services.Buffers
             int position = Position;
             Position = offset;
             string value = ReadCString();
+            Position = position;
+            return value;
+        }
+        
+        public virtual string GetCString(int offset, Encoding encoding)
+        {
+            return GetCString(offset, encoding.GetString);
+        }
+        
+        public virtual string GetCString(int offset, Func<byte[], string> converter)
+        {
+            int position = Position;
+            Position = offset;
+            string value = ReadCString(converter);
             Position = position;
             return value;
         }

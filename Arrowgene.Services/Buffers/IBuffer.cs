@@ -244,7 +244,31 @@ namespace Arrowgene.Services.Buffers
         /// Write a Nul-Terminated-String.
         /// Advances the cursor.
         /// </summary>
+        string GetCString(int offset, Encoding encoding);
+
+        /// <summary>
+        /// Write a Nul-Terminated-String.
+        /// Advances the cursor.
+        /// </summary>
+        string GetCString(int offset, Func<byte[], string> converter);
+
+        /// <summary>
+        /// Write a Nul-Terminated-String.
+        /// Advances the cursor.
+        /// </summary>
         void WriteCString(string value);
+
+        /// <summary>
+        /// Write a Nul-Terminated-String.
+        /// Advances the cursor.
+        /// </summary>
+        void WriteCString(string value, Encoding encoding);
+
+        /// <summary>
+        /// Write a Nul-Terminated-String.
+        /// Advances the cursor.
+        /// </summary>
+        void WriteCString(string value, Func<string, byte[]> converter);
 
         /// <summary>
         /// Hex representation of the buffer.
