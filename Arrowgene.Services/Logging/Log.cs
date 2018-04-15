@@ -29,15 +29,16 @@ namespace Arrowgene.Services.Logging
 {
     public class Log
     {
-        public Log(LogLevel logLevel, string text, string loggerIdentity = null, string zone = null)
+        public Log(LogLevel logLevel, string text, object tag = null, string loggerIdentity = null, string zone = null)
         {
             Text = text;
             LogLevel = logLevel;
             DateTime = DateTime.Now;
             LoggerIdentity = loggerIdentity;
             Zone = zone ?? "";
+            Tag = tag;
         }
-
+        
         public string LoggerIdentity { get; }
 
         public string Zone { get; }
@@ -47,6 +48,13 @@ namespace Arrowgene.Services.Logging
         public LogLevel LogLevel { get; }
 
         public DateTime DateTime { get; }
+        
+        public object Tag { get; }
+
+        public T GetTag<T>()
+        {
+            return Tag is T ? (T) Tag : default(T);
+        }
 
         public override string ToString()
         {

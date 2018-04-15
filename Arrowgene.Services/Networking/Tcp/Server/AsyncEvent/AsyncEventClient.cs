@@ -24,6 +24,7 @@
 
 
 using System;
+using System.Net;
 using System.Net.Sockets;
 
 namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
@@ -42,6 +43,23 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
             Socket = socket;
         }
 
+        public IPAddress RemoteIpAddress
+        {
+            get
+            {
+                if (Socket != null && Socket.RemoteEndPoint != null)
+                {
+                    IPEndPoint ipEndPoint = Socket.RemoteEndPoint as IPEndPoint;
+                    if (ipEndPoint != null)
+                    {
+                        return ipEndPoint.Address;
+                    }
+                }
+
+                return null;
+            }
+        }
+
         public void Send(byte[] data)
         {
             _server.Send(this, data);
@@ -58,6 +76,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
             catch (Exception)
             {
             }
+
             Socket.Close();
         }
     }

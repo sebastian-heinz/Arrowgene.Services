@@ -40,8 +40,8 @@ namespace Arrowgene.Services.Networking.Tcp.Client
 
         public event EventHandler<ConnectErrorEventArgs> ConnectError;
 
-        public IPAddress RemoteIpAddress { get; }
-        public int Port { get; }
+        public IPAddress RemoteIpAddress { get; protected set; }
+        public int Port { get; protected set; }
 
         public abstract void Send(byte[] payload);
 
@@ -75,12 +75,14 @@ namespace Arrowgene.Services.Networking.Tcp.Client
             _consumer.OnClientConnected(socket);
         }
 
-        protected void OnConnectError(ITcpClient client, string reason, IPAddress serverIpAddress, int serverPort, TimeSpan timeout)
+        protected void OnConnectError(ITcpClient client, string reason, IPAddress serverIpAddress, int serverPort,
+            TimeSpan timeout)
         {
             EventHandler<ConnectErrorEventArgs> connectError = ConnectError;
             if (connectError != null)
             {
-                ConnectErrorEventArgs connectErrorEventArgsEventArgs = new ConnectErrorEventArgs(client, reason, serverIpAddress, serverPort, timeout);
+                ConnectErrorEventArgs connectErrorEventArgsEventArgs =
+                    new ConnectErrorEventArgs(client, reason, serverIpAddress, serverPort, timeout);
                 connectError(this, connectErrorEventArgsEventArgs);
             }
         }

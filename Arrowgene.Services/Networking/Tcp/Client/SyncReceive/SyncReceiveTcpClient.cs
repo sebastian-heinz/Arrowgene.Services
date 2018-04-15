@@ -49,8 +49,7 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
         public int SocketPollTimeout { get; }
         public int ThreadJoinTimeout { get; }
         public string Name { get; }
-        public IPAddress RemoteIpAddress { get; private set; }
-        public int Port { get; private set; }
+
 
         public SyncReceiveTcpClient(IConsumer consumer) : base(consumer)
         {
@@ -62,7 +61,7 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
             _pollTimeout = 10;
             _bufferSize = 1024;
         }
-        
+
         public override void Send(byte[] payload)
         {
             _socket.Send(payload);
@@ -79,8 +78,10 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
             {
                 if (remoteIpAddress == null || serverPort <= 0)
                 {
-                    throw new InvalidParameterException(string.Format("IpAddress({0}) or Port({1}) invalid", remoteIpAddress, serverPort));
+                    throw new InvalidParameterException(string.Format("IpAddress({0}) or Port({1}) invalid",
+                        remoteIpAddress, serverPort));
                 }
+
                 RemoteIpAddress = remoteIpAddress;
                 Port = serverPort;
                 try
@@ -155,10 +156,12 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
                     _logger.Debug("Tried to join thread from within thread, letting thread run out..");
                 }
             }
+
             if (_socket != null)
             {
                 _socket.Close();
             }
+
             OnClientDisconnected(this);
         }
 
@@ -176,6 +179,7 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
                 socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 _logger.Info("{0} Created Socket (IPv4)", Name);
             }
+
             return socket;
         }
 
@@ -202,7 +206,8 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
                     try
                     {
                         int bytesReceived;
-                        while (_socket.Available > 0 && (bytesReceived = _socket.Receive(buffer, 0, _bufferSize, SocketFlags.None)) > 0)
+                        while (_socket.Available > 0 &&
+                               (bytesReceived = _socket.Receive(buffer, 0, _bufferSize, SocketFlags.None)) > 0)
                         {
                             payload.WriteBytes(buffer, 0, bytesReceived);
                         }
@@ -217,13 +222,17 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
                         {
                             _logger.Exception(e);
                         }
+
                         Close();
                     }
+
                     payload.SetPositionStart();
                     OnReceivedData(this, payload.GetAllBytes());
                 }
+
                 Thread.Sleep(SocketPollTimeout);
             }
+
             _logger.Info("{0} ended.", Name);
         }
     }

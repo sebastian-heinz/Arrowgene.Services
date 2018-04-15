@@ -23,10 +23,13 @@
  */
 
 
+using System.Net;
+
 namespace Arrowgene.Services.Networking.Tcp
 {
     public interface ITcpSocket
     {
+        IPAddress RemoteIpAddress { get; }
         void Send(byte[] data);
         void Close();
     }

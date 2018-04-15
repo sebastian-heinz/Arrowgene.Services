@@ -40,7 +40,6 @@ namespace Arrowgene.Services.Logging
 
         public Logger() : this(null)
         {
-            
         }
 
         public Logger(string identity = null, string zone = null)
@@ -67,34 +66,35 @@ namespace Arrowgene.Services.Logging
             {
                 _logs.Add(_currentId++, log);
             }
+
             OnLogWrite(log);
         }
 
-        public void Write(LogLevel logLevel, string message, params object[] args)
+        public void Write(LogLevel logLevel, object tag, string message, params object[] args)
         {
             string msg = string.Format(message, args);
-            Log log = new Log(logLevel, msg, _identity, _zone);
+            Log log = new Log(logLevel, msg, tag, _identity, _zone);
             Write(log);
         }
 
         public void Info(string message, params object[] args)
         {
-            Write(LogLevel.Info, message, args);
+            Write(LogLevel.Info, null, message, args);
         }
 
         public void Debug(string message, params object[] args)
         {
-            Write(LogLevel.Debug, message, args);
+            Write(LogLevel.Debug, null, message, args);
         }
 
         public void Error(string message, params object[] args)
         {
-            Write(LogLevel.Error, message, args);
+            Write(LogLevel.Error, null, message, args);
         }
 
         public void Exception(Exception exception)
         {
-            Write(LogLevel.Error, exception.ToString());
+            Write(LogLevel.Error, null, exception.ToString());
         }
 
         private void OnLogWrite(Log log)
@@ -114,9 +114,10 @@ namespace Arrowgene.Services.Logging
             {
                 tmp = new Dictionary<int, Log>(_logs);
             }
+
             return tmp;
         }
-        
+
         private string GetCallingMethodInfo()
         {
             return GetCallingMethodInfo(1);
