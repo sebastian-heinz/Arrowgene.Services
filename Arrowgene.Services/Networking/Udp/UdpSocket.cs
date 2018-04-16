@@ -43,13 +43,16 @@ namespace Arrowgene.Services.Networking.Udp
         /// Defines the maximum size to be received or send,
         /// drops requests exceeding limit.
         /// </summary>
-        public const int MaxPayloadSizeBytes = 384;
+        public const int DefaultMaxPayloadSizeBytes = 384;
+
+        public int MaxPayloadSizeBytes { get; set; }
 
         private readonly Socket _socket;
         private readonly byte[] _buffer;
         private Thread _udpThread;
         private bool _receive;
         private bool _isBound;
+
 
         /// <summary>
         /// Creates a new instance of <see cref="UdpSocket"/>
@@ -60,6 +63,7 @@ namespace Arrowgene.Services.Networking.Udp
             _receive = false;
             _buffer = new byte[MaxPayloadSizeBytes];
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            MaxPayloadSizeBytes = DefaultMaxPayloadSizeBytes;
         }
 
         /// <summary>
@@ -78,6 +82,7 @@ namespace Arrowgene.Services.Networking.Udp
                 _socket.Bind(remoteEp);
                 _isBound = true;
             }
+
             StartReceive();
         }
 
@@ -96,7 +101,7 @@ namespace Arrowgene.Services.Networking.Udp
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="port"></param>
-        public void SendBroadcast(byte[] buffer, int port)
+        public void SendBroadcast(byte[] buffer, ushort port)
         {
             SendToBroadcast(buffer, port);
         }
@@ -191,7 +196,7 @@ namespace Arrowgene.Services.Networking.Udp
             }
         }
 
-        private void SendToBroadcast(byte[] buffer, int port)
+        private void SendToBroadcast(byte[] buffer, ushort port)
         {
             _socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, true);
             _socket.SendTo(buffer, 0, buffer.Length, SocketFlags.None, new IPEndPoint(IPAddress.Broadcast, port));

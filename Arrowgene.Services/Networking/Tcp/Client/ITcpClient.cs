@@ -32,7 +32,6 @@ namespace Arrowgene.Services.Networking.Tcp.Client
 {
     public interface ITcpClient : ITcpSocket
     {
-        int Port { get; }
-        void Connect(IPAddress serverIpAddress, int serverPort, TimeSpan timeout);
+        void Connect(IPAddress serverIpAddress, ushort serverPort, TimeSpan timeout);
     }
 }

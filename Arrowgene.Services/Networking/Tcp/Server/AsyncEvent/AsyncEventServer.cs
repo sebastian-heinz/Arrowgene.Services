@@ -51,7 +51,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
         private readonly ILogger _logger;
 
 
-        public AsyncEventServer(IPAddress ipAddress, int port, IConsumer consumer)
+        public AsyncEventServer(IPAddress ipAddress, ushort port, IConsumer consumer)
             : base(ipAddress, port, consumer)
         {
             _logger = LogProvider<Logger>.GetLogger(this);

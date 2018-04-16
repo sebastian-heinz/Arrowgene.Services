@@ -41,11 +41,11 @@ namespace Arrowgene.Services.Networking.Tcp.Client
         public event EventHandler<ConnectErrorEventArgs> ConnectError;
 
         public IPAddress RemoteIpAddress { get; protected set; }
-        public int Port { get; protected set; }
+        public ushort Port { get; protected set; }
 
         public abstract void Send(byte[] payload);
 
-        public void Connect(IPAddress serverIpAddress, int serverPort, TimeSpan timeout)
+        public void Connect(IPAddress serverIpAddress, ushort serverPort, TimeSpan timeout)
         {
             _consumer.OnStart();
             OnConnect(serverIpAddress, serverPort, timeout);
@@ -57,7 +57,7 @@ namespace Arrowgene.Services.Networking.Tcp.Client
             _consumer.OnStop();
         }
 
-        protected abstract void OnConnect(IPAddress serverIpAddress, int serverPort, TimeSpan timeout);
+        protected abstract void OnConnect(IPAddress serverIpAddress, ushort serverPort, TimeSpan timeout);
         protected abstract void OnClose();
 
         protected void OnReceivedData(ITcpSocket socket, byte[] data)
@@ -75,7 +75,7 @@ namespace Arrowgene.Services.Networking.Tcp.Client
             _consumer.OnClientConnected(socket);
         }
 
-        protected void OnConnectError(ITcpClient client, string reason, IPAddress serverIpAddress, int serverPort,
+        protected void OnConnectError(ITcpClient client, string reason, IPAddress serverIpAddress, ushort serverPort,
             TimeSpan timeout)
         {
             EventHandler<ConnectErrorEventArgs> connectError = ConnectError;

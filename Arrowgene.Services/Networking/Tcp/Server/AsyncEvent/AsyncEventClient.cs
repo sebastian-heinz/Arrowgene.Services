@@ -60,6 +60,23 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
             }
         }
 
+        public ushort Port
+        {
+            get
+            {
+                if (Socket != null && Socket.RemoteEndPoint != null)
+                {
+                    IPEndPoint ipEndPoint = Socket.RemoteEndPoint as IPEndPoint;
+                    if (ipEndPoint != null)
+                    {
+                        return (ushort) ipEndPoint.Port;
+                    }
+                }
+
+                return 0;
+            }
+        }
+
         public void Send(byte[] data)
         {
             _server.Send(this, data);

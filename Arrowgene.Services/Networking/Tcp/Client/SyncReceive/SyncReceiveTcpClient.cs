@@ -67,12 +67,12 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
             _socket.Send(payload);
         }
 
-        public void Connect(string remoteIpAddress, int serverPort, TimeSpan timeout)
+        public void Connect(string remoteIpAddress, ushort serverPort, TimeSpan timeout)
         {
             Connect(IPAddress.Parse(remoteIpAddress), serverPort, timeout);
         }
 
-        protected override void OnConnect(IPAddress remoteIpAddress, int serverPort, TimeSpan timeout)
+        protected override void OnConnect(IPAddress remoteIpAddress, ushort serverPort, TimeSpan timeout)
         {
             if (!_isConnected)
             {

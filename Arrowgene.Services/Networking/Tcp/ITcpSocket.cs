@@ -30,6 +30,7 @@ namespace Arrowgene.Services.Networking.Tcp
     public interface ITcpSocket
     {
         IPAddress RemoteIpAddress { get; }
+        ushort Port { get; }
         void Send(byte[] data);
         void Close();
     }

@@ -34,7 +34,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server
     {
         private readonly IConsumer _consumer;
 
-        protected TcpServer(IPAddress ipAddress, int port, IConsumer consumer)
+        protected TcpServer(IPAddress ipAddress, ushort port, IConsumer consumer)
         {
             if (ipAddress == null)
                 throw new InvalidParameterException("IPAddress is null");
@@ -48,7 +48,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server
         }
 
         public IPAddress IpAddress { get; }
-        public int Port { get; }
+        public ushort Port { get; }
 
         protected abstract void OnStart();
         protected abstract void OnStop();
