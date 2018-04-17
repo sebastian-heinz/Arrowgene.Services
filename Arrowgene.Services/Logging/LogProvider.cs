@@ -37,6 +37,8 @@ namespace Arrowgene.Services.Logging
             Instance = new LogProvider();
         }
 
+        public static LogProvider Provider => Instance;
+
         public static T GetLogger(object instance)
         {
             return Instance.GetLogger<T>(instance);
@@ -57,6 +59,7 @@ namespace Arrowgene.Services.Logging
     {
         private readonly Dictionary<string, Logger> _loggers = new Dictionary<string, Logger>();
         private readonly object _lock = new object();
+        private object _configuration;
 
         /// <summary>
         /// Notifies about any logging event from every LogProvider instance
@@ -68,6 +71,14 @@ namespace Arrowgene.Services.Logging
         /// </summary>
         public event EventHandler<LogWriteEventArgs> ProviderLogWrite;
 
+        /// <summary>
+        /// Provide a confugration object that will be passed to every <see cref="Logger"/> instance
+        /// by calling <see cref="Logger.Configure(object)"/> on it.
+        /// </summary>
+        public void Configure(object configuration)
+        {
+            _configuration = configuration;
+        }
 
         public T GetLogger<T>(object instance) where T : Logger, new()
         {
@@ -87,7 +98,7 @@ namespace Arrowgene.Services.Logging
                 if (!_loggers.TryGetValue(identity, out logger))
                 {
                     logger = new T();
-                    logger.Initialize(identity, zone);
+                    logger.Initialize(identity, zone, _configuration);
                     logger.LogWrite += LoggerOnLogWrite;
                     _loggers.Add(identity, logger);
                 }

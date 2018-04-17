@@ -42,12 +42,12 @@ namespace Arrowgene.Services.Logging
         {
         }
 
-        public Logger(string identity, string zone = null)
+        public Logger(string identity, string zone = null, object configuration = null)
         {
             _lock = new object();
             _logs = new Dictionary<int, Log>();
             _currentId = 0;
-            Initialize(identity, zone);
+            Initialize(identity, zone, configuration);
         }
 
         public void Write(Log log)
@@ -98,10 +98,15 @@ namespace Arrowgene.Services.Logging
             return tmp;
         }
 
-        internal void Initialize(string identity, string zone = null)
+        protected virtual void Configure(object configuration)
+        {
+        }
+
+        internal void Initialize(string identity, string zone, object configuration)
         {
             _identity = identity;
             _zone = zone;
+            Configure(configuration);
         }
 
         private void OnLogWrite(Log log)
