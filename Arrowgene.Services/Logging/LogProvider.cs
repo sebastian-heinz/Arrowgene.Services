@@ -28,36 +28,35 @@ using System.Collections.Generic;
 
 namespace Arrowgene.Services.Logging
 {
-    public static class LogProvider<T> where T : ILogger, new()
+    public static class LogProvider<T> where T : Logger, new()
     {
-        private static LogProvider _instance = new LogProvider();
+        private static readonly LogProvider Instance;
 
         static LogProvider()
         {
-            _instance.SetProducer(new T());
+            Instance = new LogProvider();
         }
 
         public static T GetLogger(object instance)
         {
-            return _instance.GetLogger<T>(instance);
+            return Instance.GetLogger<T>(instance);
         }
 
         public static T GetLogger(Type type)
         {
-            return _instance.GetLogger<T>(type);
+            return Instance.GetLogger<T>(type);
         }
 
         public static T GetLogger(string identity, string zone = null)
         {
-            return _instance.GetLogger<T>(identity, zone);
+            return Instance.GetLogger<T>(identity, zone);
         }
     }
 
     public class LogProvider
     {
-        private readonly Dictionary<string, ILogger> Loggers = new Dictionary<string, ILogger>();
-        private readonly object Lock = new object();
-        private ILogger _producer = new Logger("Producer");
+        private readonly Dictionary<string, Logger> _loggers = new Dictionary<string, Logger>();
+        private readonly object _lock = new object();
 
         /// <summary>
         /// Notifies about any logging event from every LogProvider instance
@@ -69,59 +68,32 @@ namespace Arrowgene.Services.Logging
         /// </summary>
         public event EventHandler<LogWriteEventArgs> ProviderLogWrite;
 
-        /// <summary>
-        /// Provide an implementation of ILogger.
-        /// All logging will be handled by the provided implementation.
-        /// </summary>
-        /// <param name="logger"></param>
-        public void SetProducer(ILogger logger)
-        {
-            _producer = logger;
-        }
 
-        public ILogger GetLogger(object instance)
-        {
-            return GetLogger(instance.GetType());
-        }
-
-        public T GetLogger<T>(object instance) where T : ILogger
+        public T GetLogger<T>(object instance) where T : Logger, new()
         {
             return GetLogger<T>(instance.GetType());
         }
 
-        public ILogger GetLogger(Type type)
-        {
-            return GetLogger(type.FullName, type.Name);
-        }
-
-        public T GetLogger<T>(Type type) where T : ILogger
+        public T GetLogger<T>(Type type) where T : Logger, new()
         {
             return GetLogger<T>(type.FullName, type.Name);
         }
 
-        public ILogger GetLogger(string identity, string zone = null)
+        public T GetLogger<T>(string identity, string zone = null) where T : Logger, new()
         {
-            ILogger logger;
-            lock (Lock)
+            Logger logger;
+            lock (_lock)
             {
-                if (!Loggers.TryGetValue(identity, out logger))
+                if (!_loggers.TryGetValue(identity, out logger))
                 {
-                    logger = _producer.Produce(identity, zone);
+                    logger = new T();
+                    logger.Initialize(identity, zone);
                     logger.LogWrite += LoggerOnLogWrite;
-                    Loggers.Add(identity, logger);
+                    _loggers.Add(identity, logger);
                 }
             }
-            return logger;
-        }
 
-        public T GetLogger<T>(string identity, string zone = null) where T : ILogger
-        {
-            ILogger logger = GetLogger(identity, zone);
-            if (!(logger is T))
-            {
-                throw new Exception("Call to 'GetLogger<T>' failed because the producer is not an instance of T. Use 'SetProducer()' to set the correct instance for T.");
-            }
-            return (T) logger;
+            return logger is T ? (T) logger : default(T);
         }
 
         private void LoggerOnLogWrite(object sender, LogWriteEventArgs writeEventArgs)
@@ -131,6 +103,7 @@ namespace Arrowgene.Services.Logging
             {
                 providerLogWrite(sender, writeEventArgs);
             }
+
             EventHandler<LogWriteEventArgs> globalLogWrite = GlobalLogWrite;
             if (globalLogWrite != null)
             {

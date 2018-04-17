@@ -48,7 +48,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
         private Semaphore _maxNumberAcceptedClients;
         private Semaphore _maxNumberWriteOperations;
         private SocketAsyncEventArgs _acceptEventArg;
-        private readonly ILogger _logger;
+        private readonly Logger _logger;
 
 
         public AsyncEventServer(IPAddress ipAddress, ushort port, IConsumer consumer)

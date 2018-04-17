@@ -28,36 +28,26 @@ using System.Diagnostics;
 
 namespace Arrowgene.Services.Logging
 {
-    public class Logger : ILogger
+    public class Logger
     {
         public event EventHandler<LogWriteEventArgs> LogWrite;
 
-        private readonly string _zone;
-        private readonly string _identity;
         private readonly object _lock;
         private readonly Dictionary<int, Log> _logs;
         private volatile int _currentId;
+        private string _zone;
+        private string _identity;
 
         public Logger() : this(null)
         {
         }
 
-        public Logger(string identity = null, string zone = null)
+        public Logger(string identity, string zone = null)
         {
-            _zone = zone;
-            _identity = identity;
             _lock = new object();
             _logs = new Dictionary<int, Log>();
             _currentId = 0;
-        }
-
-        /// <summary>
-        /// Produces a new Instance of this class.
-        /// If this class is beeing extended it is crucial to override this method, and return the correct instance.
-        /// </summary>
-        public virtual ILogger Produce(string identity, string zone = null)
-        {
-            return new Logger(identity, zone);
+            Initialize(identity, zone);
         }
 
         public void Write(Log log)
@@ -97,16 +87,6 @@ namespace Arrowgene.Services.Logging
             Write(LogLevel.Error, null, exception.ToString());
         }
 
-        private void OnLogWrite(Log log)
-        {
-            EventHandler<LogWriteEventArgs> logWrite = LogWrite;
-            if (logWrite != null)
-            {
-                LogWriteEventArgs logWriteEventArgs = new LogWriteEventArgs(log);
-                logWrite(this, logWriteEventArgs);
-            }
-        }
-
         public Dictionary<int, Log> GetLogs()
         {
             Dictionary<int, Log> tmp;
@@ -116,6 +96,22 @@ namespace Arrowgene.Services.Logging
             }
 
             return tmp;
+        }
+
+        internal void Initialize(string identity, string zone = null)
+        {
+            _identity = identity;
+            _zone = zone;
+        }
+
+        private void OnLogWrite(Log log)
+        {
+            EventHandler<LogWriteEventArgs> logWrite = LogWrite;
+            if (logWrite != null)
+            {
+                LogWriteEventArgs logWriteEventArgs = new LogWriteEventArgs(log);
+                logWrite(this, logWriteEventArgs);
+            }
         }
 
         private string GetCallingMethodInfo()

@@ -41,7 +41,7 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
         private volatile bool _isConnected;
         private readonly int _pollTimeout;
         private readonly int _bufferSize;
-        private readonly ILogger _logger;
+        private readonly Logger _logger;
         private Socket _socket;
         private Thread _readThread;
 
