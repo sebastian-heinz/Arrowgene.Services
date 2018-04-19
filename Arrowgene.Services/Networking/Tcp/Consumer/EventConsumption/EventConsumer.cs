@@ -25,9 +25,9 @@
 
 using System;
 
-namespace Arrowgene.Services.Networking.Tcp.Consumer.EventHandler
+namespace Arrowgene.Services.Networking.Tcp.Consumer.EventConsumption
 {
-    public class EventHandlerConsumer : IConsumer
+    public class EventConsumer : IConsumer
     {
         /// <summary>
         /// Occures when a client disconnected.

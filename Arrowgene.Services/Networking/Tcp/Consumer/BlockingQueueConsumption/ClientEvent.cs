@@ -23,20 +23,19 @@
  */
 
 
-using System;
-
-namespace Arrowgene.Services.Networking.Tcp.Consumer.EventHandler
+namespace Arrowgene.Services.Networking.Tcp.Consumer.BlockingQueueConsumption
 {
-    public class ReceivedPacketEventArgs : EventArgs
+    public class ClientEvent
     {
-        public ReceivedPacketEventArgs(ITcpSocket socket, byte[] data)
-        {
-            Socket = socket;
-            Data = data;
-        }
-
+        public ClientEventType ClientEventType { get; }
+        public byte[] Data { get; }
         public ITcpSocket Socket { get; }
 
-        public byte[] Data { get; }
+        public ClientEvent(ITcpSocket socket, ClientEventType clientEventType, byte[] data = null)
+        {
+            Socket = socket;
+            ClientEventType = clientEventType;
+            Data = data;
+        }
     }
 }

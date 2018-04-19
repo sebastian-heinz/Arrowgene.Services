@@ -3,7 +3,7 @@ using System.Net;
 using Arrowgene.Services.Logging;
 using Arrowgene.Services.Networking.Tcp.Client;
 using Arrowgene.Services.Networking.Tcp.Client.SyncReceive;
-using Arrowgene.Services.Networking.Tcp.Consumer.EventHandler;
+using Arrowgene.Services.Networking.Tcp.Consumer.EventConsumption;
 using Arrowgene.Services.Networking.Tcp.Server.AsyncEvent;
 
 namespace Arrowgene.Services.Playground.Demo
@@ -14,14 +14,14 @@ namespace Arrowgene.Services.Playground.Demo
         {
             LogProvider.GlobalLogWrite += LogProviderOnLogWrite;
 
-            EventHandlerConsumer serverConsumer = new EventHandlerConsumer();
+            EventConsumer serverConsumer = new EventConsumer();
             serverConsumer.ClientConnected += ServerConsumerOnClientConnected;
             serverConsumer.ClientDisconnected += ServerConsumerOnClientDisconnected;
             serverConsumer.ReceivedPacket += ServerConsumerOnReceivedPacket;
             AsyncEventServer server = new AsyncEventServer(IPAddress.Any, 2345, serverConsumer);
             server.Start();
 
-            EventHandlerConsumer clientConsumer = new EventHandlerConsumer();
+            EventConsumer clientConsumer = new EventConsumer();
             clientConsumer.ClientConnected += ClientConsumerOnClientConnected;
             clientConsumer.ClientDisconnected += ClientConsumerOnClientDisconnected;
             clientConsumer.ReceivedPacket += ClientConsumerOnReceivedPacket;

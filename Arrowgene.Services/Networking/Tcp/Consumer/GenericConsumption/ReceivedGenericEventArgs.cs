@@ -25,15 +25,18 @@
 
 using System;
 
-namespace Arrowgene.Services.Networking.Tcp.Consumer.EventHandler
+namespace Arrowgene.Services.Networking.Tcp.Consumer.GenericConsumption
 {
-    public class ConnectedEventArgs : EventArgs
+    public class ReceivedGenericEventArgs<T> : EventArgs
     {
-        public ConnectedEventArgs(ITcpSocket socket)
+        public ReceivedGenericEventArgs(ITcpSocket socket, T generic)
         {
             Socket = socket;
+            Generic = generic;
         }
 
         public ITcpSocket Socket { get; }
+
+        public T Generic { get; }
     }
 }

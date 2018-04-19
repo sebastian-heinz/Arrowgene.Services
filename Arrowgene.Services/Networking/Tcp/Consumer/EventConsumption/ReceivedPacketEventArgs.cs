@@ -23,36 +23,20 @@
  */
 
 
-using System.Collections.Concurrent;
+using System;
 
-namespace Arrowgene.Services.Networking.Tcp.Consumer.BlockingQueue
+namespace Arrowgene.Services.Networking.Tcp.Consumer.EventConsumption
 {
-    public class BlockingQueueEventConsumer : IConsumer
+    public class ReceivedPacketEventArgs : EventArgs
     {
-        public BlockingCollection<ClientEvent> ClientEvents;
-
-        public void OnStart()
+        public ReceivedPacketEventArgs(ITcpSocket socket, byte[] data)
         {
-            ClientEvents = new BlockingCollection<ClientEvent>();
+            Socket = socket;
+            Data = data;
         }
 
-        public void OnReceivedData(ITcpSocket socket, byte[] data)
-        {
-            ClientEvents.Add(new ClientEvent(socket, ClientEventType.ReceivedData, data));
-        }
+        public ITcpSocket Socket { get; }
 
-        public void OnClientDisconnected(ITcpSocket socket)
-        {
-            ClientEvents.Add(new ClientEvent(socket, ClientEventType.Disconnected));
-        }
-
-        public void OnClientConnected(ITcpSocket socket)
-        {
-            ClientEvents.Add(new ClientEvent(socket, ClientEventType.Connected));
-        }
-
-        public void OnStop()
-        {
-        }
+        public byte[] Data { get; }
     }
 }

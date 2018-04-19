@@ -2,7 +2,7 @@
 using System.Net;
 using System.Threading;
 using Arrowgene.Services.Logging;
-using Arrowgene.Services.Networking.Tcp.Consumer.BlockingQueue;
+using Arrowgene.Services.Networking.Tcp.Consumer.BlockingQueueConsumption;
 using Arrowgene.Services.Networking.Tcp.Server;
 using Arrowgene.Services.Networking.Tcp.Server.AsyncEvent;
 
@@ -11,7 +11,7 @@ namespace Arrowgene.Services.Playground.Demo
     public class TcpEchoDemo
     {
         private volatile bool _isRunning;
-        private BlockingQueueEventConsumer _consumer;
+        private BlockingQueueConsumer _consumer;
         private Thread _consumerThread;
         private ITcpServer _server;
 
@@ -32,7 +32,7 @@ namespace Arrowgene.Services.Playground.Demo
 
         public void Start()
         {
-            _consumer = new BlockingQueueEventConsumer();
+            _consumer = new BlockingQueueConsumer();
             _server = new AsyncEventServer(IPAddress.Any, 2345, _consumer);
             _server.Start();
 
@@ -67,6 +67,7 @@ namespace Arrowgene.Services.Playground.Demo
                     Console.WriteLine(ex);
                     _isRunning = false;
                 }
+
                 if (clientEvent != null)
                 {
                     switch (clientEvent.ClientEventType)
@@ -85,6 +86,7 @@ namespace Arrowgene.Services.Playground.Demo
                     }
                 }
             }
+
             Console.WriteLine("Demo: Handler exited");
         }
     }
