@@ -113,7 +113,7 @@ namespace Arrowgene.Services.Buffers
         public virtual void WriteFixedString(string value, int length, Func<string, byte[]> converter)
         {
             byte[] bytes = converter(value);
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < bytes.Length && i < length; i++)
             {
                 WriteByte(bytes[i]);
             }
