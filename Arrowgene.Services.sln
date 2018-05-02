@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arrowgene.Services", "Arrow
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arrowgene.Services.Playground", "Arrowgene.Services.Playground\Arrowgene.Services.Playground.csproj", "{A776E123-26B6-4444-88B7-3077911CB8EB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{CFA06C51-BE74-429A-BAEA-FAB52D4C262B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arrowgene.Services.Test", "Arrowgene.Services.Test\Arrowgene.Services.Test.csproj", "{CFA06C51-BE74-429A-BAEA-FAB52D4C262B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
