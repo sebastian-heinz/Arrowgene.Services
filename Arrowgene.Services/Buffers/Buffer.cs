@@ -127,7 +127,7 @@ namespace Arrowgene.Services.Buffers
 
         public virtual void WriteFixedString(string value, int length)
         {
-            WriteString(value, str =>
+            WriteFixedString(value, length, str =>
             {
                 List<byte> bytes = new List<byte>();
                 foreach (char c in value)
@@ -144,13 +144,13 @@ namespace Arrowgene.Services.Buffers
             WriteString(value);
             WriteByte(0);
         }
-        
+
         public virtual void WriteCString(string value, Encoding encoding)
         {
             WriteString(value, encoding);
             WriteByte(0);
         }
-        
+
         public virtual void WriteCString(string value, Func<string, byte[]> converter)
         {
             WriteString(value, converter);
@@ -199,12 +199,12 @@ namespace Arrowgene.Services.Buffers
             Position = position;
             return value;
         }
-        
+
         public virtual string GetCString(int offset, Encoding encoding)
         {
             return GetCString(offset, encoding.GetString);
         }
-        
+
         public virtual string GetCString(int offset, Func<byte[], string> converter)
         {
             int position = Position;
