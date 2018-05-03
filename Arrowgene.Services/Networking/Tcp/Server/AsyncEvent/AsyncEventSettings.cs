@@ -42,14 +42,23 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
         public int BufferSize { get; set; }
 
         [DataMember]
-        public int Backlog { get; set; }
+        public SocketSetting SocketSetting { get; set; }
 
         public AsyncEventSettings()
         {
             BufferSize = 2000;
             MaxConnections = 100;
             NumSimultaneouslyWriteOperations = 100;
-            Backlog = 5;
+            SocketSetting = new SocketSetting();
         }
+        
+        public AsyncEventSettings(AsyncEventSettings settings)
+        {
+            BufferSize = settings.BufferSize;
+            MaxConnections = settings.MaxConnections;
+            NumSimultaneouslyWriteOperations = settings.NumSimultaneouslyWriteOperations;
+            SocketSetting = new SocketSetting(settings.SocketSetting);
+        }
+        
     }
 }

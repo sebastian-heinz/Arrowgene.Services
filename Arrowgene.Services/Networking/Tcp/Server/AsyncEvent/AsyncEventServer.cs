@@ -36,10 +36,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
     {
         private const string ThreadName = "AsyncEventServer";
 
-        private int _maxConnections;
-        private int _numSimultaneouslyWriteOperations;
-        private int _bufferSize;
-        private int _backlog;
+
         private Thread _thread;
         private BufferManager _bufferManager;
         private Socket _listenSocket;
@@ -49,21 +46,18 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
         private Semaphore _maxNumberWriteOperations;
         private SocketAsyncEventArgs _acceptEventArg;
         private readonly Logger _logger;
+        private readonly AsyncEventSettings _settings;
 
-
-        public AsyncEventServer(IPAddress ipAddress, ushort port, IConsumer consumer)
+        public AsyncEventServer(IPAddress ipAddress, ushort port, IConsumer consumer, AsyncEventSettings settings)
             : base(ipAddress, port, consumer)
         {
+            _settings = new AsyncEventSettings(settings);
             _logger = LogProvider<Logger>.GetLogger(this);
-            Configure(new AsyncEventSettings());
         }
 
-        public void Configure(AsyncEventSettings settings)
+        public AsyncEventServer(IPAddress ipAddress, ushort port, IConsumer consumer)
+            : this(ipAddress, port, consumer, new AsyncEventSettings())
         {
-            _bufferSize = settings.BufferSize;
-            _maxConnections = settings.MaxConnections;
-            _numSimultaneouslyWriteOperations = settings.NumSimultaneouslyWriteOperations;
-            _backlog = settings.Backlog;
         }
 
         public override void Send(ITcpSocket socket, byte[] data)
@@ -80,6 +74,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
             {
                 return;
             }
+
             _maxNumberWriteOperations.WaitOne();
             SocketAsyncEventArgs writeEventArgs = _writePool.Pop();
             WriteToken token = (WriteToken) writeEventArgs.UserToken;
@@ -91,13 +86,13 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
         {
             _acceptEventArg = new SocketAsyncEventArgs();
             _acceptEventArg.Completed += Accept_Completed;
-            _bufferManager = new BufferManager(_bufferSize * _maxConnections + _bufferSize * _numSimultaneouslyWriteOperations, _bufferSize);
-            _readPool = new Pool<SocketAsyncEventArgs>(_maxConnections);
-            _writePool = new Pool<SocketAsyncEventArgs>(_numSimultaneouslyWriteOperations);
-            _maxNumberAcceptedClients = new Semaphore(_maxConnections, _maxConnections);
-            _maxNumberWriteOperations = new Semaphore(_numSimultaneouslyWriteOperations, _numSimultaneouslyWriteOperations);
+            _bufferManager = new BufferManager(_settings.BufferSize * _settings.MaxConnections + _settings.BufferSize * _settings.NumSimultaneouslyWriteOperations, _settings.BufferSize);
+            _readPool = new Pool<SocketAsyncEventArgs>(_settings.MaxConnections);
+            _writePool = new Pool<SocketAsyncEventArgs>(_settings.NumSimultaneouslyWriteOperations);
+            _maxNumberAcceptedClients = new Semaphore(_settings.MaxConnections, _settings.MaxConnections);
+            _maxNumberWriteOperations = new Semaphore(_settings.NumSimultaneouslyWriteOperations, _settings.NumSimultaneouslyWriteOperations);
             _bufferManager.InitBuffer();
-            for (int i = 0; i < _maxConnections; i++)
+            for (int i = 0; i < _settings.MaxConnections; i++)
             {
                 SocketAsyncEventArgs readEventArgs = new SocketAsyncEventArgs();
                 readEventArgs.Completed += Receive_Completed;
@@ -105,7 +100,8 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
                 _bufferManager.SetBuffer(readEventArgs);
                 _readPool.Push(readEventArgs);
             }
-            for (int i = 0; i < _numSimultaneouslyWriteOperations; i++)
+
+            for (int i = 0; i < _settings.NumSimultaneouslyWriteOperations; i++)
             {
                 SocketAsyncEventArgs writeEventArgs = new SocketAsyncEventArgs();
                 writeEventArgs.Completed += Send_Completed;
@@ -113,6 +109,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
                 _bufferManager.SetBuffer(writeEventArgs);
                 _writePool.Push(writeEventArgs);
             }
+
             _thread = new Thread(Run);
             _thread.Name = ThreadName;
             _thread.IsBackground = true;
@@ -140,6 +137,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
                     _logger.Debug("Tried to join thread from within thread, letting thread run out..");
                 }
             }
+
             if (_listenSocket != null)
             {
                 _listenSocket.Close();
@@ -150,8 +148,27 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
         {
             IPEndPoint localEndPoint = new IPEndPoint(IpAddress, Port);
             _listenSocket = new Socket(localEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            _listenSocket.DontFragment = _settings.SocketSetting.DontFragment;
+            _listenSocket.DualMode = _settings.SocketSetting.DualMode;
+            _listenSocket.ExclusiveAddressUse = _settings.SocketSetting.ExclusiveAddressUse;
+            _listenSocket.LingerState = new LingerOption(_settings.SocketSetting.LingerEnabled, _settings.SocketSetting.LingerTime);
+            _listenSocket.NoDelay = _settings.SocketSetting.NoDelay;
+            _listenSocket.ReceiveBufferSize = _settings.SocketSetting.ReceiveBufferSize;
+            _listenSocket.ReceiveTimeout = _settings.SocketSetting.ReceiveTimeout;
+            _listenSocket.SendBufferSize = _settings.SocketSetting.SendBufferSize;
+            _listenSocket.SendTimeout = _settings.SocketSetting.SendTimeout;
+            _listenSocket.Ttl = _settings.SocketSetting.Ttl;
+            _listenSocket.UseOnlyOverlappedIO = _settings.SocketSetting.UseOnlyOverlappedIo;
+            foreach (object[] options in _settings.SocketSetting.SocketOptions)
+            {
+                SocketOptionLevel socketOptionLevel = (SocketOptionLevel) options[0];
+                SocketOptionName socketOptionName = (SocketOptionName) options[1];
+                object value = options[3];
+                _listenSocket.SetSocketOption(socketOptionLevel, socketOptionName, value);
+            }
+
             _listenSocket.Bind(localEndPoint);
-            _listenSocket.Listen(_backlog);
+            _listenSocket.Listen(_settings.SocketSetting.Backlog);
             StartAccept();
         }
 
@@ -210,6 +227,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
                 ReleaseRead(readEventArgs);
                 return;
             }
+
             if (!willRaiseEvent)
             {
                 ProcessReceive(readEventArgs);
@@ -241,16 +259,17 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
         private void StartSend(SocketAsyncEventArgs writeEventArgs)
         {
             WriteToken token = (WriteToken) writeEventArgs.UserToken;
-            if (token.OutstandingCount <= _bufferSize)
+            if (token.OutstandingCount <= _settings.BufferSize)
             {
                 writeEventArgs.SetBuffer(writeEventArgs.Offset, token.OutstandingCount);
                 Buffer.BlockCopy(token.Data, token.TransferredCount, writeEventArgs.Buffer, writeEventArgs.Offset, token.OutstandingCount);
             }
             else
             {
-                writeEventArgs.SetBuffer(writeEventArgs.Offset, _bufferSize);
-                Buffer.BlockCopy(token.Data, token.TransferredCount, writeEventArgs.Buffer, writeEventArgs.Offset, _bufferSize);
+                writeEventArgs.SetBuffer(writeEventArgs.Offset, _settings.BufferSize);
+                Buffer.BlockCopy(token.Data, token.TransferredCount, writeEventArgs.Buffer, writeEventArgs.Offset, _settings.BufferSize);
             }
+
             bool willRaiseEvent;
             try
             {
@@ -262,6 +281,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
                 ReleaseWrite(writeEventArgs);
                 return;
             }
+
             if (!willRaiseEvent)
             {
                 ProcessSend(writeEventArgs);

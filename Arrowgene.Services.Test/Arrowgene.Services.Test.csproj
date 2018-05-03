@@ -10,9 +10,6 @@
     <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Arrowgene.Services\Arrowgene.Services.csproj">
-      <Project>{5ECAC55A-187D-4834-993A-EB261E78DF3A}</Project>
-      <Name>Arrowgene.Services</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\Arrowgene.Services\Arrowgene.Services.csproj" />
   </ItemGroup>
 </Project>

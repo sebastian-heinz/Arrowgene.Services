@@ -10,7 +10,4 @@
     <PackageProjectUrl>https://github.com/Arrowgene/Arrowgene.Services</PackageProjectUrl>
     <PackageTags>game,server,client,socket,network</PackageTags>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="Protocols\Message\MessageWriter.cs" />
-  </ItemGroup>
 </Project>

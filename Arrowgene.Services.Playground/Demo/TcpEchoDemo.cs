@@ -13,7 +13,7 @@ namespace Arrowgene.Services.Playground.Demo
         private volatile bool _isRunning;
         private BlockingQueueConsumer _consumer;
         private Thread _consumerThread;
-        private ITcpServer _server;
+        private AsyncEventServer _server;
 
         public TcpEchoDemo()
         {
@@ -35,7 +35,6 @@ namespace Arrowgene.Services.Playground.Demo
             _consumer = new BlockingQueueConsumer();
             _server = new AsyncEventServer(IPAddress.Any, 2345, _consumer);
             _server.Start();
-
             _consumerThread = new Thread(HandleEvents);
             _consumerThread.Name = "ConsumerThread";
             _consumerThread.Start();
