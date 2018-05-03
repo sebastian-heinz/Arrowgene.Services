@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-API_KEY="oy2lw5pkywkudvdwjryqnkv6gpejwpbe5enusw3dgjgxla"
+API_KEY=""
 VERSION="1.8.1"
 
 #MSBUILD="/Library/Frameworks/Mono.framework/Versions/5.4.0/Commands/msbuild"
