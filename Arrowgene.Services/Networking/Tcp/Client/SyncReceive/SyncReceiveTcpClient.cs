@@ -78,7 +78,7 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
             {
                 if (remoteIpAddress == null || serverPort <= 0)
                 {
-                    throw new InvalidParameterException(string.Format("IpAddress({0}) or Port({1}) invalid",
+                    throw new InvalidParameterException(string.Format("Address({0}) or Port({1}) invalid",
                         remoteIpAddress, serverPort));
                 }
 

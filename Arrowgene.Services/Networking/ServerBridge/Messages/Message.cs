@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Arrowgene.Services.Bridging.Messages
+namespace Arrowgene.Services.Networking.ServerBridge.Messages
 {
     [Serializable]
     public class Message

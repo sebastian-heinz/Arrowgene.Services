@@ -25,12 +25,13 @@
 
 // ReSharper disable MemberCanBePrivate.Global
 
+using System;
 using System.Runtime.Serialization;
 
 namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
 {
     [DataContract]
-    public class AsyncEventSettings
+    public class AsyncEventSettings : ICloneable
     {
         [DataMember]
         public int MaxConnections { get; set; }
@@ -42,23 +43,27 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
         public int BufferSize { get; set; }
 
         [DataMember]
-        public SocketSetting SocketSetting { get; set; }
+        public SocketSettings SocketSettings { get; set; }
 
         public AsyncEventSettings()
         {
             BufferSize = 2000;
             MaxConnections = 100;
             NumSimultaneouslyWriteOperations = 100;
-            SocketSetting = new SocketSetting();
+            SocketSettings = new SocketSettings();
         }
-        
+
         public AsyncEventSettings(AsyncEventSettings settings)
         {
             BufferSize = settings.BufferSize;
             MaxConnections = settings.MaxConnections;
             NumSimultaneouslyWriteOperations = settings.NumSimultaneouslyWriteOperations;
-            SocketSetting = new SocketSetting(settings.SocketSetting);
+            SocketSettings = new SocketSettings(settings.SocketSettings);
         }
-        
+
+        public object Clone()
+        {
+            return new AsyncEventSettings(this);
+        }
     }
 }

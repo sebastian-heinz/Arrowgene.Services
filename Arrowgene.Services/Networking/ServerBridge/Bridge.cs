@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using Arrowgene.Services.Bridging.Messages;
 using Arrowgene.Services.Logging;
+using Arrowgene.Services.Networking.ServerBridge.Messages;
 
-namespace Arrowgene.Services.Bridging
+namespace Arrowgene.Services.Networking.ServerBridge
 {
     public abstract class Bridge : IBridge
     {
-        private bool _strictHandlerCheck;
         private Dictionary<Guid, Action<Response>> _subscriber;
         private Dictionary<Guid, Func<Request, Response>> _handler;
         protected readonly Logger Logger;
@@ -18,7 +17,6 @@ namespace Arrowgene.Services.Bridging
             Logger = LogProvider<Logger>.GetLogger(this);
             _subscriber = new Dictionary<Guid, Action<Response>>();
             _handler = new Dictionary<Guid, Func<Request, Response>>();
-            _strictHandlerCheck = false;
         }
 
         public abstract void Start();
@@ -173,7 +171,7 @@ namespace Arrowgene.Services.Bridging
                 return false;
             }
 
-            if (_strictHandlerCheck && !_handler.ContainsKey(handlerId))
+            if (!_handler.ContainsKey(handlerId))
             {
                 Logger.Error("Request without handler ({0})", handlerId);
                 return false;

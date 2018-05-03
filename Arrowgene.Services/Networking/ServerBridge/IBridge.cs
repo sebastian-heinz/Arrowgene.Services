@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Net;
-using Arrowgene.Services.Bridging.Messages;
+using Arrowgene.Services.Networking.ServerBridge.Messages;
 
-namespace Arrowgene.Services.Bridging
+namespace Arrowgene.Services.Networking.ServerBridge
 {
     /// <summary>
     /// Responsible for EzServer-to-EzServer communication.

@@ -1,13 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Runtime.Serialization;
 
 namespace Arrowgene.Services.Networking.Tcp
 {
     [DataContract]
-    public class SocketSetting
+    public class SocketSettings : ICloneable
     {
-        public SocketSetting()
+        public SocketSettings()
         {
             Backlog = 5;
             DualMode = false;
@@ -29,22 +30,26 @@ namespace Arrowgene.Services.Networking.Tcp
             });
         }
 
-        public SocketSetting(SocketSetting socketSetting)
+        public SocketSettings(SocketSettings socketSettings)
         {
-            Backlog = socketSetting.Backlog;
-            DualMode = socketSetting.DualMode;
-            ExclusiveAddressUse = socketSetting.ExclusiveAddressUse;
-            NoDelay = socketSetting.NoDelay;
-            UseOnlyOverlappedIo = socketSetting.UseOnlyOverlappedIo;
-            ReceiveBufferSize = socketSetting.ReceiveBufferSize;
-            ReceiveTimeout = socketSetting.ReceiveTimeout;
-            SendBufferSize = socketSetting.SendBufferSize;
-            SendTimeout = socketSetting.SendTimeout;
-            DontFragment = socketSetting.DontFragment;
-            Ttl = socketSetting.Ttl;
-            LingerEnabled = socketSetting.LingerEnabled;
-            LingerTime = socketSetting.LingerTime;
-            SocketOptions = socketSetting.SocketOptions;
+            Backlog = socketSettings.Backlog;
+            DualMode = socketSettings.DualMode;
+            ExclusiveAddressUse = socketSettings.ExclusiveAddressUse;
+            NoDelay = socketSettings.NoDelay;
+            UseOnlyOverlappedIo = socketSettings.UseOnlyOverlappedIo;
+            ReceiveBufferSize = socketSettings.ReceiveBufferSize;
+            ReceiveTimeout = socketSettings.ReceiveTimeout;
+            SendBufferSize = socketSettings.SendBufferSize;
+            SendTimeout = socketSettings.SendTimeout;
+            DontFragment = socketSettings.DontFragment;
+            Ttl = socketSettings.Ttl;
+            LingerEnabled = socketSettings.LingerEnabled;
+            LingerTime = socketSettings.LingerTime;
+            SocketOptions = new List<object[]>();
+            foreach (object[] option in socketSettings.SocketOptions)
+            {
+                SocketOptions.Add(new[] {option[0], option[1], option[2]});
+            }
         }
 
         [DataMember]
@@ -67,12 +72,12 @@ namespace Arrowgene.Services.Networking.Tcp
 
         /// <summary>Gets or sets a <see cref="T:System.Boolean"></see> value that specifies whether the <see cref="T:System.Net.Sockets.Socket"></see> allows only one process to bind to a port.</summary>
         /// <returns>true if the <see cref="T:System.Net.Sockets.Socket"></see> allows only one socket to bind to a specific port; otherwise, false. The default is true for Windows Server 2003 and Windows XP Service Pack 2, and false for all other versions.</returns>
-        /// [DataMember]
+        [DataMember]
         public bool ExclusiveAddressUse { get; set; }
 
         /// <summary>Gets or sets a <see cref="T:System.Boolean"></see> value that specifies whether the stream <see cref="T:System.Net.Sockets.Socket"></see> is using the Nagle algorithm.</summary>
         /// <returns>false if the <see cref="T:System.Net.Sockets.Socket"></see> uses the Nagle algorithm; otherwise, true. The default is false.</returns>
-        /// [DataMember]
+        [DataMember]
         public bool NoDelay { get; set; }
 
         /// <summary>Specifies whether the socket should only use Overlapped I/O mode.</summary>
@@ -124,5 +129,10 @@ namespace Arrowgene.Services.Networking.Tcp
         /// <returns>The amount of time, in seconds, to remain connected after calling <see cref="M:System.Net.Sockets.Socket.Close"></see>.</returns>
         [DataMember]
         public int LingerTime { get; set; }
+
+        public object Clone()
+        {
+            return new SocketSettings(this);
+        }
     }
 }

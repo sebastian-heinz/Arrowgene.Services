@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using Arrowgene.Services.Bridging.Messages;
+using Arrowgene.Services.Networking.ServerBridge.Messages;
 using Arrowgene.Services.Networking.Tcp;
 using Arrowgene.Services.Networking.Tcp.Client;
 using Arrowgene.Services.Networking.Tcp.Client.SyncReceive;
@@ -10,34 +10,39 @@ using Arrowgene.Services.Networking.Tcp.Consumer.GenericConsumption;
 using Arrowgene.Services.Networking.Tcp.Server.AsyncEvent;
 
 
-
-namespace Arrowgene.Services.Bridging.Tcp
+namespace Arrowgene.Services.Networking.ServerBridge.Tcp
 {
     /// <summary>
     /// Bridge utilizing TCP to exchange messages.
     /// </summary>
     public class TcpBridge : Bridge, IConsumer
     {
-        private AsyncEventServer _tcpServer;
-        private Dictionary<ITcpSocket, IPEndPoint> _endPointLookup;
-        private Dictionary<IPEndPoint, ITcpSocket> _socketLookup;
-        private Dictionary<ITcpSocket, Queue<Message>> _queued;
-        private GenericConsumer<Message> _consumer;
-        private TcpBridgeConfiguration _config;
+        private readonly AsyncEventServer _tcpServer;
+        private readonly Dictionary<ITcpSocket, IPEndPoint> _endPointLookup;
+        private readonly Dictionary<IPEndPoint, ITcpSocket> _socketLookup;
+        private readonly Dictionary<ITcpSocket, Queue<Message>> _queued;
+        private readonly GenericConsumer<Message> _consumer;
+        private readonly TcpBridgeSettings _settings;
+        private readonly List<IPEndPoint> _clients;
 
         /// <summary>
         /// Creates a new instance of <see cref="TcpBridge"/>
         /// </summary>
-        /// <param name="config">Configuration</param>
-        public TcpBridge(TcpBridgeConfiguration config)
+        /// <param name="settings">Configuration</param>
+        public TcpBridge(TcpBridgeSettings settings)
         {
-            _config = config;
+            _settings = new TcpBridgeSettings(settings);
+            _clients = new List<IPEndPoint>();
             _consumer = new GenericConsumer<Message>();
             _consumer.ReceivedGeneric += ConsumerOnReceivedGeneric;
             _endPointLookup = new Dictionary<ITcpSocket, IPEndPoint>();
             _socketLookup = new Dictionary<IPEndPoint, ITcpSocket>();
             _queued = new Dictionary<ITcpSocket, Queue<Message>>();
-            _tcpServer = new AsyncEventServer(_config.ListenEndPoint.Address, (ushort) _config.ListenEndPoint.Port, this);
+            _tcpServer = new AsyncEventServer(_settings.ListenEndPoint.Address, _settings.ListenEndPoint.Port, this);
+            foreach (NetworkPoint networkPoint in _settings.ClientEndPoints)
+            {
+                _clients.Add(networkPoint.ToIpEndPoint());
+            }
         }
 
         public override void Start()
@@ -66,7 +71,7 @@ namespace Arrowgene.Services.Bridging.Tcp
                 SyncReceiveTcpClient client = new SyncReceiveTcpClient(this);
                 client.ConnectError += ClientOnConnectError;
                 Register(client, instance);
-                TcpBridgeRegistration registration = new TcpBridgeRegistration(_config.PublicEndPoint.Address.ToString(), _config.PublicEndPoint.Port);
+                TcpBridgeRegistration registration = new TcpBridgeRegistration(_settings.PublicEndPoint);
                 Queue(client, registration);
                 Queue(client, message);
                 client.Connect(receiver.Address, (ushort) receiver.Port, TimeSpan.FromSeconds(30));
@@ -154,7 +159,7 @@ namespace Arrowgene.Services.Bridging.Tcp
 
         private IPEndPoint FindEndpoint(string ip, int port)
         {
-            foreach (IPEndPoint endPoint in _config.AllowedEndPoints)
+            foreach (IPEndPoint endPoint in _clients)
             {
                 if (endPoint.Address.ToString() == ip && endPoint.Port == port)
                 {

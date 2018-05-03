@@ -148,18 +148,18 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
         {
             IPEndPoint localEndPoint = new IPEndPoint(IpAddress, Port);
             _listenSocket = new Socket(localEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            _listenSocket.DontFragment = _settings.SocketSetting.DontFragment;
-            _listenSocket.DualMode = _settings.SocketSetting.DualMode;
-            _listenSocket.ExclusiveAddressUse = _settings.SocketSetting.ExclusiveAddressUse;
-            _listenSocket.LingerState = new LingerOption(_settings.SocketSetting.LingerEnabled, _settings.SocketSetting.LingerTime);
-            _listenSocket.NoDelay = _settings.SocketSetting.NoDelay;
-            _listenSocket.ReceiveBufferSize = _settings.SocketSetting.ReceiveBufferSize;
-            _listenSocket.ReceiveTimeout = _settings.SocketSetting.ReceiveTimeout;
-            _listenSocket.SendBufferSize = _settings.SocketSetting.SendBufferSize;
-            _listenSocket.SendTimeout = _settings.SocketSetting.SendTimeout;
-            _listenSocket.Ttl = _settings.SocketSetting.Ttl;
-            _listenSocket.UseOnlyOverlappedIO = _settings.SocketSetting.UseOnlyOverlappedIo;
-            foreach (object[] options in _settings.SocketSetting.SocketOptions)
+            _listenSocket.DontFragment = _settings.SocketSettings.DontFragment;
+            _listenSocket.DualMode = _settings.SocketSettings.DualMode;
+            _listenSocket.ExclusiveAddressUse = _settings.SocketSettings.ExclusiveAddressUse;
+            _listenSocket.LingerState = new LingerOption(_settings.SocketSettings.LingerEnabled, _settings.SocketSettings.LingerTime);
+            _listenSocket.NoDelay = _settings.SocketSettings.NoDelay;
+            _listenSocket.ReceiveBufferSize = _settings.SocketSettings.ReceiveBufferSize;
+            _listenSocket.ReceiveTimeout = _settings.SocketSettings.ReceiveTimeout;
+            _listenSocket.SendBufferSize = _settings.SocketSettings.SendBufferSize;
+            _listenSocket.SendTimeout = _settings.SocketSettings.SendTimeout;
+            _listenSocket.Ttl = _settings.SocketSettings.Ttl;
+            _listenSocket.UseOnlyOverlappedIO = _settings.SocketSettings.UseOnlyOverlappedIo;
+            foreach (object[] options in _settings.SocketSettings.SocketOptions)
             {
                 SocketOptionLevel socketOptionLevel = (SocketOptionLevel) options[0];
                 SocketOptionName socketOptionName = (SocketOptionName) options[1];
@@ -168,7 +168,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
             }
 
             _listenSocket.Bind(localEndPoint);
-            _listenSocket.Listen(_settings.SocketSetting.Backlog);
+            _listenSocket.Listen(_settings.SocketSettings.Backlog);
             StartAccept();
         }
 

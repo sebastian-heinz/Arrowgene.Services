@@ -1,7 +1,7 @@
 ﻿using System;
-using Arrowgene.Services.Bridging.Messages;
+using Arrowgene.Services.Networking.ServerBridge.Messages;
 
-namespace Arrowgene.Services.Bridging
+namespace Arrowgene.Services.Networking.ServerBridge
 {
     public interface IMessageHandler<T>
     {
