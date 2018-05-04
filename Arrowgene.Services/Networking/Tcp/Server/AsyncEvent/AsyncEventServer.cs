@@ -148,27 +148,25 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
         {
             IPEndPoint localEndPoint = new IPEndPoint(IpAddress, Port);
             _listenSocket = new Socket(localEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            _listenSocket.DontFragment = _settings.SocketSettings.DontFragment;
-            _listenSocket.DualMode = _settings.SocketSettings.DualMode;
-            _listenSocket.ExclusiveAddressUse = _settings.SocketSettings.ExclusiveAddressUse;
-            _listenSocket.LingerState = new LingerOption(_settings.SocketSettings.LingerEnabled, _settings.SocketSettings.LingerTime);
-            _listenSocket.NoDelay = _settings.SocketSettings.NoDelay;
-            _listenSocket.ReceiveBufferSize = _settings.SocketSettings.ReceiveBufferSize;
-            _listenSocket.ReceiveTimeout = _settings.SocketSettings.ReceiveTimeout;
-            _listenSocket.SendBufferSize = _settings.SocketSettings.SendBufferSize;
-            _listenSocket.SendTimeout = _settings.SocketSettings.SendTimeout;
-            _listenSocket.Ttl = _settings.SocketSettings.Ttl;
-            _listenSocket.UseOnlyOverlappedIO = _settings.SocketSettings.UseOnlyOverlappedIo;
-            foreach (object[] options in _settings.SocketSettings.SocketOptions)
+            _settings.SocketSettings.ConfigureSocket(_listenSocket, _logger);
+            try
             {
-                SocketOptionLevel socketOptionLevel = (SocketOptionLevel) options[0];
-                SocketOptionName socketOptionName = (SocketOptionName) options[1];
-                object value = options[3];
-                _listenSocket.SetSocketOption(socketOptionLevel, socketOptionName, value);
+                _listenSocket.Bind(localEndPoint);
+                _listenSocket.Listen(_settings.SocketSettings.Backlog);
+            }
+            catch (Exception exception)
+            {
+                _logger.Exception(exception);
+                if (exception is SocketException socketException && socketException.SocketErrorCode == SocketError.AddressAlreadyInUse)
+                {
+                    _logger.Error("Address is already in use ({0}:{1}), try another IP/Port", IpAddress, Port);
+                }
+
+                _logger.Error("Stopping server due to error...");
+                Stop();
+                return;
             }
 
-            _listenSocket.Bind(localEndPoint);
-            _listenSocket.Listen(_settings.SocketSettings.Backlog);
             StartAccept();
         }
 

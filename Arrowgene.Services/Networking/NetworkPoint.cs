@@ -5,20 +5,21 @@ using System.Runtime.Serialization;
 namespace Arrowgene.Services.Networking
 {
     [DataContract]
-    public class NetworkPoint : ICloneable
-    {
-        [DataMember]
-        public ushort Port { get; set; }
+    public class NetworkPoint : ICloneable, IEquatable<NetworkPoint>
 
+    {
         [IgnoreDataMember]
         public IPAddress Address { get; set; }
 
-        [DataMember(Name = "PublicIpAddress")]
+        [DataMember(Name = "Address", Order = 0)]
         public string DataPublicIpAddress
         {
-            get => Port.ToString();
+            get => Address.ToString();
             set => Address = string.IsNullOrEmpty(value) ? null : IPAddress.Parse(value);
         }
+
+        [DataMember(Order = 1)]
+        public ushort Port { get; set; }
 
         public NetworkPoint(IPAddress address, ushort port)
         {
@@ -47,6 +48,29 @@ namespace Arrowgene.Services.Networking
         public object Clone()
         {
             return new NetworkPoint(this);
+        }
+
+        public bool Equals(NetworkPoint other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return other.DataPublicIpAddress == DataPublicIpAddress && other.Port == Port;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
+            return Equals((NetworkPoint) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ((DataPublicIpAddress != null ? DataPublicIpAddress.GetHashCode() : 0) * 397) ^ Port.GetHashCode();
+            }
         }
     }
 }

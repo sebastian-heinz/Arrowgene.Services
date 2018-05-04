@@ -32,8 +32,9 @@ namespace Arrowgene.Services.Playground.Demo
 
         public void Start()
         {
+            AsyncEventSettings settings = new AsyncEventSettings();
             _consumer = new BlockingQueueConsumer();
-            _server = new AsyncEventServer(IPAddress.Any, 2345, _consumer);
+            _server = new AsyncEventServer(IPAddress.IPv6Any, 2345, _consumer,settings);
             _server.Start();
             _consumerThread = new Thread(HandleEvents);
             _consumerThread.Name = "ConsumerThread";

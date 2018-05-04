@@ -8,27 +8,34 @@ namespace Arrowgene.Services.Networking.ServerBridge.Tcp
     [DataContract]
     public class TcpBridgeSettings : ICloneable
     {
-        [DataMember]
+        [DataMember(Order = 0)]
         public NetworkPoint PublicEndPoint { get; set; }
 
-        [DataMember]
+        [DataMember(Order = 1)]
         public NetworkPoint ListenEndPoint { get; set; }
 
-        [DataMember]
+        [DataMember(Order = 2)]
         public List<NetworkPoint> ClientEndPoints { get; set; }
 
-        [DataMember]
+        [DataMember(Order = 3)]
         public AsyncEventSettings ServerSettings { get; set; }
 
         public TcpBridgeSettings(NetworkPoint listenEndPoint, NetworkPoint publicEndPoint, List<NetworkPoint> clientEndPoints)
         {
-            PublicEndPoint = publicEndPoint;
-            ListenEndPoint = listenEndPoint;
-            ClientEndPoints = clientEndPoints;
+            PublicEndPoint = new NetworkPoint(publicEndPoint);
+            ListenEndPoint = new NetworkPoint(listenEndPoint);
+            ClientEndPoints = new List<NetworkPoint>();
+            foreach (NetworkPoint tcpEndpoint in clientEndPoints)
+            {
+                ClientEndPoints.Add(new NetworkPoint(tcpEndpoint));
+            }
+
             if (!ClientEndPoints.Contains(PublicEndPoint))
             {
                 ClientEndPoints.Add(PublicEndPoint);
             }
+
+            ServerSettings = new AsyncEventSettings();
         }
 
         public TcpBridgeSettings(TcpBridgeSettings settings)

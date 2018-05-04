@@ -1,4 +1,5 @@
-﻿using Arrowgene.Services.Playground.Demo.TcpMessageProtocol;
+﻿using Arrowgene.Services.Playground.Demo;
+using Arrowgene.Services.Playground.Demo.TcpMessageProtocol;
 
 namespace Arrowgene.Services.Playground
 {
@@ -8,9 +9,9 @@ namespace Arrowgene.Services.Playground
         {
             // new UdpServerDemo();
             // new UdpClientDemo();
-            // new TcpEchoDemo();
+             new TcpEchoDemo();
             // new TcpConnectionDemo();
-            new TcpMessageProtocolDemo();
+            // new TcpMessageProtocolDemo();
         }
     }
 }
