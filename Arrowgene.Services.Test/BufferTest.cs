@@ -1,7 +1,7 @@
 using Arrowgene.Services.Buffers;
 using Xunit;
 
-namespace Test
+namespace Arrowgene.Services.Test
 {
     public class BufferTest
     {

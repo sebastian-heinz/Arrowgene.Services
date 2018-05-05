@@ -13,23 +13,15 @@ namespace Arrowgene.Services.Networking
             get => Level.ToString();
             set => Level = ParseEnum<SocketOptionLevel>(value);
         }
-
-        [DataMember(Name = "Name", Order = 1)]
-        public string DataName
-        {
-            get => Name.ToString();
-            set => Name = ParseEnum<SocketOptionName>(value);
-        }
+        
+        [DataMember(Order = 1)]
+        public SocketOptionName Name { get; set; }
 
         [DataMember(Order = 2)]
         public object Value { get; set; }
 
         [IgnoreDataMember]
         public SocketOptionLevel Level { get; set; }
-
-        [IgnoreDataMember]
-        public SocketOptionName Name { get; set; }
-
 
         public SocketOption(SocketOptionLevel level, SocketOptionName name, object value)
         {
