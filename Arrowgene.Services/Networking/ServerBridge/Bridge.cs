@@ -9,14 +9,14 @@ namespace Arrowgene.Services.Networking.ServerBridge
     public abstract class Bridge : IBridge
     {
         private readonly Dictionary<Guid, Action<Response>> _subscriber;
-        private readonly Dictionary<Guid, Func<Request, Response>> _handler;
+        private readonly Dictionary<string, Func<Request, Response>> _handler;
         protected readonly Logger Logger;
 
         protected Bridge()
         {
             Logger = LogProvider<Logger>.GetLogger(this);
             _subscriber = new Dictionary<Guid, Action<Response>>();
-            _handler = new Dictionary<Guid, Func<Request, Response>>();
+            _handler = new Dictionary<string, Func<Request, Response>>();
         }
 
         public abstract void Start();

@@ -8,9 +8,9 @@ namespace Arrowgene.Services.Networking.ServerBridge.Messages
         /// <summary>
         /// Identifies which handler to call.
         /// </summary>
-        public Guid HandlerId { get; set; }
+        public string HandlerId { get; set; }
 
-        public Request(Guid handlerId)
+        public Request(string handlerId)
         {
             HandlerId = handlerId;
         }
@@ -21,7 +21,7 @@ namespace Arrowgene.Services.Networking.ServerBridge.Messages
     {
         public TRequest Content { get; }
 
-        public Request(Guid handlerId, TRequest content) : base(handlerId)
+        public Request(string handlerId, TRequest content) : base(handlerId)
         {
             Content = content;
         }
