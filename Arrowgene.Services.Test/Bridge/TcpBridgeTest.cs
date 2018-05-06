@@ -76,7 +76,9 @@ namespace Arrowgene.Services.Test.Bridge
                 throw new Exception("Invalid num provided");
             }
 
-            return new TcpBridgeSettings(me, me, allowedEndPoints);
+            TcpBridgeSettings sets = new TcpBridgeSettings(me, me, allowedEndPoints);
+            sets.ServerSettings.BufferSize = 10;
+            return sets;
         }
     }
 }

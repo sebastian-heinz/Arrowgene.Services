@@ -38,7 +38,7 @@ namespace Arrowgene.Services.Networking.ServerBridge.Tcp
             _endPointLookup = new Dictionary<ITcpSocket, IPEndPoint>();
             _socketLookup = new Dictionary<IPEndPoint, ITcpSocket>();
             _queued = new Dictionary<ITcpSocket, Queue<Message>>();
-            _tcpServer = new AsyncEventServer(_settings.ListenEndPoint.Address, _settings.ListenEndPoint.Port, this);
+            _tcpServer = new AsyncEventServer(_settings.ListenEndPoint.Address, _settings.ListenEndPoint.Port, this, settings.ServerSettings);
             foreach (NetworkPoint networkPoint in _settings.ClientEndPoints)
             {
                 _clients.Add(networkPoint.ToIpEndPoint());

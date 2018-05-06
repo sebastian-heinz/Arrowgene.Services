@@ -65,18 +65,26 @@ namespace Arrowgene.Services.Networking.Tcp.Consumer.GenericConsumption
             if (_serverStates.ContainsKey(socket))
             {
                 state = _serverStates[socket];
+                state.Buffer.SetPositionEnd();
+                state.Buffer.WriteBytes(data);
             }
             else
             {
-                state = new GenericState();
+                state = new GenericState(data);
+                _serverStates.Add(socket, state);
             }
-
-            state.Data = data;
+            
             List<T> generics = Deserialize(state);
             foreach (T generic in generics)
             {
                 OnReceivedGeneric(socket, generic);
             }
+
+            if (state.Position == state.Buffer.Size)
+            {
+                _serverStates.Remove(socket);
+            }
+            
         }
 
         public virtual void OnClientDisconnected(ITcpSocket socket)
@@ -108,21 +116,9 @@ namespace Arrowgene.Services.Networking.Tcp.Consumer.GenericConsumption
         private List<T> Deserialize(GenericState state)
         {
             List<T> generics = new List<T>();
-            if (state.CurrentBuffer == null)
+            while (state.Position < state.Buffer.Size)
             {
-                state.CurrentBuffer = new StreamBuffer(state.Data);
-                state.CurrentBuffer.SetPositionStart();
-            }
-            else
-            {
-                state.CurrentBuffer.SetPositionEnd();
-                state.CurrentBuffer.WriteBytes(state.Data);
-                state.CurrentBuffer.SetPositionStart();
-            }
-
-            while (state.CurrentBuffer.Position < state.CurrentBuffer.Size)
-            {
-                if (state.CurrentBuffer.Position + HeaderSize > state.CurrentBuffer.Size)
+                if (state.Position + HeaderSize > state.Buffer.Size)
                 {
                     break;
                 }
@@ -130,24 +126,29 @@ namespace Arrowgene.Services.Networking.Tcp.Consumer.GenericConsumption
                 int length;
                 if (state.ReadLength)
                 {
-                    length = state.CurrentLength;
+                    length = state.Length;
                 }
                 else
                 {
-                    length = state.CurrentBuffer.ReadInt32();
-                    state.CurrentLength = length;
+                    state.Buffer.Position = state.Position;
+                    length = state.Buffer.ReadInt32();
+                    state.Position += HeaderSize;
+                    state.Length = length;
                     state.ReadLength = true;
                 }
 
-                if (length > state.CurrentBuffer.Size)
+                if (state.Position + length > state.Buffer.Size)
                 {
                     break;
                 }
 
-                state.ReadLength = false;
-                byte[] messageBytes = state.CurrentBuffer.ReadBytes(length);
+                state.Buffer.Position = state.Position;
+                byte[] messageBytes = state.Buffer.ReadBytes(length);
                 T generic = _serializer.Deserialize(messageBytes);
                 generics.Add(generic);
+                state.Position += length;
+                state.Length = 0;
+                state.ReadLength = false;
             }
 
             return generics;

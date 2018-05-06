@@ -25,24 +25,17 @@
 
 using System;
 using System.Collections.Generic;
-using Arrowgene.Services.Buffers;
-using Arrowgene.Services.Serialization;
+using Arrowgene.Services.Networking.Tcp.Consumer.GenericConsumption;
 
 namespace Arrowgene.Services.Networking.Tcp.Consumer.Messages
 {
-    public class MessageConsumer : IConsumer, IMessageSerializer
+    public class MessageConsumer : GenericConsumer<Message>, IMessageSerializer
     {
-        private const int HeaderSize = 4;
-
-        private readonly BinaryFormatterSerializer<Message> _serializer;
         private readonly Dictionary<int, IMessageHandle> _handles;
-        private readonly Dictionary<ITcpSocket, MessageState> _serverStates;
 
         public MessageConsumer()
         {
             _handles = new Dictionary<int, IMessageHandle>();
-            _serializer = new BinaryFormatterSerializer<Message>();
-            _serverStates = new Dictionary<ITcpSocket, MessageState>();
         }
 
         public void AddHandle(IMessageHandle handle)
@@ -56,111 +49,13 @@ namespace Arrowgene.Services.Networking.Tcp.Consumer.Messages
             _handles.Add(handle.Id, handle);
         }
 
-        public byte[] Serialize(Message message)
+        protected override void OnReceivedGeneric(ITcpSocket socket, Message message)
         {
-            IBuffer buffer = new StreamBuffer();
-            byte[] data = _serializer.Serialize(message);
-            buffer.WriteInt32(data.Length);
-            buffer.WriteBytes(data);
-            return buffer.GetAllBytes();
-        }
-
-        public virtual void OnStart()
-        {
-            _serverStates.Clear();
-        }
-
-        public virtual void OnReceivedData(ITcpSocket socket, byte[] data)
-        {
-            MessageState state;
-            if (_serverStates.ContainsKey(socket))
+            base.OnReceivedGeneric(socket, message);
+            if (_handles.ContainsKey(message.Id))
             {
-                state = _serverStates[socket];
+                _handles[message.Id].Process(message, socket);
             }
-            else
-            {
-                state = new MessageState();
-            }
-
-            state.Data = data;
-            List<Message> messages = Deserialize(state);
-            foreach (Message message in messages)
-            {
-                if (_handles.ContainsKey(message.Id))
-                {
-                    _handles[message.Id].Process(message, socket);
-                }
-
-                OnReceivedMessage(socket, message);
-            }
-        }
-
-        public virtual void OnClientDisconnected(ITcpSocket socket)
-        {
-            if (socket != null)
-            {
-                _serverStates.Remove(socket);
-            }
-        }
-
-        public virtual void OnClientConnected(ITcpSocket socket)
-        {
-        }
-
-        public virtual void OnStop()
-        {
-        }
-
-        public virtual void OnReceivedMessage(ITcpSocket socket, Message message)
-        {
-        }
-
-        private List<Message> Deserialize(MessageState state)
-        {
-            List<Message> messages = new List<Message>();
-            if (state.CurrentBuffer == null)
-            {
-                state.CurrentBuffer = new StreamBuffer(state.Data);
-                state.CurrentBuffer.SetPositionStart();
-            }
-            else
-            {
-                state.CurrentBuffer.SetPositionEnd();
-                state.CurrentBuffer.WriteBytes(state.Data);
-                state.CurrentBuffer.SetPositionStart();
-            }
-
-            while (state.CurrentBuffer.Position < state.CurrentBuffer.Size)
-            {
-                if (state.CurrentBuffer.Position + HeaderSize > state.CurrentBuffer.Size)
-                {
-                    break;
-                }
-
-                int length;
-                if (state.ReadLength)
-                {
-                    length = state.CurrentLength;
-                }
-                else
-                {
-                    length = state.CurrentBuffer.ReadInt32();
-                    state.CurrentLength = length;
-                    state.ReadLength = true;
-                }
-
-                if (length > state.CurrentBuffer.Size)
-                {
-                    break;
-                }
-
-                state.ReadLength = false;
-                byte[] messageBytes = state.CurrentBuffer.ReadBytes(length);
-                Message message = _serializer.Deserialize(messageBytes);
-                messages.Add(message);
-            }
-
-            return messages;
         }
     }
 }
