@@ -30,12 +30,7 @@ namespace Arrowgene.Services.Networking.ServerBridge
     /// </example>
     public interface IBridge
     {
-        /// <summary>
-        /// Specifies a handler method for incomming messages.
-        /// </summary>
-        /// <param name="handler"></param>
-        /// <typeparam name="T"></typeparam>
-        void AddHandler<T>(IMessageHandler<T> handler);
+        void AddHandler<TRequest, TResponse>(IMessageHandler<TRequest, TResponse> handler);
 
         /// <summary>
         /// Sends a message to a remote bridge.
@@ -44,111 +39,14 @@ namespace Arrowgene.Services.Networking.ServerBridge
         /// <param name="message"></param>
         void Send(IPEndPoint receiver, Message message);
 
-        /// <summary>
-        /// Requests a resource from a remote bride.
-        /// </summary>
-        /// <param name="receiver"></param>
-        /// <param name="request"></param>
-        /// <param name="result"></param>
-        /// <param name="parameter1"></param>
-        /// <param name="parameter2"></param>
-        /// <typeparam name="T1"></typeparam>
-        /// <typeparam name="T2"></typeparam>
-        /// <typeparam name="T3"></typeparam>
-        void Request<T1, T2, T3>(IPEndPoint receiver, Request request, Action<Response<T1>, T2, T3> result,
+        void Request<TResponse, T2, T3>(IPEndPoint receiver, Request request,
+            Action<Response<TResponse>, T2, T3> result,
             T2 parameter1, T3 parameter2);
 
-        /// <summary>
-        /// Requests a resource from a remote bride.
-        /// </summary>
-        /// <param name="receiver"></param>
-        /// <param name="handlerId"></param>
-        /// <param name="context"></param>
-        /// <param name="result"></param>
-        /// <param name="parameter1"></param>
-        /// <param name="parameter2"></param>
-        /// <typeparam name="T1"></typeparam>
-        /// <typeparam name="T2"></typeparam>
-        /// <typeparam name="T3"></typeparam>
-        void Request<T1, T2, T3>(IPEndPoint receiver, Guid handlerId, object context, Action<Response<T1>, T2, T3> result,
-            T2 parameter1, T3 parameter2);
+        void Request<TResponse, T2>(IPEndPoint receiver, Request request, Action<Response<TResponse>, T2> result,
+            T2 parameter);
 
-        /// <summary>
-        /// Requests a resource from a remote bride.
-        /// </summary>
-        /// <param name="receiver"></param>
-        /// <param name="handlerId"></param>
-        /// <param name="result"></param>
-        /// <param name="parameter1"></param>
-        /// <param name="parameter2"></param>
-        /// <typeparam name="T1"></typeparam>
-        /// <typeparam name="T2"></typeparam>
-        /// <typeparam name="T3"></typeparam>
-        void Request<T1, T2, T3>(IPEndPoint receiver, Guid handlerId, Action<Response<T1>, T2, T3> result, T2 parameter1,
-            T3 parameter2);
-
-        /// <summary>
-        /// Requests a resource from a remote bride.
-        /// </summary>
-        /// <param name="receiver"></param>
-        /// <param name="request"></param>
-        /// <param name="result"></param>
-        /// <param name="parameter"></param>
-        /// <typeparam name="T1"></typeparam>
-        /// <typeparam name="T2"></typeparam>
-        void Request<T1, T2>(IPEndPoint receiver, Request request, Action<Response<T1>, T2> result, T2 parameter);
-
-        /// <summary>
-        /// Requests a resource from a remote bride.
-        /// </summary>
-        /// <param name="receiver"></param>
-        /// <param name="handlerId"></param>
-        /// <param name="context"></param>
-        /// <param name="result"></param>
-        /// <param name="parameter"></param>
-        /// <typeparam name="T1"></typeparam>
-        /// <typeparam name="T2"></typeparam>
-        void Request<T1, T2>(IPEndPoint receiver, Guid handlerId, object context, Action<Response<T1>, T2> result, T2 parameter);
-
-        /// <summary>
-        /// Requests a resource from a remote bride.
-        /// </summary>
-        /// <param name="receiver"></param>
-        /// <param name="handlerId"></param>
-        /// <param name="result"></param>
-        /// <param name="parameter"></param>
-        /// <typeparam name="T1"></typeparam>
-        /// <typeparam name="T2"></typeparam>
-        void Request<T1, T2>(IPEndPoint receiver, Guid handlerId, Action<Response<T1>, T2> result, T2 parameter);
-
-        /// <summary>
-        /// Requests a resource from a remote bride.
-        /// </summary>
-        /// <param name="receiver"></param>
-        /// <param name="request"></param>
-        /// <param name="result"></param>
-        /// <typeparam name="T"></typeparam>
-        void Request<T>(IPEndPoint receiver, Request request, Action<Response<T>> result);
-
-        /// <summary>
-        /// Requests a resource from a remote bride.
-        /// </summary>
-        /// <param name="receiver"></param>
-        /// <param name="handlerId"></param>
-        /// <param name="context">Can be used to transmit user specific porperties to the handler.
-        /// The object and all its properties must be serializable.</param>
-        /// <param name="result"></param>
-        /// <typeparam name="T"></typeparam>
-        void Request<T>(IPEndPoint receiver, Guid handlerId, object context, Action<Response<T>> result);
-
-        /// <summary>
-        /// Requests a resource from a remote bride.
-        /// </summary>
-        /// <param name="receiver"></param>
-        /// <param name="handlerId"></param>
-        /// <param name="result"></param>
-        /// <typeparam name="T"></typeparam>
-        void Request<T>(IPEndPoint receiver, Guid handlerId, Action<Response<T>> result);
+        void Request<TResponse>(IPEndPoint receiver, Request request, Action<Response<TResponse>> result);
 
         void Start();
         void Stop();

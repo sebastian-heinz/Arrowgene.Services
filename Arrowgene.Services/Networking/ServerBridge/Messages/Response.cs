@@ -11,18 +11,14 @@ namespace Arrowgene.Services.Networking.ServerBridge.Messages
     }
 
     [Serializable]
-    public class Response<T> : Response
+    public class Response<TResponse> : Response
     {
-        public T Result { get; }
+        public TResponse Result { get; }
 
-        public Response(Guid id, T result) : base(id)
-        {
-            Result = result;
-        }
-
-        public Response(Request request, T result) : base(request.Id)
+        public Response(Request request, TResponse result) : base(request.Id)
         {
             Result = result;
         }
     }
+
 }

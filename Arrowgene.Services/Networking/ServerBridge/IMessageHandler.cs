@@ -3,9 +3,9 @@ using Arrowgene.Services.Networking.ServerBridge.Messages;
 
 namespace Arrowgene.Services.Networking.ServerBridge
 {
-    public interface IMessageHandler<T>
+    public interface IMessageHandler<TRequest, TResponse>
     {
-        Response<T> Handle(Request request);
+        Response<TResponse> Handle(Request<TRequest> request);
         Guid HandlerId { get; }
     }
 }

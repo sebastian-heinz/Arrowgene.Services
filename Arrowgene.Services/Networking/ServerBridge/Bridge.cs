@@ -8,11 +8,11 @@ namespace Arrowgene.Services.Networking.ServerBridge
 {
     public abstract class Bridge : IBridge
     {
-        private Dictionary<Guid, Action<Response>> _subscriber;
-        private Dictionary<Guid, Func<Request, Response>> _handler;
+        private readonly Dictionary<Guid, Action<Response>> _subscriber;
+        private readonly Dictionary<Guid, Func<Request, Response>> _handler;
         protected readonly Logger Logger;
 
-        public Bridge()
+        protected Bridge()
         {
             Logger = LogProvider<Logger>.GetLogger(this);
             _subscriber = new Dictionary<Guid, Action<Response>>();
@@ -25,101 +25,57 @@ namespace Arrowgene.Services.Networking.ServerBridge
 
         public abstract void Send(IPEndPoint receiver, Message message);
 
-        public void Request<T1, T2, T3>(IPEndPoint receiver, Request request, Action<Response<T1>, T2, T3> result,
+        public void Request<TResponse, T2, T3>(IPEndPoint receiver, Request request,
+            Action<Response<TResponse>, T2, T3> result,
             T2 parameter1, T3 parameter2)
         {
-            CheckHandlerId(request.HandlerId);
             _subscriber.Add(request.Id, response =>
             {
-                if (response is Response<T1>)
+                if (response is Response<TResponse>)
                 {
-                    result((Response<T1>) response, parameter1, parameter2);
+                    result((Response<TResponse>) response, parameter1, parameter2);
                 }
                 else
                 {
-                    Logger.Error("Could not cast parameter ({0}) to ({1})", response, typeof(T1));
+                    if (response is Response<ResponseError>)
+                    {
+                        Response<ResponseError> error = (Response<ResponseError>) response;
+                        Logger.Error("Error on remote: ({0})", error.Result);
+                    }
+                    else
+                    {
+                        Logger.Error("Could not cast parameter ({0}) to ({1})", response, typeof(Response<TResponse>));
+                    }
                 }
             });
             Send(receiver, request);
         }
 
-        public void Request<T1, T2, T3>(IPEndPoint receiver, Guid handlerId, object context, Action<Response<T1>, T2, T3> result,
-            T2 parameter1, T3 parameter2)
+        public void Request<TResponse, T2>(IPEndPoint receiver, Request request, Action<Response<TResponse>, T2> result,
+            T2 parameter)
         {
-            Request(receiver, new Request {Context = context, HandlerId = handlerId}, result, parameter1, parameter2);
+            Request(receiver, request, (Response<TResponse> response, T2 p1, object p2) => result(response, p1),
+                parameter, null);
         }
 
-        public void Request<T1, T2, T3>(IPEndPoint receiver, Guid handlerId, Action<Response<T1>, T2, T3> result, T2 parameter1,
-            T3 parameter2)
+        public void Request<TResponse>(IPEndPoint receiver, Request request, Action<Response<TResponse>> result)
         {
-            Request(receiver, new Request(handlerId), result, parameter1, parameter2);
+            Request(receiver, request, (Response<TResponse> response, object p1, object p2) => result(response),
+                null, null);
         }
 
-        public void Request<T1, T2>(IPEndPoint receiver, Request request, Action<Response<T1>, T2> result, T2 parameter)
-        {
-            CheckHandlerId(request.HandlerId);
-            _subscriber.Add(request.Id, response =>
-            {
-                if (response is Response<T1>)
-                {
-                    result((Response<T1>) response, parameter);
-                }
-                else
-                {
-                    Logger.Error("Could not cast parameter ({0}) to ({1})", response, typeof(T1));
-                }
-            });
-            Send(receiver, request);
-        }
-
-        public void Request<T1, T2>(IPEndPoint receiver, Guid handlerId, object context, Action<Response<T1>, T2> result, T2 parameter)
-        {
-            Request(receiver, new Request {Context = context, HandlerId = handlerId}, result, parameter);
-        }
-
-        public void Request<T1, T2>(IPEndPoint receiver, Guid handlerId, Action<Response<T1>, T2> result, T2 parameter)
-        {
-            Request(receiver, new Request(handlerId), result, parameter);
-        }
-
-        public void Request<T>(IPEndPoint receiver, Request request, Action<Response<T>> result)
-        {
-            CheckHandlerId(request.HandlerId);
-            _subscriber.Add(request.Id, response =>
-            {
-                if (response is Response<T>)
-                {
-                    result((Response<T>) response);
-                }
-                else
-                {
-                    Logger.Error("Could not cast parameter ({0}) to ({1})", response, typeof(T));
-                }
-            });
-            Send(receiver, request);
-        }
-
-        public void Request<T>(IPEndPoint receiver, Guid handlerId, object context, Action<Response<T>> result)
-        {
-            Request(receiver, new Request {Context = context, HandlerId = handlerId}, result);
-        }
-
-        public void Request<T>(IPEndPoint receiver, Guid handlerId, Action<Response<T>> result)
-        {
-            Request(receiver, new Request(handlerId), result);
-        }
-
-        public void AddHandler<T>(IMessageHandler<T> handler)
+        public void AddHandler<TRequest, TResponse>(IMessageHandler<TRequest, TResponse> handler)
         {
             _handler.Add(handler.HandlerId, request =>
             {
-                if (request != null)
+                if (request is Request<TRequest>)
                 {
-                    return handler.Handle(request);
+                    return handler.Handle((Request<TRequest>) request);
                 }
 
-                Logger.Error("Request is null for handler ({0})", handler.HandlerId);
-                return null;
+                Logger.Error("Could not cast parameter ({0}) to ({1}) for handler ({2})", request,
+                    typeof(Request<TRequest>), handler.HandlerId);
+                return new Response<ResponseError>(request, ResponseError.RequestTypeCastingFailed);
             });
         }
 
@@ -138,11 +94,13 @@ namespace Arrowgene.Services.Networking.ServerBridge
                     else
                     {
                         Logger.Error("Handler ({0}) produced null response", request.HandlerId);
+                        Send(sender, new Response<ResponseError>(request, ResponseError.NullResponse));
                     }
                 }
                 else
                 {
                     Logger.Error("Could not find handler (HandlerId: {0})", request.HandlerId);
+                    Send(sender, new Response<ResponseError>(request, ResponseError.NoHandler));
                 }
             }
             else if (message is Response)
@@ -161,23 +119,6 @@ namespace Arrowgene.Services.Networking.ServerBridge
             {
                 Logger.Error("Could not handle message ({0})", message);
             }
-        }
-
-        private bool CheckHandlerId(Guid handlerId)
-        {
-            if (handlerId == Guid.Empty)
-            {
-                Logger.Error("Request with empty guid");
-                return false;
-            }
-
-            if (!_handler.ContainsKey(handlerId))
-            {
-                Logger.Error("Request without handler ({0})", handlerId);
-                return false;
-            }
-
-            return true;
         }
     }
 }

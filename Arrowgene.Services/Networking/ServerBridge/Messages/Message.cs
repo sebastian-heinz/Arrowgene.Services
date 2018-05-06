@@ -3,10 +3,9 @@
 namespace Arrowgene.Services.Networking.ServerBridge.Messages
 {
     [Serializable]
-    public class Message
+    public abstract class Message
     {
         public Guid Id { get; }
-
 
         public Message()
         {
