@@ -77,10 +77,6 @@ namespace Arrowgene.Services.Buffers
 
         void WriteByte(byte value);
 
-        void WriteByte(int value);
-
-        void WriteByte(long value);
-
         void WriteBytes(byte[] bytes);
 
         void WriteBytes(byte[] bytes, int srcOffset, int count);
@@ -89,13 +85,37 @@ namespace Arrowgene.Services.Buffers
 
         void WriteInt16(short value);
 
+        void WriteInt16(ushort value);
+
         void WriteInt16(short value, Endianness endianness);
 
-        void WriteInt16(int value);
+        void WriteInt16(ushort value, Endianness endianness);
 
         void WriteInt32(int value);
 
+        void WriteInt32(uint value);
+
+        void WriteInt32(int value, Endianness endianness);
+
+        void WriteInt32(uint value, Endianness endianness);
+
+        void WriteInt64(long value);
+
+        void WriteInt64(ulong value);
+
+        void WriteInt64(long value, Endianness endianness);
+
+        void WriteInt64(ulong value, Endianness endianness);
+
         void WriteFloat(float value);
+
+        void WriteFloat(float value, Endianness endianness);
+
+        void WriteDouble(double value);
+
+        void WriteDouble(double value, Endianness endianness);
+
+        void WriteDecimal(decimal value);
 
         void WriteBuffer(IBuffer value);
 
@@ -138,10 +158,22 @@ namespace Arrowgene.Services.Buffers
         short GetInt16(int offset);
 
         /// <summary>
+        /// Get UInt16 at specified offset.
+        /// Doesn't advance the cursor.
+        /// </summary>
+        ushort GetUInt16(int offset);
+
+        /// <summary>
         /// Read Int16.
         /// Advances the cursor.
         /// </summary>
         short ReadInt16();
+
+        /// <summary>
+        /// Read UInt16.
+        /// Advances the cursor.
+        /// </summary>
+        ushort ReadUInt16();
 
         /// <summary>
         /// Get Int32 at specified offset.
@@ -150,10 +182,46 @@ namespace Arrowgene.Services.Buffers
         int GetInt32(int offset);
 
         /// <summary>
+        /// Get UInt32 at specified offset.
+        /// Doesn't advance the cursor.
+        /// </summary>
+        uint GetUInt32(int offset);
+
+        /// <summary>
         /// Read Int32.
         /// Doesn't advance the cursor.
         /// </summary>
         int ReadInt32();
+
+        /// <summary>
+        /// Read UInt32.
+        /// Doesn't advance the cursor.
+        /// </summary>
+        uint ReadUInt32();
+
+        /// <summary>
+        /// Get Int64 at specified offset.
+        /// Doesn't advance the cursor.
+        /// </summary>
+        long GetInt64(int offset);
+
+        /// <summary>
+        /// Get UInt64 at specified offset.
+        /// Doesn't advance the cursor.
+        /// </summary>
+        ulong GetUInt64(int offset);
+
+        /// <summary>
+        /// Read Int64.
+        /// Doesn't advance the cursor.
+        /// </summary>
+        long ReadInt64();
+
+        /// <summary>
+        /// Read UInt64.
+        /// Doesn't advance the cursor.
+        /// </summary>
+        ulong ReadUInt64();
 
         /// <summary>
         /// Get Float at specified offset.
@@ -166,6 +234,30 @@ namespace Arrowgene.Services.Buffers
         /// Doesn't advance the cursor.
         /// </summary>
         float ReadFloat();
+
+        /// <summary>
+        /// Get Double at specified offset.
+        /// Doesn't advance the cursor.
+        /// </summary>
+        double GetDouble(int offset);
+
+        /// <summary>
+        /// Read Double
+        /// Doesn't advance the cursor.
+        /// </summary>
+        double ReadDouble();
+
+        /// <summary>
+        /// Get Decimal at specified offset.
+        /// Doesn't advance the cursor.
+        /// </summary>
+        decimal GetDecimal(int offset);
+
+        /// <summary>
+        /// Read Decimal
+        /// Doesn't advance the cursor.
+        /// </summary>
+        decimal ReadDecimal();
 
         /// <summary>
         /// Get a String at specified offset with a specific length.
@@ -207,6 +299,21 @@ namespace Arrowgene.Services.Buffers
         void WriteString(string value, Func<string, byte[]> converter);
 
         /// <summary>
+        /// Reads a till a 0byte, but advances the position for the length.
+        /// </summary>
+        string ReadFixedString(int length);
+
+        /// <summary>
+        /// Reads a till a 0byte, but advances the position for the length.
+        /// </summary>
+        string ReadFixedString(int length, Encoding encoding);
+
+        /// <summary>
+        /// Reads a till a 0byte, but advances the position for the length.
+        /// </summary>
+        string ReadFixedString(int length, Func<byte[], string> converter);
+
+        /// <summary>
         /// Writes a string and fills the remaining length with 0-bytes.
         /// </summary>
         void WriteFixedString(string value, int length);
@@ -217,38 +324,38 @@ namespace Arrowgene.Services.Buffers
         void WriteFixedString(string value, int length, Func<string, byte[]> converter);
 
         /// <summary>
-        /// Read a Nul-Terminated-String.
+        /// Read till a 0byte.
         /// Advances the cursor.
         /// </summary>
         string ReadCString();
 
         /// <summary>
-        /// Read a Nul-Terminated-String.
+        /// Read till a 0byte.
         /// Advances the cursor.
         /// </summary>
         string ReadCString(Encoding encoding);
 
         /// <summary>
-        /// Read a Nul-Terminated-String.
+        /// Read till a 0byte.
         /// Advances the cursor.
         /// </summary>
         string ReadCString(Func<byte[], string> converter);
 
         /// <summary>
-        /// Get a Nul-Terminated-String from a specified offset.
+        /// Read till a 0byte starting from a specified offset.
         /// Doesn't advance the cursor.
         /// </summary>
         string GetCString(int offset);
 
         /// <summary>
-        /// Write a Nul-Terminated-String.
-        /// Advances the cursor.
+        /// Read till a 0byte starting from a specified offset.
+        /// Doesn't advance the cursor.
         /// </summary>
         string GetCString(int offset, Encoding encoding);
 
         /// <summary>
-        /// Write a Nul-Terminated-String.
-        /// Advances the cursor.
+        /// Read till a 0byte starting from a specified offset.
+        /// Doesn't advance the cursor.
         /// </summary>
         string GetCString(int offset, Func<byte[], string> converter);
 

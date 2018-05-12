@@ -53,7 +53,7 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
 
         public SyncReceiveTcpClient(IConsumer consumer) : base(consumer)
         {
-            BufferProvider = new ArrayBuffer();
+            BufferProvider = new StreamBuffer();
             _logger = LogProvider<Logger>.GetLogger(this);
             SocketPollTimeout = 100;
             Name = DefaultName;

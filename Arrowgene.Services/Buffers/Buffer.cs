@@ -31,15 +31,37 @@ namespace Arrowgene.Services.Buffers
 {
     public abstract class Buffer : IBuffer, IBufferProvider, ICloneable
     {
+        public static string NoEncoding(byte[] bytes)
+        {
+            string s = string.Empty;
+            foreach (byte b in bytes)
+            {
+                s += (char) b;
+            }
+
+            return s;
+        }
+
+        public static byte[] NoEncoding(string str)
+        {
+            List<byte> bytes = new List<byte>();
+            foreach (char c in str)
+            {
+                bytes.Add((byte) c);
+            }
+
+            return bytes.ToArray();
+        }
+
         public static bool SwapNeeded(Endianness endianness)
         {
             return (BitConverter.IsLittleEndian && endianness == Endianness.Big)
                    || (!BitConverter.IsLittleEndian && endianness == Endianness.Little);
         }
 
-        public static short SwapBytes(short i)
+        public static ushort SwapBytes(ushort x)
         {
-            return (short) ((i << 8) + ((ushort) i >> 8));
+            return (ushort) ((x >> 8) | (x << 8));
         }
 
         public static uint SwapBytes(uint x)
@@ -55,6 +77,47 @@ namespace Arrowgene.Services.Buffers
             return ((x & 0xFF00FF00FF00FF00) >> 8) | ((x & 0x00FF00FF00FF00FF) << 8);
         }
 
+        public static float SwapBytes(float input)
+        {
+            byte[] tmpIn = BitConverter.GetBytes(input);
+            byte[] tmpOut = new byte[4];
+            tmpOut[0] = tmpIn[3];
+            tmpOut[1] = tmpIn[2];
+            tmpOut[2] = tmpIn[1];
+            tmpOut[3] = tmpIn[0];
+            return BitConverter.ToSingle(tmpOut, 0);
+        }
+
+        public static double SwapBytes(double input)
+        {
+            byte[] tmpIn = BitConverter.GetBytes(input);
+            byte[] tmpOut = new byte[8];
+            tmpOut[0] = tmpIn[7];
+            tmpOut[1] = tmpIn[6];
+            tmpOut[2] = tmpIn[5];
+            tmpOut[3] = tmpIn[4];
+            tmpOut[4] = tmpIn[3];
+            tmpOut[5] = tmpIn[2];
+            tmpOut[6] = tmpIn[1];
+            tmpOut[7] = tmpIn[0];
+            return BitConverter.ToSingle(tmpOut, 0);
+        }
+
+        public static short SwapBytes(short value)
+        {
+            return (short) SwapBytes((ushort) value);
+        }
+
+        public static int SwapBytes(int value)
+        {
+            return (int) SwapBytes((uint) value);
+        }
+
+        public static long SwapBytes(long value)
+        {
+            return (long) SwapBytes((ulong) value);
+        }
+
         public abstract int Size { get; }
         public abstract int Position { get; set; }
         public abstract void SetPositionStart();
@@ -65,38 +128,44 @@ namespace Arrowgene.Services.Buffers
         public abstract byte[] GetAllBytes();
         public abstract byte[] GetAllBytes(int offset);
         public abstract void WriteByte(byte value);
-        public abstract void WriteByte(int value);
-        public abstract void WriteByte(long value);
         public abstract void WriteBytes(byte[] bytes);
         public abstract void WriteBytes(byte[] source, int srcOffset, int length);
         public abstract void WriteBytes(byte[] source, int srcOffset, int dstOffset, int count);
         public abstract void WriteInt16(short value);
-        public abstract void WriteInt16(int value);
+        public abstract void WriteInt16(ushort value);
         public abstract void WriteInt32(int value);
+        public abstract void WriteInt32(uint value);
+        public abstract void WriteInt64(long value);
+        public abstract void WriteInt64(ulong value);
         public abstract void WriteFloat(float value);
+        public abstract void WriteDouble(double value);
+        public abstract void WriteDecimal(decimal value);
         public abstract byte ReadByte();
         public abstract byte GetByte(int offset);
         public abstract byte[] ReadBytes(int length);
         public abstract byte[] GetBytes(int offset, int length);
         public abstract short GetInt16(int offset);
+        public abstract ushort GetUInt16(int offset);
         public abstract short ReadInt16();
+        public abstract ushort ReadUInt16();
         public abstract int GetInt32(int offset);
+        public abstract uint GetUInt32(int offset);
         public abstract int ReadInt32();
+        public abstract uint ReadUInt32();
+        public abstract long GetInt64(int offset);
+        public abstract ulong GetUInt64(int offset);
+        public abstract long ReadInt64();
+        public abstract ulong ReadUInt64();
         public abstract float GetFloat(int offset);
         public abstract float ReadFloat();
+        public abstract double GetDouble(int offset);
+        public abstract double ReadDouble();
+        public abstract decimal GetDecimal(int offset);
+        public abstract decimal ReadDecimal();
 
         public virtual void WriteString(string value)
         {
-            WriteString(value, str =>
-            {
-                List<byte> bytes = new List<byte>();
-                foreach (char c in value)
-                {
-                    bytes.Add((byte) c);
-                }
-
-                return bytes.ToArray();
-            });
+            WriteString(value, NoEncoding);
         }
 
         public virtual void WriteString(string value, Encoding encoding)
@@ -127,16 +196,7 @@ namespace Arrowgene.Services.Buffers
 
         public virtual void WriteFixedString(string value, int length)
         {
-            WriteFixedString(value, length, str =>
-            {
-                List<byte> bytes = new List<byte>();
-                foreach (char c in value)
-                {
-                    bytes.Add((byte) c);
-                }
-
-                return bytes.ToArray();
-            });
+            WriteFixedString(value, length, NoEncoding);
         }
 
         public virtual void WriteCString(string value)
@@ -168,16 +228,7 @@ namespace Arrowgene.Services.Buffers
 
         public virtual string ReadString(int length)
         {
-            return ReadString(length, bytes =>
-            {
-                string s = string.Empty;
-                foreach (byte b in bytes)
-                {
-                    s += (char) b;
-                }
-
-                return s;
-            });
+            return ReadString(length, NoEncoding);
         }
 
         public virtual string ReadString(int length, Encoding encoding)
@@ -189,6 +240,35 @@ namespace Arrowgene.Services.Buffers
         {
             byte[] bytes = ReadBytes(length);
             return converter(bytes);
+        }
+
+        public virtual string ReadFixedString(int length)
+        {
+            return ReadFixedString(length, NoEncoding);
+        }
+
+        public virtual string ReadFixedString(int length, Encoding encoding)
+        {
+            return ReadFixedString(length, encoding.GetString);
+        }
+
+        public virtual string ReadFixedString(int length, Func<byte[], string> converter)
+        {
+            byte[] bytes = ReadBytes(length);
+            List<byte> readBytes = new List<byte>();
+            foreach (byte b in bytes)
+            {
+                if (b > 0)
+                {
+                    readBytes.Add(b);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return converter(readBytes.ToArray());
         }
 
         public virtual string GetCString(int offset)
@@ -235,16 +315,7 @@ namespace Arrowgene.Services.Buffers
 
         public virtual string ReadCString()
         {
-            return ReadCString(bytes =>
-            {
-                string s = string.Empty;
-                foreach (byte b in bytes)
-                {
-                    s += (char) b;
-                }
-
-                return s;
-            });
+            return ReadCString(NoEncoding);
         }
 
         public virtual string ReadCString(Encoding encoding)
@@ -324,6 +395,76 @@ namespace Arrowgene.Services.Buffers
             }
 
             WriteInt16(value);
+        }
+
+        public void WriteInt32(int value, Endianness endianness)
+        {
+            if (SwapNeeded(endianness))
+            {
+                value = SwapBytes(value);
+            }
+
+            WriteInt32(value);
+        }
+
+        public void WriteInt64(long value, Endianness endianness)
+        {
+            if (SwapNeeded(endianness))
+            {
+                value = SwapBytes(value);
+            }
+
+            WriteInt64(value);
+        }
+
+        public void WriteInt16(ushort value, Endianness endianness)
+        {
+            if (SwapNeeded(endianness))
+            {
+                value = SwapBytes(value);
+            }
+
+            WriteInt16(value);
+        }
+
+        public void WriteInt32(uint value, Endianness endianness)
+        {
+            if (SwapNeeded(endianness))
+            {
+                value = SwapBytes(value);
+            }
+
+            WriteInt32(value);
+        }
+
+        public void WriteInt64(ulong value, Endianness endianness)
+        {
+            if (SwapNeeded(endianness))
+            {
+                value = SwapBytes(value);
+            }
+
+            WriteInt64(value);
+        }
+
+        public void WriteFloat(float value, Endianness endianness)
+        {
+            if (SwapNeeded(endianness))
+            {
+                value = SwapBytes(value);
+            }
+
+            WriteFloat(value);
+        }
+
+        public void WriteDouble(double value, Endianness endianness)
+        {
+            if (SwapNeeded(endianness))
+            {
+                value = SwapBytes(value);
+            }
+
+            WriteDouble(value);
         }
 
         public string Dump()

@@ -128,24 +128,14 @@ namespace Arrowgene.Services.Buffers
             _binaryWriter.Write(value);
         }
 
-        public override void WriteByte(int value)
-        {
-            _binaryWriter.Write((byte) value);
-        }
-
-        public override void WriteByte(long value)
-        {
-            _binaryWriter.Write((byte) value);
-        }
-
         public override void WriteInt16(short value)
         {
             _binaryWriter.Write(value);
         }
 
-        public override void WriteInt16(int value)
+        public override void WriteInt16(ushort value)
         {
-            _binaryWriter.Write((short) value);
+            _binaryWriter.Write(value);
         }
 
         public override void WriteInt32(int value)
@@ -153,7 +143,32 @@ namespace Arrowgene.Services.Buffers
             _binaryWriter.Write(value);
         }
 
+        public override void WriteInt32(uint value)
+        {
+            _binaryWriter.Write(value);
+        }
+
+        public override void WriteInt64(long value)
+        {
+            _binaryWriter.Write(value);
+        }
+
+        public override void WriteInt64(ulong value)
+        {
+            _binaryWriter.Write(value);
+        }
+
         public override void WriteFloat(float value)
+        {
+            _binaryWriter.Write(value);
+        }
+
+        public override void WriteDouble(double value)
+        {
+            _binaryWriter.Write(value);
+        }
+
+        public override void WriteDecimal(decimal value)
         {
             _binaryWriter.Write(value);
         }
@@ -195,9 +210,23 @@ namespace Arrowgene.Services.Buffers
             return value;
         }
 
+        public override ushort GetUInt16(int offset)
+        {
+            int position = Position;
+            Position = offset;
+            ushort value = ReadUInt16();
+            Position = position;
+            return value;
+        }
+
         public override short ReadInt16()
         {
             return _binaryReader.ReadInt16();
+        }
+
+        public override ushort ReadUInt16()
+        {
+            return _binaryReader.ReadUInt16();
         }
 
         public override int GetInt32(int offset)
@@ -209,9 +238,51 @@ namespace Arrowgene.Services.Buffers
             return value;
         }
 
+        public override uint GetUInt32(int offset)
+        {
+            int position = Position;
+            Position = offset;
+            uint value = ReadUInt32();
+            Position = position;
+            return value;
+        }
+
         public override int ReadInt32()
         {
             return _binaryReader.ReadInt32();
+        }
+
+        public override uint ReadUInt32()
+        {
+            return _binaryReader.ReadUInt32();
+        }
+
+        public override long GetInt64(int offset)
+        {
+            int position = Position;
+            Position = offset;
+            long value = ReadInt64();
+            Position = position;
+            return value;
+        }
+
+        public override ulong GetUInt64(int offset)
+        {
+            int position = Position;
+            Position = offset;
+            ulong value = ReadUInt64();
+            Position = position;
+            return value;
+        }
+
+        public override long ReadInt64()
+        {
+            return _binaryReader.ReadInt64();
+        }
+
+        public override ulong ReadUInt64()
+        {
+            return _binaryReader.ReadUInt64();
         }
 
         public override float GetFloat(int offset)
@@ -226,6 +297,34 @@ namespace Arrowgene.Services.Buffers
         public override float ReadFloat()
         {
             return _binaryReader.ReadSingle();
+        }
+
+        public override double GetDouble(int offset)
+        {
+            int position = Position;
+            Position = offset;
+            double value = ReadDouble();
+            Position = position;
+            return value;
+        }
+
+        public override double ReadDouble()
+        {
+            return _binaryReader.ReadDouble();
+        }
+
+        public override decimal GetDecimal(int offset)
+        {
+            int position = Position;
+            Position = offset;
+            decimal value = ReadDecimal();
+            Position = position;
+            return value;
+        }
+
+        public override decimal ReadDecimal()
+        {
+            return _binaryReader.ReadDecimal();
         }
     }
 }
