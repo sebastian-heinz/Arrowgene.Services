@@ -334,21 +334,8 @@ namespace Arrowgene.Services.Buffers
 
         public virtual string ReadFixedString(int length, Func<byte[], string> converter)
         {
-            byte[] bytes = ReadBytes(length);
-            List<byte> readBytes = new List<byte>();
-            foreach (byte b in bytes)
-            {
-                if (b > 0)
-                {
-                    readBytes.Add(b);
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            return converter(readBytes.ToArray());
+            byte[] bytes = ReadBytesFixedZeroTerminated(length);
+            return converter(bytes);
         }
 
         public virtual string GetCString(int offset)
@@ -380,6 +367,25 @@ namespace Arrowgene.Services.Buffers
             while (Position < Size)
             {
                 byte b = ReadByte();
+                if (b > 0)
+                {
+                    readBytes.Add(b);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return readBytes.ToArray();
+        }
+
+        public virtual byte[] ReadBytesFixedZeroTerminated(int length)
+        {
+            byte[] bytes = ReadBytes(length);
+            List<byte> readBytes = new List<byte>();
+            foreach (byte b in bytes)
+            {
                 if (b > 0)
                 {
                     readBytes.Add(b);

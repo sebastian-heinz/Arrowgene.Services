@@ -146,6 +146,12 @@ namespace Arrowgene.Services.Buffers
         byte[] ReadBytesZeroTerminated();
 
         /// <summary>
+        /// Read bytes until 0-byte.
+        /// Advances the cursor by the length.
+        /// </summary>
+        byte[] ReadBytesFixedZeroTerminated(int length);
+
+        /// <summary>
         /// Get bytes at specified offset.
         /// Doesn't advance the cursor.
         /// </summary>
@@ -156,7 +162,7 @@ namespace Arrowgene.Services.Buffers
         /// Doesn't advance the cursor.
         /// </summary>
         short GetInt16(int offset);
-        
+
         short GetInt16(int offset, Endianness endianness);
 
         /// <summary>
@@ -166,13 +172,13 @@ namespace Arrowgene.Services.Buffers
         ushort GetUInt16(int offset);
 
         ushort GetUInt16(int offset, Endianness endianness);
-        
+
         /// <summary>
         /// Read Int16.
         /// Advances the cursor.
         /// </summary>
         short ReadInt16();
-        
+
         short ReadInt16(Endianness endianness);
 
         /// <summary>
@@ -180,7 +186,7 @@ namespace Arrowgene.Services.Buffers
         /// Advances the cursor.
         /// </summary>
         ushort ReadUInt16();
-        
+
         ushort ReadUInt16(Endianness endianness);
 
         /// <summary>
@@ -188,7 +194,7 @@ namespace Arrowgene.Services.Buffers
         /// Doesn't advance the cursor.
         /// </summary>
         int GetInt32(int offset);
-        
+
         int GetInt32(int offset, Endianness endianness);
 
         /// <summary>
@@ -196,7 +202,7 @@ namespace Arrowgene.Services.Buffers
         /// Doesn't advance the cursor.
         /// </summary>
         uint GetUInt32(int offset);
-        
+
         uint GetUInt32(int offset, Endianness endianness);
 
         /// <summary>
@@ -204,7 +210,7 @@ namespace Arrowgene.Services.Buffers
         /// Doesn't advance the cursor.
         /// </summary>
         int ReadInt32();
-        
+
         int ReadInt32(Endianness endianness);
 
         /// <summary>
@@ -214,13 +220,13 @@ namespace Arrowgene.Services.Buffers
         uint ReadUInt32();
 
         uint ReadUInt32(Endianness endianness);
-        
+
         /// <summary>
         /// Get Int64 at specified offset.
         /// Doesn't advance the cursor.
         /// </summary>
         long GetInt64(int offset);
-        
+
         long GetInt64(int offset, Endianness endianness);
 
         /// <summary>
@@ -228,7 +234,7 @@ namespace Arrowgene.Services.Buffers
         /// Doesn't advance the cursor.
         /// </summary>
         ulong GetUInt64(int offset);
-        
+
         ulong GetUInt64(int offset, Endianness endianness);
 
         /// <summary>
@@ -236,7 +242,7 @@ namespace Arrowgene.Services.Buffers
         /// Doesn't advance the cursor.
         /// </summary>
         long ReadInt64();
-        
+
         long ReadInt64(Endianness endianness);
 
         /// <summary>
@@ -244,7 +250,7 @@ namespace Arrowgene.Services.Buffers
         /// Doesn't advance the cursor.
         /// </summary>
         ulong ReadUInt64();
-        
+
         ulong ReadUInt64(Endianness endianness);
 
         /// <summary>
@@ -252,7 +258,7 @@ namespace Arrowgene.Services.Buffers
         /// Doesn't advance the cursor.
         /// </summary>
         float GetFloat(int offset);
-        
+
         float GetFloat(int offset, Endianness endianness);
 
         /// <summary>
@@ -260,7 +266,7 @@ namespace Arrowgene.Services.Buffers
         /// Doesn't advance the cursor.
         /// </summary>
         float ReadFloat();
-        
+
         float ReadFloat(Endianness endianness);
 
         /// <summary>
@@ -268,7 +274,7 @@ namespace Arrowgene.Services.Buffers
         /// Doesn't advance the cursor.
         /// </summary>
         double GetDouble(int offset);
-        
+
         double GetDouble(int offset, Endianness endianness);
 
         /// <summary>
@@ -276,7 +282,7 @@ namespace Arrowgene.Services.Buffers
         /// Doesn't advance the cursor.
         /// </summary>
         double ReadDouble();
-        
+
         double ReadDouble(Endianness endianness);
 
         /// <summary>
