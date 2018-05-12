@@ -156,6 +156,8 @@ namespace Arrowgene.Services.Buffers
         /// Doesn't advance the cursor.
         /// </summary>
         short GetInt16(int offset);
+        
+        short GetInt16(int offset, Endianness endianness);
 
         /// <summary>
         /// Get UInt16 at specified offset.
@@ -163,35 +165,47 @@ namespace Arrowgene.Services.Buffers
         /// </summary>
         ushort GetUInt16(int offset);
 
+        ushort GetUInt16(int offset, Endianness endianness);
+        
         /// <summary>
         /// Read Int16.
         /// Advances the cursor.
         /// </summary>
         short ReadInt16();
+        
+        short ReadInt16(Endianness endianness);
 
         /// <summary>
         /// Read UInt16.
         /// Advances the cursor.
         /// </summary>
         ushort ReadUInt16();
+        
+        ushort ReadUInt16(Endianness endianness);
 
         /// <summary>
         /// Get Int32 at specified offset.
         /// Doesn't advance the cursor.
         /// </summary>
         int GetInt32(int offset);
+        
+        int GetInt32(int offset, Endianness endianness);
 
         /// <summary>
         /// Get UInt32 at specified offset.
         /// Doesn't advance the cursor.
         /// </summary>
         uint GetUInt32(int offset);
+        
+        uint GetUInt32(int offset, Endianness endianness);
 
         /// <summary>
         /// Read Int32.
         /// Doesn't advance the cursor.
         /// </summary>
         int ReadInt32();
+        
+        int ReadInt32(Endianness endianness);
 
         /// <summary>
         /// Read UInt32.
@@ -199,53 +213,71 @@ namespace Arrowgene.Services.Buffers
         /// </summary>
         uint ReadUInt32();
 
+        uint ReadUInt32(Endianness endianness);
+        
         /// <summary>
         /// Get Int64 at specified offset.
         /// Doesn't advance the cursor.
         /// </summary>
         long GetInt64(int offset);
+        
+        long GetInt64(int offset, Endianness endianness);
 
         /// <summary>
         /// Get UInt64 at specified offset.
         /// Doesn't advance the cursor.
         /// </summary>
         ulong GetUInt64(int offset);
+        
+        ulong GetUInt64(int offset, Endianness endianness);
 
         /// <summary>
         /// Read Int64.
         /// Doesn't advance the cursor.
         /// </summary>
         long ReadInt64();
+        
+        long ReadInt64(Endianness endianness);
 
         /// <summary>
         /// Read UInt64.
         /// Doesn't advance the cursor.
         /// </summary>
         ulong ReadUInt64();
+        
+        ulong ReadUInt64(Endianness endianness);
 
         /// <summary>
         /// Get Float at specified offset.
         /// Doesn't advance the cursor.
         /// </summary>
         float GetFloat(int offset);
+        
+        float GetFloat(int offset, Endianness endianness);
 
         /// <summary>
         /// Read Float
         /// Doesn't advance the cursor.
         /// </summary>
         float ReadFloat();
+        
+        float ReadFloat(Endianness endianness);
 
         /// <summary>
         /// Get Double at specified offset.
         /// Doesn't advance the cursor.
         /// </summary>
         double GetDouble(int offset);
+        
+        double GetDouble(int offset, Endianness endianness);
 
         /// <summary>
         /// Read Double
         /// Doesn't advance the cursor.
         /// </summary>
         double ReadDouble();
+        
+        double ReadDouble(Endianness endianness);
 
         /// <summary>
         /// Get Decimal at specified offset.

@@ -163,6 +163,86 @@ namespace Arrowgene.Services.Buffers
         public abstract decimal GetDecimal(int offset);
         public abstract decimal ReadDecimal();
 
+        public virtual short GetInt16(int offset, Endianness endianness)
+        {
+            return GetSwap(offset, GetInt16, SwapBytes, endianness);
+        }
+
+        public virtual ushort GetUInt16(int offset, Endianness endianness)
+        {
+            return GetSwap(offset, GetUInt16, SwapBytes, endianness);
+        }
+
+        public virtual short ReadInt16(Endianness endianness)
+        {
+            return ReadSwap(ReadInt16, SwapBytes, endianness);
+        }
+
+        public virtual ushort ReadUInt16(Endianness endianness)
+        {
+            return ReadSwap(ReadUInt16, SwapBytes, endianness);
+        }
+
+        public virtual int GetInt32(int offset, Endianness endianness)
+        {
+            return GetSwap(offset, GetInt32, SwapBytes, endianness);
+        }
+
+        public virtual uint GetUInt32(int offset, Endianness endianness)
+        {
+            return GetSwap(offset, GetUInt32, SwapBytes, endianness);
+        }
+
+        public virtual int ReadInt32(Endianness endianness)
+        {
+            return ReadSwap(ReadInt32, SwapBytes, endianness);
+        }
+
+        public virtual uint ReadUInt32(Endianness endianness)
+        {
+            return ReadSwap(ReadUInt32, SwapBytes, endianness);
+        }
+
+        public virtual long GetInt64(int offset, Endianness endianness)
+        {
+            return GetSwap(offset, GetInt64, SwapBytes, endianness);
+        }
+
+        public virtual ulong GetUInt64(int offset, Endianness endianness)
+        {
+            return GetSwap(offset, GetUInt64, SwapBytes, endianness);
+        }
+
+        public virtual long ReadInt64(Endianness endianness)
+        {
+            return ReadSwap(ReadInt64, SwapBytes, endianness);
+        }
+
+        public virtual ulong ReadUInt64(Endianness endianness)
+        {
+            return ReadSwap(ReadUInt64, SwapBytes, endianness);
+        }
+
+        public virtual float GetFloat(int offset, Endianness endianness)
+        {
+            return GetSwap(offset, GetFloat, SwapBytes, endianness);
+        }
+
+        public virtual float ReadFloat(Endianness endianness)
+        {
+            return ReadSwap(ReadFloat, SwapBytes, endianness);
+        }
+
+        public virtual double GetDouble(int offset, Endianness endianness)
+        {
+            return GetSwap(offset, GetDouble, SwapBytes, endianness);
+        }
+
+        public virtual double ReadDouble(Endianness endianness)
+        {
+            return ReadSwap(ReadDouble, SwapBytes, endianness);
+        }
+
         public virtual void WriteString(string value)
         {
             WriteString(value, NoEncoding);
@@ -387,84 +467,44 @@ namespace Arrowgene.Services.Buffers
             return sb.ToString();
         }
 
-        public void WriteInt16(short value, Endianness endianness)
+        public virtual void WriteInt16(short value, Endianness endianness)
         {
-            if (SwapNeeded(endianness))
-            {
-                value = SwapBytes(value);
-            }
-
-            WriteInt16(value);
+            WriteSwap(value, WriteInt16, SwapBytes, endianness);
         }
 
-        public void WriteInt32(int value, Endianness endianness)
+        public virtual void WriteInt32(int value, Endianness endianness)
         {
-            if (SwapNeeded(endianness))
-            {
-                value = SwapBytes(value);
-            }
-
-            WriteInt32(value);
+            WriteSwap(value, WriteInt32, SwapBytes, endianness);
         }
 
-        public void WriteInt64(long value, Endianness endianness)
+        public virtual void WriteInt64(long value, Endianness endianness)
         {
-            if (SwapNeeded(endianness))
-            {
-                value = SwapBytes(value);
-            }
-
-            WriteInt64(value);
+            WriteSwap(value, WriteInt64, SwapBytes, endianness);
         }
 
-        public void WriteInt16(ushort value, Endianness endianness)
+        public virtual void WriteInt16(ushort value, Endianness endianness)
         {
-            if (SwapNeeded(endianness))
-            {
-                value = SwapBytes(value);
-            }
-
-            WriteInt16(value);
+            WriteSwap(value, WriteInt16, SwapBytes, endianness);
         }
 
-        public void WriteInt32(uint value, Endianness endianness)
+        public virtual void WriteInt32(uint value, Endianness endianness)
         {
-            if (SwapNeeded(endianness))
-            {
-                value = SwapBytes(value);
-            }
-
-            WriteInt32(value);
+            WriteSwap(value, WriteInt32, SwapBytes, endianness);
         }
 
-        public void WriteInt64(ulong value, Endianness endianness)
+        public virtual void WriteInt64(ulong value, Endianness endianness)
         {
-            if (SwapNeeded(endianness))
-            {
-                value = SwapBytes(value);
-            }
-
-            WriteInt64(value);
+            WriteSwap(value, WriteInt64, SwapBytes, endianness);
         }
 
-        public void WriteFloat(float value, Endianness endianness)
+        public virtual void WriteFloat(float value, Endianness endianness)
         {
-            if (SwapNeeded(endianness))
-            {
-                value = SwapBytes(value);
-            }
-
-            WriteFloat(value);
+            WriteSwap(value, WriteFloat, SwapBytes, endianness);
         }
 
-        public void WriteDouble(double value, Endianness endianness)
+        public virtual void WriteDouble(double value, Endianness endianness)
         {
-            if (SwapNeeded(endianness))
-            {
-                value = SwapBytes(value);
-            }
-
-            WriteDouble(value);
+            WriteSwap(value, WriteDouble, SwapBytes, endianness);
         }
 
         public string Dump()
@@ -474,14 +514,46 @@ namespace Arrowgene.Services.Buffers
                    ToHexString();
         }
 
+        public override string ToString()
+        {
+            return string.Format("Size:{0} Position:{1}", Size, Position);
+        }
+
         object ICloneable.Clone()
         {
             return Clone();
         }
 
-        public override string ToString()
+        protected T GetSwap<T>(int offset, Func<int, T> getFunction, Func<T, T> swapFunction, Endianness endianness)
         {
-            return string.Format("Size:{0} Position:{1}", Size, Position);
+            T value = getFunction(offset);
+            if (SwapNeeded(endianness))
+            {
+                value = swapFunction(value);
+            }
+
+            return value;
+        }
+
+        protected T ReadSwap<T>(Func<T> readFunction, Func<T, T> swapFunction, Endianness endianness)
+        {
+            T value = readFunction();
+            if (SwapNeeded(endianness))
+            {
+                value = swapFunction(value);
+            }
+
+            return value;
+        }
+
+        protected void WriteSwap<T>(T value, Action<T> writeFunction, Func<T, T> swapFunction, Endianness endianness)
+        {
+            if (SwapNeeded(endianness))
+            {
+                value = swapFunction(value);
+            }
+
+            writeFunction(value);
         }
     }
 }
