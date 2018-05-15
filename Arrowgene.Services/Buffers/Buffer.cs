@@ -301,7 +301,7 @@ namespace Arrowgene.Services.Buffers
             WriteString(value, converter);
             WriteByte(0);
         }
-        
+
         public virtual string GetString(int offset, int length)
         {
             return GetString(offset, length, NoEncoding);
@@ -374,11 +374,21 @@ namespace Arrowgene.Services.Buffers
 
         public virtual byte[] ReadBytesZeroTerminated()
         {
+            return ReadBytesTerminated(0);
+        }
+
+        public virtual byte[] ReadBytesFixedZeroTerminated(int length)
+        {
+            return ReadBytesFixedTerminated(length, 0);
+        }
+
+        public virtual byte[] ReadBytesTerminated(byte termination)
+        {
             List<byte> readBytes = new List<byte>();
             while (Position < Size)
             {
                 byte b = ReadByte();
-                if (b > 0)
+                if (b != termination)
                 {
                     readBytes.Add(b);
                 }
@@ -391,13 +401,13 @@ namespace Arrowgene.Services.Buffers
             return readBytes.ToArray();
         }
 
-        public virtual byte[] ReadBytesFixedZeroTerminated(int length)
+        public virtual byte[] ReadBytesFixedTerminated(int length, byte termination)
         {
             byte[] bytes = ReadBytes(length);
             List<byte> readBytes = new List<byte>();
             foreach (byte b in bytes)
             {
-                if (b > 0)
+                if (b != termination)
                 {
                     readBytes.Add(b);
                 }

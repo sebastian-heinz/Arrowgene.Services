@@ -151,6 +151,10 @@ namespace Arrowgene.Services.Buffers
         /// </summary>
         byte[] ReadBytesFixedZeroTerminated(int length);
 
+        byte[] ReadBytesFixedTerminated(int length, byte termination);
+
+        byte[] ReadBytesTerminated(byte termination);
+
         /// <summary>
         /// Get bytes at specified offset.
         /// Doesn't advance the cursor.
