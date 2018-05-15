@@ -304,6 +304,18 @@ namespace Arrowgene.Services.Buffers
         string GetString(int offset, int length);
 
         /// <summary>
+        /// Get a String at specified offset with a specific length.
+        /// Doesn't advance the cursor.
+        /// </summary>
+        string GetString(int offset, int length, Encoding encoding);
+
+        /// <summary>
+        /// Get a String at specified offset with a specific length.
+        /// Doesn't advance the cursor.
+        /// </summary>
+        string GetString(int offset, int length, Func<byte[], string> converter);
+
+        /// <summary>
         /// Read a String with a specific length.
         /// Advances the cursor.
         /// </summary>
@@ -355,6 +367,11 @@ namespace Arrowgene.Services.Buffers
         /// Writes a string and fills the remaining length with 0-bytes.
         /// </summary>
         void WriteFixedString(string value, int length);
+
+        /// <summary>
+        /// Writes a string and fills the remaining length with 0-bytes.
+        /// </summary>
+        void WriteFixedString(string value, int length, Encoding encoding);
 
         /// <summary>
         /// Writes a string and fills the remaining length with 0-bytes.

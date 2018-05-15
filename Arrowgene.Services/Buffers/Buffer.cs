@@ -274,6 +274,11 @@ namespace Arrowgene.Services.Buffers
             }
         }
 
+        public virtual void WriteFixedString(string value, int length, Encoding encoding)
+        {
+            WriteString(value, encoding.GetBytes);
+        }
+
         public virtual void WriteFixedString(string value, int length)
         {
             WriteFixedString(value, length, NoEncoding);
@@ -296,12 +301,22 @@ namespace Arrowgene.Services.Buffers
             WriteString(value, converter);
             WriteByte(0);
         }
-
+        
         public virtual string GetString(int offset, int length)
+        {
+            return GetString(offset, length, NoEncoding);
+        }
+
+        public virtual string GetString(int offset, int length, Encoding encoding)
+        {
+            return GetString(offset, length, encoding.GetString);
+        }
+
+        public virtual string GetString(int offset, int length, Func<byte[], string> converter)
         {
             int position = Position;
             Position = offset;
-            string value = ReadString(length);
+            string value = ReadString(length, converter);
             Position = position;
             return value;
         }
@@ -340,11 +355,7 @@ namespace Arrowgene.Services.Buffers
 
         public virtual string GetCString(int offset)
         {
-            int position = Position;
-            Position = offset;
-            string value = ReadCString();
-            Position = position;
-            return value;
+            return GetCString(offset, NoEncoding);
         }
 
         public virtual string GetCString(int offset, Encoding encoding)
