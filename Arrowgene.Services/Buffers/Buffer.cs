@@ -276,7 +276,7 @@ namespace Arrowgene.Services.Buffers
 
         public virtual void WriteFixedString(string value, int length, Encoding encoding)
         {
-            WriteString(value, encoding.GetBytes);
+            WriteFixedString(value, length, encoding.GetBytes);
         }
 
         public virtual void WriteFixedString(string value, int length)
