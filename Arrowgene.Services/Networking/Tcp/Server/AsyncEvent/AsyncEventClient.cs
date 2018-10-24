@@ -84,10 +84,15 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
 
         public void Close()
         {
+            if (!IsAlive)
+            {
+                return;
+            }
+
             IsAlive = false;
             try
             {
-                Socket.Shutdown(SocketShutdown.Send);
+                Socket.Shutdown(SocketShutdown.Both);
             }
             // ReSharper disable once EmptyGeneralCatchClause
             catch (Exception)
@@ -95,6 +100,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
             }
 
             Socket.Close();
+            _server.NotifyDisconnected(this);
         }
     }
 }

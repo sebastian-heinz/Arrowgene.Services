@@ -82,6 +82,11 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
             StartSend(writeEventArgs);
         }
 
+        internal void NotifyDisconnected(AsyncEventClient client)
+        {
+            OnClientDisconnected(client);
+        }
+
         protected override void OnStart()
         {
             _acceptEventArg = new SocketAsyncEventArgs();
@@ -329,11 +334,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
 
         private void CloseClientSocket(AsyncEventClient client)
         {
-            if (client.IsAlive)
-            {
-                client.Close();
-                OnClientDisconnected(client);
-            }
+            client.Close();
         }
     }
 }
