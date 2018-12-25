@@ -10,7 +10,7 @@ namespace Arrowgene.Services.Networking.ServerBridge
         private readonly Dictionary<TIdentity, Dictionary<string, Func<Request, Response>>> _handlesLookup;
         protected readonly Logger Logger;
 
-        protected MemoryBridge()
+        public MemoryBridge()
         {
             Logger = LogProvider<Logger>.GetLogger(this);
             _handlesLookup = new Dictionary<TIdentity, Dictionary<string, Func<Request, Response>>>();
