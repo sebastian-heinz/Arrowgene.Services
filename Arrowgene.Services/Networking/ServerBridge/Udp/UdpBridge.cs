@@ -5,7 +5,7 @@ using Arrowgene.Services.Serialization;
 
 namespace Arrowgene.Services.Networking.ServerBridge.Udp
 {
-    public class UdpBridge : Bridge
+    public class UdpBridge : Bridge<IPEndPoint>
     {
         private UdpSocket _socket;
         private BinaryFormatterSerializer<Message> _serializer;

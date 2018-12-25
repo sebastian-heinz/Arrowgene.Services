@@ -22,8 +22,8 @@ namespace Arrowgene.Services.Test.Bridge
             TcpBridgeSettings conf1 = GetBridgeConfiguration(0, 1);
             TcpBridgeSettings conf2 = GetBridgeConfiguration(1, 1);
 
-            IBridge bridge1 = new TcpBridge(conf1);
-            IBridge bridge2 = new TcpBridge(conf2);
+            IBridge<IPEndPoint> bridge1 = new TcpBridge(conf1);
+            IBridge<IPEndPoint> bridge2 = new TcpBridge(conf2);
 
             bridge2.AddHandler(new TestMessageHandler());
 

@@ -28,25 +28,21 @@ namespace Arrowgene.Services.Networking.ServerBridge
     /// });
     /// </code>
     /// </example>
-    public interface IBridge
+    public interface IBridge<in TIdentity>
     {
-        void AddHandler<TRequest, TResponse>(IMessageHandler<TRequest, TResponse> handler);
+        void AddHandler<TRequest, TResponse>(IMessageHandler<TRequest, TResponse> handler,
+            TIdentity owner = default(TIdentity));
 
-        /// <summary>
-        /// Sends a message to a remote bridge.
-        /// </summary>
-        /// <param name="receiver"></param>
-        /// <param name="message"></param>
-        void Send(IPEndPoint receiver, Message message);
+        void Send(TIdentity receiver, Message message);
 
-        void Request<TResponse, T2, T3>(IPEndPoint receiver, Request request,
+        void Request<TResponse, T2, T3>(TIdentity receiver, Request request,
             Action<Response<TResponse>, T2, T3> result,
             T2 parameter1, T3 parameter2);
 
-        void Request<TResponse, T2>(IPEndPoint receiver, Request request, Action<Response<TResponse>, T2> result,
+        void Request<TResponse, T2>(TIdentity receiver, Request request, Action<Response<TResponse>, T2> result,
             T2 parameter);
 
-        void Request<TResponse>(IPEndPoint receiver, Request request, Action<Response<TResponse>> result);
+        void Request<TResponse>(TIdentity receiver, Request request, Action<Response<TResponse>> result);
 
         void Start();
         void Stop();

@@ -15,7 +15,7 @@ namespace Arrowgene.Services.Networking.ServerBridge.Tcp
     /// <summary>
     /// Bridge utilizing TCP to exchange messages.
     /// </summary>
-    public class TcpBridge : Bridge, IConsumer
+    public class TcpBridge : Bridge<IPEndPoint>, IConsumer
     {
         private readonly AsyncEventServer _tcpServer;
         private readonly Dictionary<ITcpSocket, IPEndPoint> _endPointLookup;
