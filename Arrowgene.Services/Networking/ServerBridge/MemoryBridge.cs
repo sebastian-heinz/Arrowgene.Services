@@ -7,26 +7,46 @@ namespace Arrowgene.Services.Networking.ServerBridge
 {
     public class MemoryBridge<TIdentity> : IBridge<TIdentity>
     {
-        private readonly Dictionary<TIdentity, Dictionary<string, Func<Request, Response>>> _handlesLookup;
+        private readonly Dictionary<string, Dictionary<string, Func<Request, Response>>> _handlesLookup;
+        private readonly Func<TIdentity, string> _identityResolver;
         protected readonly Logger Logger;
 
-        public MemoryBridge()
+        public MemoryBridge(Func<TIdentity, string> identityResolver = null)
         {
             Logger = LogProvider<Logger>.GetLogger(this);
-            _handlesLookup = new Dictionary<TIdentity, Dictionary<string, Func<Request, Response>>>();
+            _handlesLookup = new Dictionary<string, Dictionary<string, Func<Request, Response>>>();
+            if (identityResolver != null)
+            {
+                _identityResolver = identityResolver;
+            }
+            else
+            {
+                _identityResolver = ResolveIdentity;
+            }
+        }
+
+        protected virtual string ResolveIdentity(TIdentity identity)
+        {
+            if (identity == null)
+            {
+                return "";
+            }
+
+            return identity.GetHashCode().ToString();
         }
 
         public void AddHandler<TRequest, TResponse>(IMessageHandler<TRequest, TResponse> handler, TIdentity owner)
         {
+            string identityOwner = _identityResolver(owner);
             Dictionary<string, Func<Request, Response>> handles;
-            if (!_handlesLookup.ContainsKey(owner))
+            if (!_handlesLookup.ContainsKey(identityOwner))
             {
                 handles = new Dictionary<string, Func<Request, Response>>();
-                _handlesLookup.Add(owner, handles);
+                _handlesLookup.Add(identityOwner, handles);
             }
             else
             {
-                handles = _handlesLookup[owner];
+                handles = _handlesLookup[identityOwner];
             }
 
             handles.Add(handler.HandlerId, request =>
@@ -46,13 +66,14 @@ namespace Arrowgene.Services.Networking.ServerBridge
         public void Request<TResponse, T1, T2>(TIdentity receiver, Request request,
             Action<Response<TResponse>, T1, T2> result, T1 parameter1, T2 parameter2)
         {
-            if (!_handlesLookup.ContainsKey(receiver))
+            string identityReceiver = _identityResolver(receiver);
+            if (!_handlesLookup.ContainsKey(identityReceiver))
             {
                 Logger.Error("Could not find receiver (Receiver: {0})", receiver);
                 return;
             }
 
-            Dictionary<string, Func<Request, Response>> handles = _handlesLookup[receiver];
+            Dictionary<string, Func<Request, Response>> handles = _handlesLookup[identityReceiver];
             if (!handles.ContainsKey(request.HandlerId))
             {
                 Logger.Error("Could not find handler (HandlerId: {0})", request.HandlerId);
