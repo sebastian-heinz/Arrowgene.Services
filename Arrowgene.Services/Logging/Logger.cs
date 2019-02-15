@@ -62,7 +62,16 @@ namespace Arrowgene.Services.Logging
 
         public void Write(LogLevel logLevel, object tag, string message, params object[] args)
         {
-            string msg = string.Format(message, args);
+            string msg;
+            try
+            {
+                msg = string.Format(message, args);
+            }
+            catch (Exception ex)
+            {
+                msg = $"Error: '{message}' had invalid args ({ex})";
+            }
+
             Log log = new Log(logLevel, msg, tag, _identity, _zone);
             Write(log);
         }

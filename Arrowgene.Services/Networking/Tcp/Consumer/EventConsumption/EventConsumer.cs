@@ -49,6 +49,11 @@ namespace Arrowgene.Services.Networking.Tcp.Consumer.EventConsumption
         {
         }
 
+        public void OnStarted()
+        {
+
+        }
+
         public void OnReceivedData(ITcpSocket socket, byte[] data)
         {
             EventHandler<ReceivedPacketEventArgs> receivedPacket = ReceivedPacket;
@@ -81,6 +86,11 @@ namespace Arrowgene.Services.Networking.Tcp.Consumer.EventConsumption
 
         public void OnStop()
         {
+        }
+
+        public void OnStopped()
+        {
+       
         }
     }
 }

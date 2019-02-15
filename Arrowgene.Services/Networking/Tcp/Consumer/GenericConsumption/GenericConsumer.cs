@@ -59,6 +59,11 @@ namespace Arrowgene.Services.Networking.Tcp.Consumer.GenericConsumption
             _serverStates.Clear();
         }
 
+        public void OnStarted()
+        {
+
+        }
+
         public virtual void OnReceivedData(ITcpSocket socket, byte[] data)
         {
             GenericState state;
@@ -101,6 +106,11 @@ namespace Arrowgene.Services.Networking.Tcp.Consumer.GenericConsumption
 
         public virtual void OnStop()
         {
+        }
+
+        public void OnStopped()
+        {
+
         }
 
         protected virtual void OnReceivedGeneric(ITcpSocket socket, T generic)

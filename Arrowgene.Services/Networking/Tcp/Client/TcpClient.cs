@@ -42,6 +42,7 @@ namespace Arrowgene.Services.Networking.Tcp.Client
 
         public IPAddress RemoteIpAddress { get; protected set; }
         public ushort Port { get; protected set; }
+        public int UnitOfOrder => 0;
 
         public abstract void Send(byte[] payload);
 
@@ -51,10 +52,28 @@ namespace Arrowgene.Services.Networking.Tcp.Client
             OnConnect(serverIpAddress, serverPort, timeout);
         }
 
+        public void Connect(string remoteIpAddress, ushort serverPort, TimeSpan timeout)
+        {
+            Connect(IPAddress.Parse(remoteIpAddress), serverPort, timeout);
+        }
+
         public void Close()
         {
             OnClose();
             _consumer.OnStop();
+        }
+
+        public string Identity
+        {
+            get
+            {
+                if (RemoteIpAddress != null)
+                {
+                    return RemoteIpAddress.ToString();
+                }
+
+                return GetHashCode().ToString();
+            }
         }
 
         protected abstract void OnConnect(IPAddress serverIpAddress, ushort serverPort, TimeSpan timeout);

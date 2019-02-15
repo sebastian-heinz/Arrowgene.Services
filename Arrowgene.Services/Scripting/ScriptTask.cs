@@ -51,6 +51,11 @@ namespace Arrowgene.Services.Scripting
             return CreateInstance<T>(_args);
         }
 
+        public object CreateInstance(Type t)
+        {
+            return CreateInstance(t, _args);
+        }
+
         /// <summary>
         /// Creates a new instance with constructor parameters.
         /// </summary>
@@ -60,6 +65,11 @@ namespace Arrowgene.Services.Scripting
         public T CreateInstance<T>(params object[] args)
         {
             return CreateInstance<T>(_code, _context, ref _diagnostics, args);
+        }
+
+        public object CreateInstance(Type t, params object[] args)
+        {
+            return CreateInstance(t, _code, _context, ref _diagnostics, args);
         }
 
         /// <summary>
@@ -74,6 +84,19 @@ namespace Arrowgene.Services.Scripting
         public static T CreateInstance<T>(string code, ScriptContext context, ref List<Diagnostic> diagnostics,
             params object[] args)
         {
+            object instance = CreateInstance(typeof(T), code, context, ref diagnostics, args);
+            if (instance == null)
+            {
+                return default(T);
+            }
+
+            return (T) instance;
+        }
+
+        public static object CreateInstance(Type t, string code, ScriptContext context,
+            ref List<Diagnostic> diagnostics,
+            params object[] args)
+        {
             SyntaxTree tree = CSharpSyntaxTree.ParseText(code);
             NamespaceDeclarationSyntax ns = GetNamespace(tree);
 
@@ -82,6 +105,7 @@ namespace Arrowgene.Services.Scripting
 
             Script script = CreateScript(tree, context);
             script.Compile();
+
             MemoryStream stream = new MemoryStream();
             EmitResult emitResult = script.GetCompilation().Emit(stream);
             if (emitResult.Success)
@@ -90,9 +114,18 @@ namespace Arrowgene.Services.Scripting
                 Type[] types = assembly.GetTypes();
                 foreach (var type in types)
                 {
-                    if (typeof(T).IsAssignableFrom(type))
+                    if (t.IsAssignableFrom(type))
                     {
-                        T instance = (T) Activator.CreateInstance(type, args);
+                        object instance;
+                        if (args.Length > 0)
+                        {
+                            instance = Activator.CreateInstance(type, args);
+                        }
+                        else
+                        {
+                            instance = Activator.CreateInstance(type);
+                        }
+
                         return instance;
                     }
                 }
@@ -109,8 +142,9 @@ namespace Arrowgene.Services.Scripting
                 }
             }
 
-            return default(T);
+            return null;
         }
+
 
         public static SyntaxTree RemoveNamespace(SyntaxTree tree)
         {

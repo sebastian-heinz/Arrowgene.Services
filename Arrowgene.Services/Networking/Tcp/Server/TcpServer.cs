@@ -27,7 +27,6 @@ using System.Net;
 using Arrowgene.Services.Exceptions;
 using Arrowgene.Services.Networking.Tcp.Consumer;
 
-
 namespace Arrowgene.Services.Networking.Tcp.Server
 {
     public abstract class TcpServer : ITcpServer
@@ -69,6 +68,16 @@ namespace Arrowgene.Services.Networking.Tcp.Server
             _consumer.OnClientConnected(socket);
         }
 
+        protected void OnStarted()
+        {
+            _consumer.OnStarted();
+        }
+
+        protected void OnStopped()
+        {
+            _consumer.OnStopped();
+        }
+
         public void Start()
         {
             _consumer.OnStart();
@@ -77,8 +86,8 @@ namespace Arrowgene.Services.Networking.Tcp.Server
 
         public void Stop()
         {
-            OnStop();
             _consumer.OnStop();
+            OnStop();
         }
     }
 }

@@ -26,8 +26,8 @@ namespace Arrowgene.Services.Logging
 {
     public enum LogLevel
     {
-        Info,
-        Debug,
-        Error
+        Debug = 10,
+        Info = 20,
+        Error = 30
     }
 }

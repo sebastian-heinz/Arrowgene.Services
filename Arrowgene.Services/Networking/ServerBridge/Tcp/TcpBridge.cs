@@ -9,7 +9,6 @@ using Arrowgene.Services.Networking.Tcp.Consumer;
 using Arrowgene.Services.Networking.Tcp.Consumer.GenericConsumption;
 using Arrowgene.Services.Networking.Tcp.Server.AsyncEvent;
 
-
 namespace Arrowgene.Services.Networking.ServerBridge.Tcp
 {
     /// <summary>
@@ -38,7 +37,8 @@ namespace Arrowgene.Services.Networking.ServerBridge.Tcp
             _endPointLookup = new Dictionary<ITcpSocket, IPEndPoint>();
             _socketLookup = new Dictionary<IPEndPoint, ITcpSocket>();
             _queued = new Dictionary<ITcpSocket, Queue<Message>>();
-            _tcpServer = new AsyncEventServer(_settings.ListenEndPoint.Address, _settings.ListenEndPoint.Port, this, settings.ServerSettings);
+            _tcpServer = new AsyncEventServer(_settings.ListenEndPoint.Address, _settings.ListenEndPoint.Port, this,
+                settings.ServerSettings);
             foreach (NetworkPoint networkPoint in _settings.ClientEndPoints)
             {
                 _clients.Add(networkPoint.ToIpEndPoint());
@@ -175,6 +175,11 @@ namespace Arrowgene.Services.Networking.ServerBridge.Tcp
             _consumer.OnStart();
         }
 
+        public void OnStarted()
+        {
+            _consumer.OnStarted();
+        }
+
         void IConsumer.OnReceivedData(ITcpSocket socket, byte[] data)
         {
             _consumer.OnReceivedData(socket, data);
@@ -199,6 +204,11 @@ namespace Arrowgene.Services.Networking.ServerBridge.Tcp
         void IConsumer.OnStop()
         {
             _consumer.OnStart();
+        }
+
+        public void OnStopped()
+        {
+            _consumer.OnStopped();
         }
     }
 }

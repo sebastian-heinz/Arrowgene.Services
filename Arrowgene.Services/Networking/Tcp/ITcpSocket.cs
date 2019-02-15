@@ -29,8 +29,10 @@ namespace Arrowgene.Services.Networking.Tcp
 {
     public interface ITcpSocket
     {
+        string Identity { get; }
         IPAddress RemoteIpAddress { get; }
         ushort Port { get; }
+        int UnitOfOrder { get; }
         void Send(byte[] data);
         void Close();
     }

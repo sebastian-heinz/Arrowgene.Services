@@ -67,19 +67,13 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
             _socket.Send(payload);
         }
 
-        public void Connect(string remoteIpAddress, ushort serverPort, TimeSpan timeout)
-        {
-            Connect(IPAddress.Parse(remoteIpAddress), serverPort, timeout);
-        }
-
         protected override void OnConnect(IPAddress remoteIpAddress, ushort serverPort, TimeSpan timeout)
         {
             if (!_isConnected)
             {
                 if (remoteIpAddress == null || serverPort <= 0)
                 {
-                    throw new InvalidParameterException(string.Format("Address({0}) or Port({1}) invalid",
-                        remoteIpAddress, serverPort));
+                    throw new InvalidParameterException($"Address({remoteIpAddress}) or Port({serverPort}) invalid");
                 }
 
                 RemoteIpAddress = remoteIpAddress;
@@ -161,7 +155,7 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
             {
                 _socket.Close();
             }
-
+            _logger.Debug($"{Name} Closed");
             OnClientDisconnected(this);
         }
 

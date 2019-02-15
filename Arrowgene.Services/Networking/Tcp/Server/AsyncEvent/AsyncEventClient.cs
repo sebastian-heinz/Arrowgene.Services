@@ -31,50 +31,32 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
 {
     public class AsyncEventClient : ITcpSocket
     {
+        public string Identity { get; }
+        public IPAddress RemoteIpAddress { get; }
+        public ushort Port { get; }
+        public int UnitOfOrder { get; }
         public Socket Socket { get; }
-        public bool IsAlive { get; private set; }
+        public SocketAsyncEventArgs ReadEventArgs { get; private set; }
 
+        private bool _isAlive;
         private readonly AsyncEventServer _server;
+        private readonly object _lock;
 
-        public AsyncEventClient(Socket socket, AsyncEventServer server)
+        public AsyncEventClient(Socket socket, SocketAsyncEventArgs readEventArgs, AsyncEventServer server, int uoo)
         {
-            IsAlive = true;
-            _server = server;
+            _lock = new object();
+            _isAlive = true;
             Socket = socket;
-        }
-
-        public IPAddress RemoteIpAddress
-        {
-            get
+            ReadEventArgs = readEventArgs;
+            _server = server;
+            UnitOfOrder = uoo;
+            if (Socket.RemoteEndPoint is IPEndPoint ipEndPoint)
             {
-                if (Socket != null && Socket.RemoteEndPoint != null)
-                {
-                    IPEndPoint ipEndPoint = Socket.RemoteEndPoint as IPEndPoint;
-                    if (ipEndPoint != null)
-                    {
-                        return ipEndPoint.Address;
-                    }
-                }
-
-                return null;
+                RemoteIpAddress = ipEndPoint.Address;
+                Port = (ushort) ipEndPoint.Port;
             }
-        }
 
-        public ushort Port
-        {
-            get
-            {
-                if (Socket != null && Socket.RemoteEndPoint != null)
-                {
-                    IPEndPoint ipEndPoint = Socket.RemoteEndPoint as IPEndPoint;
-                    if (ipEndPoint != null)
-                    {
-                        return (ushort) ipEndPoint.Port;
-                    }
-                }
-
-                return 0;
-            }
+            Identity = $"{RemoteIpAddress}:{Port}";
         }
 
         public void Send(byte[] data)
@@ -84,12 +66,16 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
 
         public void Close()
         {
-            if (!IsAlive)
+            lock (_lock)
             {
-                return;
+                if (!_isAlive)
+                {
+                    return;
+                }
+
+                _isAlive = false;
             }
 
-            IsAlive = false;
             try
             {
                 Socket.Shutdown(SocketShutdown.Both);
@@ -101,6 +87,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
 
             Socket.Close();
             _server.NotifyDisconnected(this);
+            ReadEventArgs = null;
         }
     }
 }

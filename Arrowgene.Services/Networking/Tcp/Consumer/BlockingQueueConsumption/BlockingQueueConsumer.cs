@@ -36,6 +36,10 @@ namespace Arrowgene.Services.Networking.Tcp.Consumer.BlockingQueueConsumption
             ClientEvents = new BlockingCollection<ClientEvent>();
         }
 
+        public void OnStarted()
+        {
+        }
+
         public void OnReceivedData(ITcpSocket socket, byte[] data)
         {
             ClientEvents.Add(new ClientEvent(socket, ClientEventType.ReceivedData, data));
@@ -52,6 +56,10 @@ namespace Arrowgene.Services.Networking.Tcp.Consumer.BlockingQueueConsumption
         }
 
         public void OnStop()
+        {
+        }
+
+        public void OnStopped()
         {
         }
     }
