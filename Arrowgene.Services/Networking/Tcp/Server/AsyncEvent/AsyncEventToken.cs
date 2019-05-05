@@ -25,7 +25,7 @@
 
 namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
 {
-    public class WriteToken
+    public class AsyncEventToken
     {
         public byte[] Data { get; private set; }
         public AsyncEventClient Client { get; private set; }

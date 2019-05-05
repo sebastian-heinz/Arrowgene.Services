@@ -9,11 +9,11 @@ namespace Arrowgene.Services.Networking.ServerBridge
     {
         private readonly Dictionary<string, Dictionary<string, Func<Request, Response>>> _handlesLookup;
         private readonly Func<TIdentity, string> _identityResolver;
-        protected readonly Logger Logger;
+        protected readonly ILogger Logger;
 
         public MemoryBridge(Func<TIdentity, string> identityResolver = null)
         {
-            Logger = LogProvider<Logger>.GetLogger(this);
+            Logger = LogProvider.Logger(this);
             _handlesLookup = new Dictionary<string, Dictionary<string, Func<Request, Response>>>();
             if (identityResolver != null)
             {

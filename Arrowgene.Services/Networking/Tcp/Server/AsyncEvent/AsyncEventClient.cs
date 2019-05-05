@@ -35,8 +35,21 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
         public IPAddress RemoteIpAddress { get; }
         public ushort Port { get; }
         public int UnitOfOrder { get; }
+
+        public bool IsAlive
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    return _isAlive;
+                }
+            }
+        }
+
         public Socket Socket { get; }
         public SocketAsyncEventArgs ReadEventArgs { get; private set; }
+        public DateTime LastActive { get; set; }
 
         private bool _isAlive;
         private readonly AsyncEventServer _server;
@@ -50,6 +63,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
             ReadEventArgs = readEventArgs;
             _server = server;
             UnitOfOrder = uoo;
+            LastActive = DateTime.Now;
             if (Socket.RemoteEndPoint is IPEndPoint ipEndPoint)
             {
                 RemoteIpAddress = ipEndPoint.Address;
@@ -80,9 +94,9 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
             {
                 Socket.Shutdown(SocketShutdown.Both);
             }
-            // ReSharper disable once EmptyGeneralCatchClause
-            catch (Exception)
+            catch
             {
+                // ignored
             }
 
             Socket.Close();

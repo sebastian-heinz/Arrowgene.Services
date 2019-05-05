@@ -25,16 +25,15 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace Arrowgene.Services.Logging
 {
-    public class Logger
+    public class Logger : ILogger
     {
-        public event EventHandler<LogWriteEventArgs> LogWrite;
-
         private readonly object _lock;
         private readonly Dictionary<int, Log> _logs;
-        private volatile int _currentId;
+        private int _currentId;
         private string _zone;
         private string _identity;
 
@@ -47,7 +46,14 @@ namespace Arrowgene.Services.Logging
             _lock = new object();
             _logs = new Dictionary<int, Log>();
             _currentId = 0;
-            Initialize(identity, zone, configuration);
+        }
+
+        public event EventHandler<LogWriteEventArgs> LogWrite;
+
+        public virtual void Initialize(string identity, string zone, object configuration)
+        {
+            _identity = identity;
+            _zone = zone;
         }
 
         public void Write(Log log)
@@ -93,6 +99,13 @@ namespace Arrowgene.Services.Logging
 
         public void Exception(Exception exception)
         {
+            if (exception == null)
+            {
+                // GetCallingMethodInfo()
+                Write(LogLevel.Error, null, "Exception was null.");
+                return;
+            }
+
             Write(LogLevel.Error, null, exception.ToString());
         }
 
@@ -105,17 +118,6 @@ namespace Arrowgene.Services.Logging
             }
 
             return tmp;
-        }
-
-        protected virtual void Configure(object configuration)
-        {
-        }
-
-        internal void Initialize(string identity, string zone, object configuration)
-        {
-            _identity = identity;
-            _zone = zone;
-            Configure(configuration);
         }
 
         private void OnLogWrite(Log log)
@@ -156,7 +158,24 @@ namespace Arrowgene.Services.Logging
 
         private string GetCallingMethod(StackFrame stackFrame)
         {
-            return stackFrame.GetMethod().DeclaringType.FullName + "::" + stackFrame.GetMethod().Name;
+            if (stackFrame == null)
+            {
+                return "";
+            }
+
+            MethodBase methodBase = stackFrame.GetMethod();
+            if (methodBase == null)
+            {
+                return "";
+            }
+
+            Type declaringType = methodBase.DeclaringType;
+            if (declaringType == null)
+            {
+                return "::" + methodBase.Name;
+            }
+
+            return declaringType.FullName + "::" + methodBase.Name;
         }
     }
 }

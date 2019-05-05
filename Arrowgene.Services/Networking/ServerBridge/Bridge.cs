@@ -9,11 +9,11 @@ namespace Arrowgene.Services.Networking.ServerBridge
     {
         private readonly Dictionary<Guid, Action<Response>> _subscriber;
         private readonly Dictionary<string, Func<Request, Response>> _handler;
-        protected readonly Logger Logger;
+        protected readonly ILogger Logger;
 
         protected Bridge()
         {
-            Logger = LogProvider<Logger>.GetLogger(this);
+            Logger = LogProvider.Logger(this);
             _subscriber = new Dictionary<Guid, Action<Response>>();
             _handler = new Dictionary<string, Func<Request, Response>>();
         }

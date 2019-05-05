@@ -38,11 +38,14 @@ namespace Arrowgene.Services.Networking.Tcp.Client
             _consumer = consumer;
         }
 
+        public abstract bool IsAlive { get; }
+
         public event EventHandler<ConnectErrorEventArgs> ConnectError;
 
         public IPAddress RemoteIpAddress { get; protected set; }
         public ushort Port { get; protected set; }
         public int UnitOfOrder => 0;
+        public DateTime LastActive { get; set; }
 
         public abstract void Send(byte[] payload);
 

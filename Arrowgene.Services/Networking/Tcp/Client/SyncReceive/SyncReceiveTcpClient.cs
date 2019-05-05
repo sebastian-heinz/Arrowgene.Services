@@ -41,20 +41,22 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
         private volatile bool _isConnected;
         private readonly int _pollTimeout;
         private readonly int _bufferSize;
-        private readonly Logger _logger;
+        private readonly ILogger _logger;
         private Socket _socket;
         private Thread _readThread;
+        
 
         public IBufferProvider BufferProvider { get; }
         public int SocketPollTimeout { get; }
         public int ThreadJoinTimeout { get; }
         public string Name { get; }
 
+        public override bool IsAlive => _isConnected;
 
         public SyncReceiveTcpClient(IConsumer consumer) : base(consumer)
         {
             BufferProvider = new StreamBuffer();
-            _logger = LogProvider<Logger>.GetLogger(this);
+            _logger = LogProvider.Logger(this);
             SocketPollTimeout = 100;
             Name = DefaultName;
             ThreadJoinTimeout = 1000;

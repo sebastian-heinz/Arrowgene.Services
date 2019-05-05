@@ -138,7 +138,7 @@ namespace Arrowgene.Services.Networking
             SocketOptions.Add(socketOption);
         }
 
-        public void SetSocketOptions(Socket socket, Logger logger = null)
+        public void SetSocketOptions(Socket socket, ILogger logger = null)
         {
             foreach (SocketOption option in SocketOptions)
             {
@@ -153,7 +153,7 @@ namespace Arrowgene.Services.Networking
             }
         }
 
-        public void ConfigureSocket(Socket socket, Logger logger = null)
+        public void ConfigureSocket(Socket socket, ILogger logger = null)
         {
             if (socket.SocketType == SocketType.Dgram)
             {
