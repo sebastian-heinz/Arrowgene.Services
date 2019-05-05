@@ -28,9 +28,15 @@ using System.Collections.Generic;
 
 namespace Arrowgene.Services.Logging
 {
-    public class LogProvider
+    public sealed class LogProvider
     {
-        public static readonly LogProvider Instance = new LogProvider();
+        private static readonly LogProvider instance = new LogProvider();
+
+        static LogProvider()
+        {
+        }
+
+        public static LogProvider Instance => instance;
 
         public static ILogger Logger(object instance)
         {
@@ -80,7 +86,7 @@ namespace Arrowgene.Services.Logging
         private readonly Dictionary<string, object> _configurations;
         private readonly object _lock;
 
-        public LogProvider()
+        private LogProvider()
         {
             _loggers = new Dictionary<string, ILogger>();
             _configurations = new Dictionary<string, object>();
