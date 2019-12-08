@@ -24,11 +24,7 @@ jobs:
           echo ::set-env name=VERSION::$VERSION
           mkdir ./release
           for RUNTIME in win-x86 win-x64 linux-x64 osx-x64; do
-              # Server
               dotnet publish Arrowgene.Services/Arrowgene.Services.csproj /p:Version=$VERSION /p:FromMSBuild=true --runtime $RUNTIME --configuration Release --output ./publish/$RUNTIME-$VERSION
-              # ReleaseFiles
-              cp -r ./ReleaseFiles/. ./publish/$RUNTIME-$VERSION/
-              # Pack
               tar cjf ./release/$RUNTIME-$VERSION.tar.gz ./publish/$RUNTIME-$VERSION
           done
 
