@@ -23,29 +23,16 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Reflection;
 
 namespace Arrowgene.Services.Logging
 {
     public class Logger : ILogger
     {
-        private readonly object _lock;
-        private readonly Dictionary<int, Log> _logs;
-        private int _currentId;
         private string _zone;
         private string _identity;
 
-        public Logger() : this(null)
+        public Logger()
         {
-        }
-
-        public Logger(string identity, string zone = null, object configuration = null)
-        {
-            _lock = new object();
-            _logs = new Dictionary<int, Log>();
-            _currentId = 0;
         }
 
         public event EventHandler<LogWriteEventArgs> LogWrite;
@@ -58,66 +45,44 @@ namespace Arrowgene.Services.Logging
 
         public void Write(Log log)
         {
-            lock (_lock)
-            {
-                _logs.Add(_currentId++, log);
-            }
-
             OnLogWrite(log);
         }
 
-        public void Write(LogLevel logLevel, object tag, string message, params object[] args)
+        public void Write(LogLevel logLevel, string message, object tag)
         {
-            string msg;
-            try
-            {
-                msg = string.Format(message, args);
-            }
-            catch (Exception ex)
-            {
-                msg = $"Error: '{message}' had invalid args ({ex})";
-            }
-
-            Log log = new Log(logLevel, msg, tag, _identity, _zone);
+            Log log = new Log(logLevel, message, tag, _identity, _zone);
             Write(log);
         }
 
-        public void Info(string message, params object[] args)
+        public void Trace(string message)
         {
-            Write(LogLevel.Info, null, message, args);
+            Write(LogLevel.Trace, message, null);
         }
 
-        public void Debug(string message, params object[] args)
+        public void Info(string message)
         {
-            Write(LogLevel.Debug, null, message, args);
+            Write(LogLevel.Info, message, null);
         }
 
-        public void Error(string message, params object[] args)
+        public void Debug(string message)
         {
-            Write(LogLevel.Error, null, message, args);
+            Write(LogLevel.Debug, message, null);
+        }
+
+        public void Error(string message)
+        {
+            Write(LogLevel.Error, message, null);
         }
 
         public void Exception(Exception exception)
         {
             if (exception == null)
             {
-                // GetCallingMethodInfo()
-                Write(LogLevel.Error, null, "Exception was null.");
+                Write(LogLevel.Error, "Exception was null.", null);
                 return;
             }
 
-            Write(LogLevel.Error, null, exception.ToString());
-        }
-
-        public Dictionary<int, Log> GetLogs()
-        {
-            Dictionary<int, Log> tmp;
-            lock (_lock)
-            {
-                tmp = new Dictionary<int, Log>(_logs);
-            }
-
-            return tmp;
+            Write(LogLevel.Error, exception.ToString(), exception);
         }
 
         private void OnLogWrite(Log log)
@@ -128,54 +93,6 @@ namespace Arrowgene.Services.Logging
                 LogWriteEventArgs logWriteEventArgs = new LogWriteEventArgs(log);
                 logWrite(this, logWriteEventArgs);
             }
-        }
-
-        private string GetCallingMethodInfo()
-        {
-            return GetCallingMethodInfo(1);
-        }
-
-        private string GetCallingMethodInfo(int depth)
-        {
-            string result = "";
-            StackTrace trace = new StackTrace();
-            if (trace.FrameCount > 1)
-            {
-                if (trace.FrameCount < depth)
-                {
-                    depth = trace.FrameCount;
-                }
-
-                for (int i = 1; i < depth; i++)
-                {
-                    StackFrame frame = trace.GetFrame(i);
-                    result += GetCallingMethod(frame);
-                }
-            }
-
-            return result;
-        }
-
-        private string GetCallingMethod(StackFrame stackFrame)
-        {
-            if (stackFrame == null)
-            {
-                return "";
-            }
-
-            MethodBase methodBase = stackFrame.GetMethod();
-            if (methodBase == null)
-            {
-                return "";
-            }
-
-            Type declaringType = methodBase.DeclaringType;
-            if (declaringType == null)
-            {
-                return "::" + methodBase.Name;
-            }
-
-            return declaringType.FullName + "::" + methodBase.Name;
         }
     }
 }

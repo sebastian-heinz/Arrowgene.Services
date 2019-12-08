@@ -54,13 +54,11 @@ namespace Arrowgene.Services.Buffers
         {
             const int bufferSize = 1024;
             byte[] buffer = new byte[bufferSize];
-            using (FileStream fileStream = File.OpenRead(filePath))
+            using FileStream fileStream = File.OpenRead(filePath);
+            int read;
+            while ((read = fileStream.Read(buffer, 0, bufferSize)) > 0)
             {
-                int read;
-                while ((read = fileStream.Read(buffer, 0, bufferSize)) > 0)
-                {
-                    _binaryWriter.Write(buffer, 0, read);
-                }
+                _binaryWriter.Write(buffer, 0, read);
             }
         }
 
@@ -70,6 +68,11 @@ namespace Arrowgene.Services.Buffers
         {
             get => (int) _memoryStream.Position;
             set => _memoryStream.Position = value;
+        }
+
+        public override void SetSize(int size)
+        {
+            _memoryStream.SetLength(size);
         }
 
         public sealed override void SetPositionStart()
@@ -128,42 +131,42 @@ namespace Arrowgene.Services.Buffers
             _binaryWriter.Write(value);
         }
 
-        public override void WriteInt16(short value)
+        public override void WriteInt16_Implementation(short value)
         {
             _binaryWriter.Write(value);
         }
 
-        public override void WriteInt16(ushort value)
+        public override void WriteUInt16_Implementation(ushort value)
         {
             _binaryWriter.Write(value);
         }
 
-        public override void WriteInt32(int value)
+        public override void WriteInt32_Implementation(int value)
         {
             _binaryWriter.Write(value);
         }
 
-        public override void WriteInt32(uint value)
+        public override void WriteUInt32_Implementation(uint value)
         {
             _binaryWriter.Write(value);
         }
 
-        public override void WriteInt64(long value)
+        public override void WriteInt64_Implementation(long value)
         {
             _binaryWriter.Write(value);
         }
 
-        public override void WriteInt64(ulong value)
+        public override void WriteUInt64_Implementation(ulong value)
         {
             _binaryWriter.Write(value);
         }
 
-        public override void WriteFloat(float value)
+        public override void WriteFloat_Implementation(float value)
         {
             _binaryWriter.Write(value);
         }
 
-        public override void WriteDouble(double value)
+        public override void WriteDouble_Implementation(double value)
         {
             _binaryWriter.Write(value);
         }
@@ -201,7 +204,7 @@ namespace Arrowgene.Services.Buffers
             return bytes;
         }
 
-        public override short GetInt16(int offset)
+        public override short GetInt16_Implementation(int offset)
         {
             int position = Position;
             Position = offset;
@@ -210,7 +213,7 @@ namespace Arrowgene.Services.Buffers
             return value;
         }
 
-        public override ushort GetUInt16(int offset)
+        public override ushort GetUInt16_Implementation(int offset)
         {
             int position = Position;
             Position = offset;
@@ -219,17 +222,17 @@ namespace Arrowgene.Services.Buffers
             return value;
         }
 
-        public override short ReadInt16()
+        public override short ReadInt16_Implementation()
         {
             return _binaryReader.ReadInt16();
         }
 
-        public override ushort ReadUInt16()
+        public override ushort ReadUInt16_Implementation()
         {
             return _binaryReader.ReadUInt16();
         }
 
-        public override int GetInt32(int offset)
+        public override int GetInt32_Implementation(int offset)
         {
             int position = Position;
             Position = offset;
@@ -238,7 +241,7 @@ namespace Arrowgene.Services.Buffers
             return value;
         }
 
-        public override uint GetUInt32(int offset)
+        public override uint GetUInt32_Implementation(int offset)
         {
             int position = Position;
             Position = offset;
@@ -247,17 +250,17 @@ namespace Arrowgene.Services.Buffers
             return value;
         }
 
-        public override int ReadInt32()
+        public override int ReadInt32_Implementation()
         {
             return _binaryReader.ReadInt32();
         }
 
-        public override uint ReadUInt32()
+        public override uint ReadUInt32_Implementation()
         {
             return _binaryReader.ReadUInt32();
         }
 
-        public override long GetInt64(int offset)
+        public override long GetInt64_Implementation(int offset)
         {
             int position = Position;
             Position = offset;
@@ -266,7 +269,7 @@ namespace Arrowgene.Services.Buffers
             return value;
         }
 
-        public override ulong GetUInt64(int offset)
+        public override ulong GetUInt64_Implementation(int offset)
         {
             int position = Position;
             Position = offset;
@@ -275,17 +278,17 @@ namespace Arrowgene.Services.Buffers
             return value;
         }
 
-        public override long ReadInt64()
+        public override long ReadInt64_Implementation()
         {
             return _binaryReader.ReadInt64();
         }
 
-        public override ulong ReadUInt64()
+        public override ulong ReadUInt64_Implementation()
         {
             return _binaryReader.ReadUInt64();
         }
 
-        public override float GetFloat(int offset)
+        public override float GetFloat_Implementation(int offset)
         {
             int position = Position;
             Position = offset;
@@ -294,12 +297,12 @@ namespace Arrowgene.Services.Buffers
             return value;
         }
 
-        public override float ReadFloat()
+        public override float ReadFloat_Implementation()
         {
             return _binaryReader.ReadSingle();
         }
 
-        public override double GetDouble(int offset)
+        public override double GetDouble_Implementation(int offset)
         {
             int position = Position;
             Position = offset;
@@ -308,7 +311,7 @@ namespace Arrowgene.Services.Buffers
             return value;
         }
 
-        public override double ReadDouble()
+        public override double ReadDouble_Implementation()
         {
             return _binaryReader.ReadDouble();
         }

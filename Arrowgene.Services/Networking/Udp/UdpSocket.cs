@@ -129,11 +129,12 @@ namespace Arrowgene.Services.Networking.Udp
 
                     if (_udpThread.Join(waitTimeout))
                     {
-                        Debug.WriteLine(string.Format("UDPBase::Stop: Udp thread ended clean.", waitTimeout));
+                        Debug.WriteLine("UDPBase::Stop: Udp thread ended clean.");
                     }
                     else
                     {
-                        Debug.WriteLine(string.Format("UDPBase::Stop: Exceeded maximum timeout of {0} ms, aborting thread...", waitTimeout));
+                        Debug.WriteLine(
+                            $"UDPBase::Stop: Exceeded maximum timeout of {waitTimeout} ms, aborting thread...");
                         _udpThread.Abort();
                     }
                 }
@@ -192,7 +193,7 @@ namespace Arrowgene.Services.Networking.Udp
             }
             else
             {
-                Debug.WriteLine(string.Format("UDPBase::SendTo: Exceeded maximum size of {0} byte", MaxPayloadSizeBytes));
+                Debug.WriteLine($"UDPBase::SendTo: Exceeded maximum size of {MaxPayloadSizeBytes} byte");
             }
         }
 

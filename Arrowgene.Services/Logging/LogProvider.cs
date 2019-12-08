@@ -30,13 +30,13 @@ namespace Arrowgene.Services.Logging
 {
     public sealed class LogProvider
     {
-        private static readonly LogProvider instance = new LogProvider();
+        private static readonly LogProvider _instance = new LogProvider();
 
         static LogProvider()
         {
         }
 
-        public static LogProvider Instance => instance;
+        public static LogProvider Instance => _instance;
 
         public static ILogger Logger(object instance)
         {

@@ -44,12 +44,12 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
         private readonly ILogger _logger;
         private Socket _socket;
         private Thread _readThread;
-        
+
 
         public IBufferProvider BufferProvider { get; }
         public int SocketPollTimeout { get; }
         public int ThreadJoinTimeout { get; }
-        public string Name { get; }
+        public string Name { get; set; }
 
         public override bool IsAlive => _isConnected;
 
@@ -132,31 +132,13 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
         protected override void OnClose()
         {
             _isConnected = false;
-            if (_readThread != null)
-            {
-                _logger.Info("Shutting {0} down...", Name);
-                if (Thread.CurrentThread != _readThread)
-                {
-                    if (_readThread.Join(ThreadJoinTimeout))
-                    {
-                        _logger.Info("{0} ended.", Name);
-                    }
-                    else
-                    {
-                        _logger.Error("Exceeded thread join timeout of {0}ms, could not close {1}.", 1000, Name);
-                        _readThread.Abort();
-                    }
-                }
-                else
-                {
-                    _logger.Debug("Tried to join thread from within thread, letting thread run out..");
-                }
-            }
+            Service.JoinThread(_readThread, ThreadJoinTimeout, _logger);
 
             if (_socket != null)
             {
                 _socket.Close();
             }
+
             _logger.Debug($"{Name} Closed");
             OnClientDisconnected(this);
         }
@@ -164,16 +146,16 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
         private Socket CreateSocket()
         {
             Socket socket;
-            _logger.Info("{0} Creating Socket...", Name);
+            _logger.Info($"{Name} Creating Socket...");
             if (RemoteIpAddress.AddressFamily == AddressFamily.InterNetworkV6)
             {
                 socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
-                _logger.Info("{0} Created Socket (IPv6)", Name);
+                _logger.Info($"{Name} Created Socket (IPv6)");
             }
             else
             {
                 socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                _logger.Info("{0} Created Socket (IPv4)", Name);
+                _logger.Info($"{Name} Created Socket (IPv4)");
             }
 
             return socket;
@@ -185,20 +167,20 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
             _readThread = new Thread(ReadProcess);
             _readThread.Name = Name;
             _readThread.Start();
-            _logger.Info("{0} connected", Name);
+            _logger.Info($"{Name} connected");
             OnClientConnected(this);
         }
 
         private void ReadProcess()
         {
-            _logger.Info("{0} started.", Name);
+            _logger.Info($"{Name} started.");
             _isConnected = true;
+            IBuffer payload = BufferProvider.Provide();
             while (_isConnected)
             {
                 if (_socket.Poll(_pollTimeout, SelectMode.SelectRead))
                 {
                     byte[] buffer = new byte[_bufferSize];
-                    IBuffer payload = BufferProvider.Provide();
                     try
                     {
                         int bytesReceived;
@@ -212,7 +194,7 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
                     {
                         if (!_socket.Connected)
                         {
-                            _logger.Error("{0} {1}", Name, e.Message);
+                            _logger.Error($"{Name} {e.Message}");
                         }
                         else
                         {
@@ -229,7 +211,7 @@ namespace Arrowgene.Services.Networking.Tcp.Client.SyncReceive
                 Thread.Sleep(SocketPollTimeout);
             }
 
-            _logger.Info("{0} ended.", Name);
+            _logger.Info($"{Name} ended.");
         }
     }
 }

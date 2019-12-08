@@ -5,7 +5,7 @@ using Arrowgene.Services.Networking.ServerBridge.Messages;
 namespace Arrowgene.Services.Networking.ServerBridge
 {
     /// <summary>
-    /// Responsible for EzServer-to-EzServer communication.
+    /// Responsible for server-to-server communication.
     /// </summary>
     /// <example>
     /// This sample shows how to define a handler and request a response.

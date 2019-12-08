@@ -53,73 +53,23 @@ namespace Arrowgene.Services.Buffers
             return bytes.ToArray();
         }
 
-        public static bool SwapNeeded(Endianness endianness)
+        private readonly IEndiannessSwapper _endiannessSwapper;
+
+        public Buffer()
         {
-            return (BitConverter.IsLittleEndian && endianness == Endianness.Big)
-                   || (!BitConverter.IsLittleEndian && endianness == Endianness.Little);
+            _endiannessSwapper =
+                new EndiannessSwapper(BitConverter.IsLittleEndian ? Endianness.Little : Endianness.Big);
         }
 
-        public static ushort SwapBytes(ushort x)
+        public Buffer(IEndiannessSwapper endiannessSwapper)
         {
-            return (ushort) ((x >> 8) | (x << 8));
+            _endiannessSwapper = endiannessSwapper;
         }
 
-        public static uint SwapBytes(uint x)
-        {
-            x = (x >> 16) | (x << 16);
-            return ((x & 0xFF00FF00) >> 8) | ((x & 0x00FF00FF) << 8);
-        }
-
-        public static ulong SwapBytes(ulong x)
-        {
-            x = (x >> 32) | (x << 32);
-            x = ((x & 0xFFFF0000FFFF0000) >> 16) | ((x & 0x0000FFFF0000FFFF) << 16);
-            return ((x & 0xFF00FF00FF00FF00) >> 8) | ((x & 0x00FF00FF00FF00FF) << 8);
-        }
-
-        public static float SwapBytes(float input)
-        {
-            byte[] tmpIn = BitConverter.GetBytes(input);
-            byte[] tmpOut = new byte[4];
-            tmpOut[0] = tmpIn[3];
-            tmpOut[1] = tmpIn[2];
-            tmpOut[2] = tmpIn[1];
-            tmpOut[3] = tmpIn[0];
-            return BitConverter.ToSingle(tmpOut, 0);
-        }
-
-        public static double SwapBytes(double input)
-        {
-            byte[] tmpIn = BitConverter.GetBytes(input);
-            byte[] tmpOut = new byte[8];
-            tmpOut[0] = tmpIn[7];
-            tmpOut[1] = tmpIn[6];
-            tmpOut[2] = tmpIn[5];
-            tmpOut[3] = tmpIn[4];
-            tmpOut[4] = tmpIn[3];
-            tmpOut[5] = tmpIn[2];
-            tmpOut[6] = tmpIn[1];
-            tmpOut[7] = tmpIn[0];
-            return BitConverter.ToSingle(tmpOut, 0);
-        }
-
-        public static short SwapBytes(short value)
-        {
-            return (short) SwapBytes((ushort) value);
-        }
-
-        public static int SwapBytes(int value)
-        {
-            return (int) SwapBytes((uint) value);
-        }
-
-        public static long SwapBytes(long value)
-        {
-            return (long) SwapBytes((ulong) value);
-        }
-
+        public Endianness Endianness => _endiannessSwapper.Endianness;
         public abstract int Size { get; }
         public abstract int Position { get; set; }
+        public abstract void SetSize(int size);
         public abstract void SetPositionStart();
         public abstract void SetPositionEnd();
         public abstract IBuffer Clone(int offset, int length);
@@ -131,116 +81,241 @@ namespace Arrowgene.Services.Buffers
         public abstract void WriteBytes(byte[] bytes);
         public abstract void WriteBytes(byte[] source, int srcOffset, int length);
         public abstract void WriteBytes(byte[] source, int srcOffset, int dstOffset, int count);
-        public abstract void WriteInt16(short value);
-        public abstract void WriteInt16(ushort value);
-        public abstract void WriteInt32(int value);
-        public abstract void WriteInt32(uint value);
-        public abstract void WriteInt64(long value);
-        public abstract void WriteInt64(ulong value);
-        public abstract void WriteFloat(float value);
-        public abstract void WriteDouble(double value);
         public abstract void WriteDecimal(decimal value);
         public abstract byte ReadByte();
         public abstract byte GetByte(int offset);
         public abstract byte[] ReadBytes(int length);
         public abstract byte[] GetBytes(int offset, int length);
-        public abstract short GetInt16(int offset);
-        public abstract ushort GetUInt16(int offset);
-        public abstract short ReadInt16();
-        public abstract ushort ReadUInt16();
-        public abstract int GetInt32(int offset);
-        public abstract uint GetUInt32(int offset);
-        public abstract int ReadInt32();
-        public abstract uint ReadUInt32();
-        public abstract long GetInt64(int offset);
-        public abstract ulong GetUInt64(int offset);
-        public abstract long ReadInt64();
-        public abstract ulong ReadUInt64();
-        public abstract float GetFloat(int offset);
-        public abstract float ReadFloat();
-        public abstract double GetDouble(int offset);
-        public abstract double ReadDouble();
         public abstract decimal GetDecimal(int offset);
         public abstract decimal ReadDecimal();
+        public abstract void WriteInt16_Implementation(short value);
+        public abstract void WriteUInt16_Implementation(ushort value);
+        public abstract void WriteInt32_Implementation(int value);
+        public abstract void WriteUInt32_Implementation(uint value);
+        public abstract void WriteInt64_Implementation(long value);
+        public abstract void WriteUInt64_Implementation(ulong value);
+        public abstract void WriteFloat_Implementation(float value);
+        public abstract void WriteDouble_Implementation(double value);
+        public abstract short GetInt16_Implementation(int offset);
+        public abstract ushort GetUInt16_Implementation(int offset);
+        public abstract short ReadInt16_Implementation();
+        public abstract ushort ReadUInt16_Implementation();
+        public abstract int GetInt32_Implementation(int offset);
+        public abstract uint GetUInt32_Implementation(int offset);
+        public abstract int ReadInt32_Implementation();
+        public abstract uint ReadUInt32_Implementation();
+        public abstract long GetInt64_Implementation(int offset);
+        public abstract ulong GetUInt64_Implementation(int offset);
+        public abstract long ReadInt64_Implementation();
+        public abstract ulong ReadUInt64_Implementation();
+        public abstract float GetFloat_Implementation(int offset);
+        public abstract float ReadFloat_Implementation();
+        public abstract double GetDouble_Implementation(int offset);
+        public abstract double ReadDouble_Implementation();
+
+        public virtual void SetEndianness(Endianness endianness)
+        {
+            _endiannessSwapper.Endianness = endianness;
+        }
+
+        public virtual void WriteInt16(short value)
+        {
+            _endiannessSwapper.WriteSwap(value, WriteInt16_Implementation, _endiannessSwapper.SwapBytes);
+        }
+
+        public virtual void WriteUInt16(ushort value)
+        {
+            _endiannessSwapper.WriteSwap(value, WriteUInt16_Implementation, _endiannessSwapper.SwapBytes);
+        }
+
+        public virtual void WriteInt32(int value)
+        {
+            _endiannessSwapper.WriteSwap(value, WriteInt32_Implementation, _endiannessSwapper.SwapBytes);
+        }
+
+        public virtual void WriteUInt32(uint value)
+        {
+            _endiannessSwapper.WriteSwap(value, WriteUInt32_Implementation, _endiannessSwapper.SwapBytes);
+        }
+
+        public virtual void WriteInt64(long value)
+        {
+            _endiannessSwapper.WriteSwap(value, WriteInt64_Implementation, _endiannessSwapper.SwapBytes);
+        }
+
+        public virtual void WriteUInt64(ulong value)
+        {
+            _endiannessSwapper.WriteSwap(value, WriteUInt64_Implementation, _endiannessSwapper.SwapBytes);
+        }
+
+        public virtual void WriteFloat(float value)
+        {
+            _endiannessSwapper.WriteSwap(value, WriteFloat_Implementation, _endiannessSwapper.SwapBytes);
+        }
+
+        public virtual void WriteDouble(double value)
+        {
+            _endiannessSwapper.WriteSwap(value, WriteDouble_Implementation, _endiannessSwapper.SwapBytes);
+        }
+
+        public virtual short GetInt16(int offset)
+        {
+            return _endiannessSwapper.GetSwap(offset, GetInt16_Implementation, _endiannessSwapper.SwapBytes);
+        }
+
+        public virtual ushort GetUInt16(int offset)
+        {
+            return _endiannessSwapper.GetSwap(offset, GetUInt16_Implementation, _endiannessSwapper.SwapBytes);
+        }
+
+        public virtual short ReadInt16()
+        {
+            return _endiannessSwapper.ReadSwap(ReadInt16_Implementation, _endiannessSwapper.SwapBytes);
+        }
+
+        public virtual ushort ReadUInt16()
+        {
+            return _endiannessSwapper.ReadSwap(ReadUInt16_Implementation, _endiannessSwapper.SwapBytes);
+        }
+
+        public virtual int GetInt32(int offset)
+        {
+            return _endiannessSwapper.GetSwap(offset, GetInt32_Implementation, _endiannessSwapper.SwapBytes);
+        }
+
+        public virtual uint GetUInt32(int offset)
+        {
+            return _endiannessSwapper.GetSwap(offset, GetUInt32_Implementation, _endiannessSwapper.SwapBytes);
+        }
+
+        public virtual int ReadInt32()
+        {
+            return _endiannessSwapper.ReadSwap(ReadInt32_Implementation, _endiannessSwapper.SwapBytes);
+        }
+
+        public virtual uint ReadUInt32()
+        {
+            return _endiannessSwapper.ReadSwap(ReadUInt32_Implementation, _endiannessSwapper.SwapBytes);
+        }
+
+        public virtual long GetInt64(int offset)
+        {
+            return _endiannessSwapper.GetSwap(offset, GetInt64_Implementation, _endiannessSwapper.SwapBytes);
+        }
+
+        public virtual ulong GetUInt64(int offset)
+        {
+            return _endiannessSwapper.GetSwap(offset, GetUInt64_Implementation, _endiannessSwapper.SwapBytes);
+        }
+
+        public virtual long ReadInt64()
+        {
+            return _endiannessSwapper.ReadSwap(ReadInt64_Implementation, _endiannessSwapper.SwapBytes);
+        }
+
+        public virtual ulong ReadUInt64()
+        {
+            return _endiannessSwapper.ReadSwap(ReadUInt64_Implementation, _endiannessSwapper.SwapBytes);
+        }
+
+        public virtual float GetFloat(int offset)
+        {
+            return _endiannessSwapper.GetSwap(offset, GetFloat_Implementation, _endiannessSwapper.SwapBytes);
+        }
+
+        public virtual float ReadFloat()
+        {
+            return _endiannessSwapper.ReadSwap(ReadFloat_Implementation, _endiannessSwapper.SwapBytes);
+        }
+
+        public virtual double GetDouble(int offset)
+        {
+            return _endiannessSwapper.GetSwap(offset, GetDouble_Implementation, _endiannessSwapper.SwapBytes);
+        }
+
+        public virtual double ReadDouble()
+        {
+            return _endiannessSwapper.ReadSwap(ReadDouble_Implementation, _endiannessSwapper.SwapBytes);
+        }
 
         public virtual short GetInt16(int offset, Endianness endianness)
         {
-            return GetSwap(offset, GetInt16, SwapBytes, endianness);
+            return _endiannessSwapper.GetSwap(offset, GetInt16, _endiannessSwapper.SwapBytes, endianness);
         }
 
         public virtual ushort GetUInt16(int offset, Endianness endianness)
         {
-            return GetSwap(offset, GetUInt16, SwapBytes, endianness);
+            return _endiannessSwapper.GetSwap(offset, GetUInt16, _endiannessSwapper.SwapBytes, endianness);
         }
 
         public virtual short ReadInt16(Endianness endianness)
         {
-            return ReadSwap(ReadInt16, SwapBytes, endianness);
+            return _endiannessSwapper.ReadSwap(ReadInt16, _endiannessSwapper.SwapBytes, endianness);
         }
 
         public virtual ushort ReadUInt16(Endianness endianness)
         {
-            return ReadSwap(ReadUInt16, SwapBytes, endianness);
+            return _endiannessSwapper.ReadSwap(ReadUInt16, _endiannessSwapper.SwapBytes, endianness);
         }
 
         public virtual int GetInt32(int offset, Endianness endianness)
         {
-            return GetSwap(offset, GetInt32, SwapBytes, endianness);
+            return _endiannessSwapper.GetSwap(offset, GetInt32, _endiannessSwapper.SwapBytes, endianness);
         }
 
         public virtual uint GetUInt32(int offset, Endianness endianness)
         {
-            return GetSwap(offset, GetUInt32, SwapBytes, endianness);
+            return _endiannessSwapper.GetSwap(offset, GetUInt32, _endiannessSwapper.SwapBytes, endianness);
         }
 
         public virtual int ReadInt32(Endianness endianness)
         {
-            return ReadSwap(ReadInt32, SwapBytes, endianness);
+            return _endiannessSwapper.ReadSwap(ReadInt32, _endiannessSwapper.SwapBytes, endianness);
         }
 
         public virtual uint ReadUInt32(Endianness endianness)
         {
-            return ReadSwap(ReadUInt32, SwapBytes, endianness);
+            return _endiannessSwapper.ReadSwap(ReadUInt32, _endiannessSwapper.SwapBytes, endianness);
         }
 
         public virtual long GetInt64(int offset, Endianness endianness)
         {
-            return GetSwap(offset, GetInt64, SwapBytes, endianness);
+            return _endiannessSwapper.GetSwap(offset, GetInt64, _endiannessSwapper.SwapBytes, endianness);
         }
 
         public virtual ulong GetUInt64(int offset, Endianness endianness)
         {
-            return GetSwap(offset, GetUInt64, SwapBytes, endianness);
+            return _endiannessSwapper.GetSwap(offset, GetUInt64, _endiannessSwapper.SwapBytes, endianness);
         }
 
         public virtual long ReadInt64(Endianness endianness)
         {
-            return ReadSwap(ReadInt64, SwapBytes, endianness);
+            return _endiannessSwapper.ReadSwap(ReadInt64, _endiannessSwapper.SwapBytes, endianness);
         }
 
         public virtual ulong ReadUInt64(Endianness endianness)
         {
-            return ReadSwap(ReadUInt64, SwapBytes, endianness);
+            return _endiannessSwapper.ReadSwap(ReadUInt64, _endiannessSwapper.SwapBytes, endianness);
         }
 
         public virtual float GetFloat(int offset, Endianness endianness)
         {
-            return GetSwap(offset, GetFloat, SwapBytes, endianness);
+            return _endiannessSwapper.GetSwap(offset, GetFloat, _endiannessSwapper.SwapBytes, endianness);
         }
 
         public virtual float ReadFloat(Endianness endianness)
         {
-            return ReadSwap(ReadFloat, SwapBytes, endianness);
+            return _endiannessSwapper.ReadSwap(ReadFloat, _endiannessSwapper.SwapBytes, endianness);
         }
 
         public virtual double GetDouble(int offset, Endianness endianness)
         {
-            return GetSwap(offset, GetDouble, SwapBytes, endianness);
+            return _endiannessSwapper.GetSwap(offset, GetDouble, _endiannessSwapper.SwapBytes, endianness);
         }
 
         public virtual double ReadDouble(Endianness endianness)
         {
-            return ReadSwap(ReadDouble, SwapBytes, endianness);
+            return _endiannessSwapper.ReadSwap(ReadDouble, _endiannessSwapper.SwapBytes, endianness);
         }
 
         public virtual void WriteString(string value)
@@ -300,6 +375,16 @@ namespace Arrowgene.Services.Buffers
         {
             WriteString(value, converter);
             WriteByte(0);
+        }
+
+        public virtual string ToHexString(string separator = null)
+        {
+            return Service.ToHexString(GetAllBytes(), separator);
+        }
+
+        public virtual string ToAsciiString(string separator = "  ")
+        {
+            return Service.ToAsciiString(GetAllBytes(), separator);
         }
 
         public virtual string GetString(int offset, int length)
@@ -456,131 +541,61 @@ namespace Arrowgene.Services.Buffers
             return Clone(Size);
         }
 
-        public virtual string ToHexString(char? seperator = null)
-        {
-            byte[] buffer = GetAllBytes();
-            StringBuilder sb = new StringBuilder();
-            int len = buffer.Length;
-            for (int i = 0; i < len; i++)
-            {
-                sb.Append(buffer[i].ToString("X2"));
-                if (seperator != null && i < len - 1)
-                {
-                    sb.Append(seperator);
-                }
-            }
-
-            return sb.ToString();
-        }
-
-        public virtual string ToAsciiString(bool spaced)
-        {
-            byte[] buffer = GetAllBytes();
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < buffer.Length; i++)
-            {
-                char c = '.';
-                if (buffer[i] >= 'A' && buffer[i] <= 'Z') c = (char) buffer[i];
-                if (buffer[i] >= 'a' && buffer[i] <= 'z') c = (char) buffer[i];
-                if (buffer[i] >= '0' && buffer[i] <= '9') c = (char) buffer[i];
-                if (spaced && i != 0)
-                {
-                    sb.Append("  ");
-                }
-
-                sb.Append(c);
-            }
-
-            return sb.ToString();
-        }
-
         public virtual void WriteInt16(short value, Endianness endianness)
         {
-            WriteSwap(value, WriteInt16, SwapBytes, endianness);
+            _endiannessSwapper.WriteSwap(value, WriteInt16, _endiannessSwapper.SwapBytes, endianness);
         }
 
         public virtual void WriteInt32(int value, Endianness endianness)
         {
-            WriteSwap(value, WriteInt32, SwapBytes, endianness);
+            _endiannessSwapper.WriteSwap(value, WriteInt32, _endiannessSwapper.SwapBytes, endianness);
         }
 
         public virtual void WriteInt64(long value, Endianness endianness)
         {
-            WriteSwap(value, WriteInt64, SwapBytes, endianness);
+            _endiannessSwapper.WriteSwap(value, WriteInt64, _endiannessSwapper.SwapBytes, endianness);
         }
 
-        public virtual void WriteInt16(ushort value, Endianness endianness)
+        public virtual void WriteUInt16(ushort value, Endianness endianness)
         {
-            WriteSwap(value, WriteInt16, SwapBytes, endianness);
+            _endiannessSwapper.WriteSwap(value, WriteUInt16, _endiannessSwapper.SwapBytes, endianness);
         }
 
-        public virtual void WriteInt32(uint value, Endianness endianness)
+        public virtual void WriteUInt32(uint value, Endianness endianness)
         {
-            WriteSwap(value, WriteInt32, SwapBytes, endianness);
+            _endiannessSwapper.WriteSwap(value, WriteUInt32, _endiannessSwapper.SwapBytes, endianness);
         }
 
-        public virtual void WriteInt64(ulong value, Endianness endianness)
+        public virtual void WriteUInt64(ulong value, Endianness endianness)
         {
-            WriteSwap(value, WriteInt64, SwapBytes, endianness);
+            _endiannessSwapper.WriteSwap(value, WriteUInt64, _endiannessSwapper.SwapBytes, endianness);
         }
 
         public virtual void WriteFloat(float value, Endianness endianness)
         {
-            WriteSwap(value, WriteFloat, SwapBytes, endianness);
+            _endiannessSwapper.WriteSwap(value, WriteFloat, _endiannessSwapper.SwapBytes, endianness);
         }
 
         public virtual void WriteDouble(double value, Endianness endianness)
         {
-            WriteSwap(value, WriteDouble, SwapBytes, endianness);
+            _endiannessSwapper.WriteSwap(value, WriteDouble, _endiannessSwapper.SwapBytes, endianness);
         }
 
         public string Dump()
         {
-            return ToAsciiString(true) +
+            return ToAsciiString() +
                    Environment.NewLine +
                    ToHexString();
         }
 
         public override string ToString()
         {
-            return string.Format("Size:{0} Position:{1}", Size, Position);
+            return $"Size:{Size} Position:{Position}";
         }
 
         object ICloneable.Clone()
         {
             return Clone();
-        }
-
-        protected T GetSwap<T>(int offset, Func<int, T> getFunction, Func<T, T> swapFunction, Endianness endianness)
-        {
-            T value = getFunction(offset);
-            if (SwapNeeded(endianness))
-            {
-                value = swapFunction(value);
-            }
-
-            return value;
-        }
-
-        protected T ReadSwap<T>(Func<T> readFunction, Func<T, T> swapFunction, Endianness endianness)
-        {
-            T value = readFunction();
-            if (SwapNeeded(endianness))
-            {
-                value = swapFunction(value);
-            }
-
-            return value;
-        }
-
-        protected void WriteSwap<T>(T value, Action<T> writeFunction, Func<T, T> swapFunction, Endianness endianness)
-        {
-            if (SwapNeeded(endianness))
-            {
-                value = swapFunction(value);
-            }
-
-            writeFunction(value);
         }
     }
 }

@@ -39,11 +39,11 @@ namespace Arrowgene.Services.Networking.ServerBridge
                     if (response is Response<ResponseError>)
                     {
                         Response<ResponseError> error = (Response<ResponseError>) response;
-                        Logger.Error("Error on remote: ({0})", error.Result);
+                        Logger.Error($"Error on remote: ({error.Result})");
                     }
                     else
                     {
-                        Logger.Error("Could not cast parameter ({0}) to ({1})", response, typeof(Response<TResponse>));
+                        Logger.Error($"Could not cast parameter ({response}) to ({typeof(Response<TResponse>)})");
                     }
                 }
             });
@@ -72,8 +72,8 @@ namespace Arrowgene.Services.Networking.ServerBridge
                     return handler.Handle((Request<TRequest>) request);
                 }
 
-                Logger.Error("Could not cast parameter ({0}) to ({1}) for handler ({2})", request,
-                    typeof(Request<TRequest>), handler.HandlerId);
+                Logger.Error(
+                    $"Could not cast parameter ({request}) to ({typeof(Request<TRequest>)}) for handler ({handler.HandlerId})");
                 return new Response<ResponseError>(request, ResponseError.RequestTypeCastingFailed);
             });
         }
@@ -92,13 +92,13 @@ namespace Arrowgene.Services.Networking.ServerBridge
                     }
                     else
                     {
-                        Logger.Error("Handler ({0}) produced null response", request.HandlerId);
+                        Logger.Error($"Handler ({request.HandlerId}) produced null response");
                         Send(sender, new Response<ResponseError>(request, ResponseError.NullResponse));
                     }
                 }
                 else
                 {
-                    Logger.Error("Could not find handler (HandlerId: {0})", request.HandlerId);
+                    Logger.Error($"Could not find handler (HandlerId: {request.HandlerId})");
                     Send(sender, new Response<ResponseError>(request, ResponseError.NoHandler));
                 }
             }
@@ -111,12 +111,12 @@ namespace Arrowgene.Services.Networking.ServerBridge
                 }
                 else
                 {
-                    Logger.Error("Could not find subscriber for message (Id: {0})", message.Id);
+                    Logger.Error($"Could not find subscriber for message (Id: {message.Id})");
                 }
             }
             else
             {
-                Logger.Error("Could not handle message ({0})", message);
+                Logger.Error($"Could not handle message ({message})");
             }
         }
     }

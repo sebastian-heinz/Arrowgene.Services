@@ -66,7 +66,6 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
 
         private readonly SemaphoreSlim _maxNumberSendOperations;
 
-        //private readonly SocketAsyncEventArgs _acceptEventArg;
         private readonly byte[] _buffer;
         private readonly ILogger _logger;
         private readonly AsyncEventSettings _settings;
@@ -141,9 +140,6 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
                 acceptEventArgs.Completed += Accept_Completed;
                 _acceptPool.Push(acceptEventArgs);
             }
-
-            //_acceptEventArg = new SocketAsyncEventArgs();
-            //_acceptEventArg.Completed += Accept_Completed;
         }
 
         public AsyncEventServer(IPAddress ipAddress, ushort port, IConsumer consumer)
@@ -312,7 +308,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
         {
             lock (_unitOfOrderLock)
             {
-                int minNumber = Int32.MaxValue;
+                int minNumber = int.MaxValue;
                 int unitOfOrder = 0;
                 for (int i = 0; i < _unitOfOrders.Length; i++)
                 {
@@ -404,7 +400,6 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
 
         private void StartAccept()
         {
-            //_acceptEventArg.AcceptSocket = null;
             _maxNumberAcceptedClients.Wait();
             _maxNumberAccepts.Wait();
 
@@ -559,10 +554,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
             }
             else
             {
-                if (client != null)
-                {
-                    client.Close();
-                }
+                client.Close();
             }
         }
 
@@ -674,6 +666,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server.AsyncEvent
                     }
                 }
 
+                // TODO next check based on longest lastActive (nextCheck = _socketTimeout - client.LastActive)
                 cancellationToken.WaitHandle.WaitOne((int) _socketTimeout.TotalMilliseconds / 2);
             }
         }

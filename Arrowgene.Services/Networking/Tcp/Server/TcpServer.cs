@@ -39,7 +39,7 @@ namespace Arrowgene.Services.Networking.Tcp.Server
                 throw new InvalidParameterException("IPAddress is null");
 
             if (port <= 0 || port > 65535)
-                throw new InvalidParameterException(string.Format("Port({0}) invalid", port));
+                throw new InvalidParameterException($"Port({port}) invalid");
 
             IpAddress = ipAddress;
             Port = port;

@@ -55,9 +55,9 @@ namespace Arrowgene.Services.Tasks
             Logger.Debug($"Task {Name} started");
             if (RunAtStart)
             {
-                Logger.Debug($"Task {Name} run");
+                Logger.Trace($"Task {Name} run");
                 Execute();
-                Logger.Debug($"Task {Name} completed");
+                Logger.Trace($"Task {Name} completed");
             }
 
             while (!_cancellationTokenSource.Token.IsCancellationRequested)
@@ -73,9 +73,9 @@ namespace Arrowgene.Services.Tasks
 
                 if (!_cancellationTokenSource.Token.IsCancellationRequested)
                 {
-                    Logger.Debug($"Task {Name} run");
+                    Logger.Trace($"Task {Name} run");
                     Execute();
-                    Logger.Debug($"Task {Name} completed");
+                    Logger.Trace($"Task {Name} completed");
                 }
             }
 

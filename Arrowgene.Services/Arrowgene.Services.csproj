@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <Title>Arrowgene.Services</Title>
     <Company>Arrowgene</Company>
     <Copyright>Copyright © 2017 Arrowgene</Copyright>

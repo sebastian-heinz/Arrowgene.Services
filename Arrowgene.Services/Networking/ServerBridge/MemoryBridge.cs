@@ -53,8 +53,8 @@ namespace Arrowgene.Services.Networking.ServerBridge
             {
                 if (request is Request<TRequest>)
                     return (Response) handler.Handle((Request<TRequest>) request);
-                Logger.Error("Could not cast parameter ({0}) to ({1}) for handler ({2})", (object) request,
-                    (object) typeof(Request<TRequest>), (object) handler.HandlerId);
+                Logger.Error(
+                    $"Could not cast parameter ({request}) to ({typeof(Request<TRequest>)}) for handler ({handler.HandlerId})");
                 return (Response) new Response<ResponseError>(request, ResponseError.RequestTypeCastingFailed);
             });
         }
@@ -69,14 +69,14 @@ namespace Arrowgene.Services.Networking.ServerBridge
             string identityReceiver = _identityResolver(receiver);
             if (!_handlesLookup.ContainsKey(identityReceiver))
             {
-                Logger.Error("Could not find receiver (Receiver: {0})", receiver);
+                Logger.Error($"Could not find receiver (Receiver: {receiver})");
                 return;
             }
 
             Dictionary<string, Func<Request, Response>> handles = _handlesLookup[identityReceiver];
             if (!handles.ContainsKey(request.HandlerId))
             {
-                Logger.Error("Could not find handler (HandlerId: {0})", request.HandlerId);
+                Logger.Error($"Could not find handler (HandlerId: {request.HandlerId})");
                 return;
             }
 
@@ -89,7 +89,7 @@ namespace Arrowgene.Services.Networking.ServerBridge
             }
             else
             {
-                Logger.Error("Could not cast parameter ({0}) to ({1})", response, typeof(Response<TResponse>));
+                Logger.Error($"Could not cast parameter ({response}) to ({typeof(Response<TResponse>)})");
             }
         }
 

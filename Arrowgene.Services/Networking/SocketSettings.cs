@@ -125,8 +125,7 @@ namespace Arrowgene.Services.Networking
         [DataMember(Order = 13)]
         public int LingerTime { get; set; }
 
-        [DataMember(Order = 14)]
-        public List<SocketOption> SocketOptions { get; set; }
+        [DataMember(Order = 14)] public List<SocketOption> SocketOptions { get; set; }
 
         public void AddSocketOption(SocketOptionLevel optionLevel, SocketOptionName optionName, object optionValue)
         {
@@ -148,7 +147,8 @@ namespace Arrowgene.Services.Networking
                 }
                 catch (Exception)
                 {
-                    logger?.Debug("Ignoring Socket Option: (Level:{0} Name:{1} Value:{2})", option?.Level, option?.Name, option?.Value);
+                    logger?.Debug(
+                        $"Ignoring Socket Option: (Level:{option?.Level} Name:{option?.Name} Value:{option?.Value})");
                 }
             }
         }

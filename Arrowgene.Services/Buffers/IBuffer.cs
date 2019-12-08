@@ -31,6 +31,11 @@ namespace Arrowgene.Services.Buffers
     public interface IBuffer
     {
         /// <summary>
+        /// Gets the endianness for all operation without explicit endianness.
+        /// </summary>
+        Endianness Endianness { get; }
+
+        /// <summary>
         /// The current buffer size.
         /// </summary>
         int Size { get; }
@@ -39,7 +44,17 @@ namespace Arrowgene.Services.Buffers
         /// Gets or Sets the cursor position.
         /// </summary>
         int Position { get; set; }
-
+        
+        /// <summary>
+        /// Sets the data size.
+        /// </summary>
+        void SetSize(int size);
+        
+        /// <summary>
+        /// Sets the default endianness to use for all operations
+        /// </summary>
+        void SetEndianness(Endianness endianness);
+        
         /// <summary>
         /// Set the cursor to the beginning of the buffer.
         /// </summary>
@@ -85,27 +100,27 @@ namespace Arrowgene.Services.Buffers
 
         void WriteInt16(short value);
 
-        void WriteInt16(ushort value);
+        void WriteUInt16(ushort value);
 
         void WriteInt16(short value, Endianness endianness);
 
-        void WriteInt16(ushort value, Endianness endianness);
+        void WriteUInt16(ushort value, Endianness endianness);
 
         void WriteInt32(int value);
 
-        void WriteInt32(uint value);
+        void WriteUInt32(uint value);
 
         void WriteInt32(int value, Endianness endianness);
 
-        void WriteInt32(uint value, Endianness endianness);
+        void WriteUInt32(uint value, Endianness endianness);
 
         void WriteInt64(long value);
 
-        void WriteInt64(ulong value);
+        void WriteUInt64(ulong value);
 
         void WriteInt64(long value, Endianness endianness);
 
-        void WriteInt64(ulong value, Endianness endianness);
+        void WriteUInt64(ulong value, Endianness endianness);
 
         void WriteFloat(float value);
 
@@ -146,13 +161,21 @@ namespace Arrowgene.Services.Buffers
         byte[] ReadBytesZeroTerminated();
 
         /// <summary>
-        /// Read bytes until 0-byte.
-        /// Advances the cursor by the length.
+        /// Read bytes until 0-byte or length is reached.
+        /// Advances the cursor.
         /// </summary>
         byte[] ReadBytesFixedZeroTerminated(int length);
 
+        /// <summary>
+        /// Read bytes until provided termination byte or length is reached.
+        /// Advances the cursor.
+        /// </summary>
         byte[] ReadBytesFixedTerminated(int length, byte termination);
 
+        /// <summary>
+        /// Read bytes until provided termination byte.
+        /// Advances the cursor.
+        /// </summary>
         byte[] ReadBytesTerminated(byte termination);
 
         /// <summary>
@@ -419,19 +442,19 @@ namespace Arrowgene.Services.Buffers
         string GetCString(int offset, Func<byte[], string> converter);
 
         /// <summary>
-        /// Write a Nul-Terminated-String.
+        /// Write a null-terminated-string.
         /// Advances the cursor.
         /// </summary>
         void WriteCString(string value);
 
         /// <summary>
-        /// Write a Nul-Terminated-String.
+        /// Write a null-terminated-string.
         /// Advances the cursor.
         /// </summary>
         void WriteCString(string value, Encoding encoding);
 
         /// <summary>
-        /// Write a Nul-Terminated-String.
+        /// Write a null-terminated-string.
         /// Advances the cursor.
         /// </summary>
         void WriteCString(string value, Func<string, byte[]> converter);
@@ -439,11 +462,11 @@ namespace Arrowgene.Services.Buffers
         /// <summary>
         /// Hex representation of the buffer.
         /// </summary>
-        string ToHexString(char? seperator = null);
+        string ToHexString(string? separator = null);
 
         /// <summary>
         /// Ascii representation of the buffer.
         /// </summary>
-        string ToAsciiString(bool spaced);
+        string ToAsciiString(string? separator = null);
     }
 }

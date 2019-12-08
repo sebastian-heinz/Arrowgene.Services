@@ -60,7 +60,7 @@ namespace Arrowgene.Services.Networking.ServerBridge.Tcp
             IPEndPoint instance = FindEndpoint(receiver.Address.ToString(), receiver.Port);
             if (instance == null)
             {
-                Logger.Error("Destination is not allowed: {0}:{1}", receiver.Address, receiver.Port);
+                Logger.Error($"Destination is not allowed: {receiver.Address}:{receiver.Port}");
             }
             else if (_socketLookup.ContainsKey(instance) && _socketLookup[instance] != null)
             {
@@ -97,12 +97,12 @@ namespace Arrowgene.Services.Networking.ServerBridge.Tcp
                 IPEndPoint endPoint = FindEndpoint(registration.SourceIp, registration.SourcePort);
                 if (endPoint == null)
                 {
-                    Logger.Error("Source is not allowed: {0}:{1}", registration.SourceIp, registration.SourcePort);
+                    Logger.Error($"Source is not allowed: {registration.SourceIp}:{registration.SourcePort}");
                 }
                 else
                 {
                     Register(eventArgs.Socket, endPoint);
-                    Logger.Info("Registered new conenction: {0}", eventArgs.Socket.RemoteIpAddress);
+                    Logger.Info($"Registered new connection: {eventArgs.Socket.RemoteIpAddress}");
                 }
             }
             else if (_endPointLookup.ContainsKey(eventArgs.Socket))
@@ -112,7 +112,7 @@ namespace Arrowgene.Services.Networking.ServerBridge.Tcp
             }
             else
             {
-                Logger.Error("Received data from unknown source: {0}", eventArgs.Socket.RemoteIpAddress);
+                Logger.Error($"Received data from unknown source: {eventArgs.Socket.RemoteIpAddress}");
             }
         }
 
