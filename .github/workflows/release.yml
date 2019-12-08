@@ -25,7 +25,7 @@ jobs:
           mkdir ./release
           for RUNTIME in win-x86 win-x64 linux-x64 osx-x64; do
               # Server
-              dotnet publish Necromancy.Cli/Necromancy.Cli.csproj /p:Version=$VERSION /p:FromMSBuild=true --runtime $RUNTIME --configuration Release --output ./publish/$RUNTIME-$VERSION
+              dotnet publish Arrowgene.Services/Arrowgene.Services.csproj /p:Version=$VERSION /p:FromMSBuild=true --runtime $RUNTIME --configuration Release --output ./publish/$RUNTIME-$VERSION
               # ReleaseFiles
               cp -r ./ReleaseFiles/. ./publish/$RUNTIME-$VERSION/
               # Pack
