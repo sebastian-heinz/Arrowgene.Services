@@ -32,7 +32,7 @@ jobs:
         id: publish_nuget
         run: |
           dotnet pack Arrowgene.Services/Arrowgene.Services.csproj --output ../nupkgs /p:Version=${{ env.VERSION }}
-          curl -vX PUT -u "sebastian-heinz:${{ secrets.GITHUB_TOKEN }}" -F package=@$f https://nuget.pkg.github.com/sebastian-heinz/
+          curl -vX PUT -u "sebastian-heinz:${{ secrets.GITHUB_TOKEN }}" -F package=@../nupkgs/Arrowgene.Services.${{ env.VERSION }}.nupkg https://nuget.pkg.github.com/sebastian-heinz/
           dotnet nuget push ../nupkgs/Arrowgene.Services.${{ env.VERSION }}.nupkg --api-key ${{ secrets.NUGET_DEPLOY_KEY }} --source https://www.nuget.org/api/v2/package
   
       - name: Create Release
