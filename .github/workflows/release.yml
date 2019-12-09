@@ -32,6 +32,8 @@ jobs:
         id: publish_nuget
         run: |
           dotnet pack Arrowgene.Services/Arrowgene.Services.csproj --output ../nupkgs /p:Version=${{ env.VERSION }}
+          nuget source Add -Name "GitHub" -Source "https://nuget.pkg.github.com/sebastian-heinz/index.json" -UserName sebastian-heinz -Password ${{ secrets.GITHUB_TOKEN }}
+          dotnet nuget push ../nupkgs/Arrowgene.Services.${{ env.VERSION }}.nupkg -Source "GitHub"
           dotnet nuget push ../nupkgs/Arrowgene.Services.${{ env.VERSION }}.nupkg --api-key ${{ secrets.NUGET_DEPLOY_KEY }} --source https://www.nuget.org/api/v2/package
           
       - name: Create Release
