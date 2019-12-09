@@ -7,7 +7,9 @@
     <Version>$(Version)</Version>
     <Authors>sebastian-heinz</Authors>
     <Description>Arrowgene.Services aids in creating a server with multiple clients.</Description>
-    <PackageProjectUrl>https://github.com/Arrowgene/Arrowgene.Services</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/sebastian-heinz/Arrowgene.Services</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/sebastian-heinz/Arrowgene.Services</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageTags>game,server,client,socket,network</PackageTags>
   </PropertyGroup>
 </Project>
