@@ -1,0 +1,14 @@
+{
+  "name": "net.arrowgene.services",
+  "displayName": "Arrowgene.Services",
+  "description": "Network Library",
+  "version": "1.13.2",
+  "unity": "2019.2",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sebastian-heinz/Arrowgene.Services.git"
+  },
+  "author": "sebastian-heinz <sebastian.heinz.gt@googlemail.com> (https://github.com/sebastian-heinz)",
+  "dependencies": {}
+}
