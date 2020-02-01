@@ -32,6 +32,7 @@ namespace Arrowgene.Services.Playground.Demo
 
         public void Start()
         {
+            
             AsyncEventSettings settings = new AsyncEventSettings();
             _consumer = new BlockingQueueConsumer();
             _server = new AsyncEventServer(IPAddress.IPv6Any, 2345, _consumer,settings);
