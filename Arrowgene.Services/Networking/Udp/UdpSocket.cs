@@ -57,15 +57,19 @@ namespace Arrowgene.Services.Networking.Udp
         /// <summary>
         /// Creates a new instance of <see cref="UdpSocket"/>
         /// </summary>
-        public UdpSocket()
+        public UdpSocket() : this (DefaultMaxPayloadSizeBytes)
         {
+        }
+        
+        public UdpSocket(int maxPayloadSizeBytes)
+        {
+            MaxPayloadSizeBytes = maxPayloadSizeBytes;
             _isBound = false;
             _receive = false;
             _buffer = new byte[MaxPayloadSizeBytes];
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            MaxPayloadSizeBytes = DefaultMaxPayloadSizeBytes;
         }
-
+        
         /// <summary>
         /// Occurs when data is received
         /// </summary>
