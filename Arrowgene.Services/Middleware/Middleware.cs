@@ -1,4 +1,4 @@
-using Arrowgene.Services.Logging;
+using Arrowgene.Logging;
 
 namespace Arrowgene.Services.Middleware
 {

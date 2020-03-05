@@ -1,6 +1,6 @@
 ﻿using System.Net;
+using Arrowgene.Networking.Udp;
 using Arrowgene.Services.Networking.ServerBridge.Messages;
-using Arrowgene.Services.Networking.Udp;
 using Arrowgene.Services.Serialization;
 
 namespace Arrowgene.Services.Networking.ServerBridge.Udp

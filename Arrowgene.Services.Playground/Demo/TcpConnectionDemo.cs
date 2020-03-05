@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Net;
-using Arrowgene.Services.Logging;
-using Arrowgene.Services.Networking.Tcp.Client;
-using Arrowgene.Services.Networking.Tcp.Client.SyncReceive;
-using Arrowgene.Services.Networking.Tcp.Consumer.EventConsumption;
-using Arrowgene.Services.Networking.Tcp.Server.AsyncEvent;
+using Arrowgene.Logging;
+using Arrowgene.Networking.Tcp.Client;
+using Arrowgene.Networking.Tcp.Client.SyncReceive;
+using Arrowgene.Networking.Tcp.Consumer.EventConsumption;
+using Arrowgene.Networking.Tcp.Server.AsyncEvent;
 
 namespace Arrowgene.Services.Playground.Demo
 {

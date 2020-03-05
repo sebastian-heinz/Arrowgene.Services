@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Net;
 using System.Threading;
-using Arrowgene.Services.Logging;
-using Arrowgene.Services.Networking.Tcp.Consumer.BlockingQueueConsumption;
-using Arrowgene.Services.Networking.Tcp.Server;
-using Arrowgene.Services.Networking.Tcp.Server.AsyncEvent;
-
+using Arrowgene.Logging;
+using Arrowgene.Networking.Tcp.Consumer.BlockingQueueConsumption;
+using Arrowgene.Networking.Tcp.Server.AsyncEvent;
 namespace Arrowgene.Services.Playground.Demo
 {
     public class TcpEchoDemo

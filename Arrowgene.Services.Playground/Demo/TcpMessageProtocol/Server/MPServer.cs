@@ -1,6 +1,6 @@
 ﻿using System.Net;
+using Arrowgene.Networking.Tcp.Server.AsyncEvent;
 using Arrowgene.Services.Networking.Tcp.Consumer.Messages;
-using Arrowgene.Services.Networking.Tcp.Server.AsyncEvent;
 
 namespace Arrowgene.Services.Playground.Demo.TcpMessageProtocol.Server
 {

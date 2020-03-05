@@ -3,13 +3,18 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <Title>Arrowgene.Services</Title>
     <Company>Arrowgene</Company>
-    <Copyright>Copyright © 2017 Arrowgene</Copyright>
+    <Copyright>Copyright © 2017-2020 Arrowgene</Copyright>
     <Version>$(Version)</Version>
     <Authors>sebastian-heinz</Authors>
-    <Description>Arrowgene.Services aids in creating a server with multiple clients.</Description>
+    <Description>Arrowgene.Services network sockets and data manipulation</Description>
     <PackageProjectUrl>https://github.com/sebastian-heinz/Arrowgene.Services</PackageProjectUrl>
     <RepositoryUrl>https://github.com/sebastian-heinz/Arrowgene.Services</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>game,server,client,socket,network</PackageTags>
+    <PackageTags>server,client,socket,network,arrowgene</PackageTags>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Arrowgene.Buffers" Version="1.0.0" />
+    <PackageReference Include="Arrowgene.Logging" Version="1.0.0" />
+    <PackageReference Include="Arrowgene.Networking" Version="1.0.0" />
+  </ItemGroup>
 </Project>

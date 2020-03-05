@@ -1,5 +1,5 @@
 ﻿using System;
-using Arrowgene.Services.Networking.Tcp;
+using Arrowgene.Networking.Tcp;
 using Arrowgene.Services.Networking.Tcp.Consumer.Messages;
 using Arrowgene.Services.Playground.Demo.TcpMessageProtocol.Models;
 

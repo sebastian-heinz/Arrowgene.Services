@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Arrowgene.Services.Logging;
+using Arrowgene.Logging;
 
 namespace Arrowgene.Services.Performance
 {

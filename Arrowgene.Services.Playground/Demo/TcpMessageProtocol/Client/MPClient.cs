@@ -1,6 +1,6 @@
 ﻿using System;
-using Arrowgene.Services.Networking.Tcp.Client;
-using Arrowgene.Services.Networking.Tcp.Client.SyncReceive;
+using Arrowgene.Networking.Tcp.Client;
+using Arrowgene.Networking.Tcp.Client.SyncReceive;
 using Arrowgene.Services.Networking.Tcp.Consumer.Messages;
 
 namespace Arrowgene.Services.Playground.Demo.TcpMessageProtocol.Client

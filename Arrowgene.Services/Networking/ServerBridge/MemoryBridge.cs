@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Arrowgene.Services.Logging;
+using Arrowgene.Logging;
 using Arrowgene.Services.Networking.ServerBridge.Messages;
 
 namespace Arrowgene.Services.Networking.ServerBridge

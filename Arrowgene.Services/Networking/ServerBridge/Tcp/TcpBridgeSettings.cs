@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Arrowgene.Services.Networking.Tcp.Server.AsyncEvent;
+using Arrowgene.Networking;
+using Arrowgene.Networking.Tcp.Server.AsyncEvent;
 
 namespace Arrowgene.Services.Networking.ServerBridge.Tcp
 {

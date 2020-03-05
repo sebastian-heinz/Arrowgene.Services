@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Text;
-using Arrowgene.Services.Logging;
+using Arrowgene.Logging;
 
 namespace Arrowgene.Services.Database
 {
